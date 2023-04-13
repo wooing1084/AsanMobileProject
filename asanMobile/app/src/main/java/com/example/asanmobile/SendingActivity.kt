@@ -17,6 +17,7 @@ class SendingActivity : AppCompatActivity() {
 
         val getIntent = intent
         deviceID = getIntent.getStringExtra("ID").toString()
+        //deviceID = "fSUwYR8iSuCByyJ2+qJk3lR6SUQ="
 
         con  = ServerConnection()
 
@@ -48,7 +49,7 @@ class SendingActivity : AppCompatActivity() {
 
 
         con.postFile(file1, deviceID, "100", "2023-04-09")
-        con.postFile(file2, deviceID, "100", "2023-04-09")
-        con.postFile(file3, deviceID, "100", "2023-04-09")
+//        con.postFile(file2, deviceID, "100", "2023-04-09")
+//        con.postFile(file3, deviceID, "100", "2023-04-09")
     }
 }

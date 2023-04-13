@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,9 +13,9 @@ class LoginActivity : AppCompatActivity() {
 
         val login = findViewById<Button>(R.id.login_btn)
         login.setOnClickListener{
-
+            val id = findViewById<EditText>(R.id.id)
             val intent = Intent(this, SendingActivity::class.java)
-            intent.putExtra("ID", "1234")
+            intent.putExtra("ID", id.text.toString())
 
             startActivity(intent)
 
