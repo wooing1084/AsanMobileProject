@@ -13,6 +13,7 @@ class LoginActivity : AppCompatActivity() {
 
         val login = findViewById<Button>(R.id.login_btn)
         login.setOnClickListener{
+            //로그인 처리
             val id = findViewById<EditText>(R.id.id)
             val intent = Intent(this, SendingActivity::class.java)
             intent.putExtra("ID", id.text.toString())

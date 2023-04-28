@@ -42,13 +42,13 @@ class SendingActivity : AppCompatActivity() {
     }
 
     private fun sendCSV(){
-        print("Send")
+        //CSV파일 생성(현석이형이 워치로부터 값 받아서 파일 생성하면 됨)
         val data = "This is test data!!"
         val file1 = makeCSV("ppg_lastSaveTime.csv", data)
         val file2 = makeCSV("hrm_lastSaveTime.csv", data)
         val file3 = makeCSV("acc_lastSaveTime.csv", data)
 
-
+        //서버에 Post전송(테스트를 위해 하나만 전송하는 중)
         con.postFile(file1, deviceID, "100", "2023-04-28")
 //        con.postFile(file2, deviceID, "100", "2023-04-09")
 //        con.postFile(file3, deviceID, "100", "2023-04-09")
