@@ -5,7 +5,7 @@ import os
 
 class FileUploadHandler(tornado.web.RequestHandler):
     def post(self):
-        file_dict = self.request.files['file'][0]
+        file_dict = self.request.files['csvfile'][0]
         deviceID = self.get_argument("deviceID")
         battery = self.get_argument("battery")
         received_ts = self.get_argument("timestamp")

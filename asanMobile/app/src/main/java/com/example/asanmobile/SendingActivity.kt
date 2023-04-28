@@ -42,13 +42,14 @@ class SendingActivity : AppCompatActivity() {
     }
 
     private fun sendCSV(){
+        print("Send")
         val data = "This is test data!!"
         val file1 = makeCSV("ppg_lastSaveTime.csv", data)
         val file2 = makeCSV("hrm_lastSaveTime.csv", data)
         val file3 = makeCSV("acc_lastSaveTime.csv", data)
 
 
-        con.postFile(file1, deviceID, "100", "2023-04-09")
+        con.postFile(file1, deviceID, "100", "2023-04-28")
 //        con.postFile(file2, deviceID, "100", "2023-04-09")
 //        con.postFile(file3, deviceID, "100", "2023-04-09")
     }
