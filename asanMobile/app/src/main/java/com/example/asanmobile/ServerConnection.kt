@@ -22,6 +22,7 @@ class ServerConnection{
             .addFormDataPart("battery", battery)
             .addFormDataPart("timestamp", timestamp)
             .build()
+
         //Post요청 생성
         val request = Request.Builder()
             .url(url)
