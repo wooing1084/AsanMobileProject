@@ -12,7 +12,6 @@ import java.io.FileWriter
 import java.sql.Date
 
 class SendingActivity : AppCompatActivity() {
-    lateinit var con: ServerConnection
     lateinit var deviceID: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +22,6 @@ class SendingActivity : AppCompatActivity() {
         deviceID = getIntent.getStringExtra("ID").toString()
         //deviceID = "fSUwYR8iSuCByyJ2+qJk3lR6SUQ="
 
-        con  = ServerConnection()
 
         val sendBtn = findViewById<Button>(R.id.sendButton)
         sendBtn.setOnClickListener{
@@ -70,7 +68,7 @@ class SendingActivity : AppCompatActivity() {
         val file3 = makeCSV("acc_lastSaveTime.csv", data)
 
         //서버에 Post전송(테스트를 위해 하나만 전송하는 중)
-        con.postFile(file1, deviceID, "100", formattedDate.toString())
+        ServerConnection.postFile(file1, deviceID, "100", formattedDate.toString())
 //        con.postFile(file2, deviceID, "100", "2023-04-09")
 //        con.postFile(file3, deviceID, "100", "2023-04-09")
     }
