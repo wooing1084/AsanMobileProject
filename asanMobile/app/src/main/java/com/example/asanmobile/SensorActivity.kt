@@ -125,7 +125,7 @@ class SensorActivity : AppCompatActivity() {
                         ppgGreenArr.add(Entry(ppgGIndex, extractData!!))
 
                         val ppgGreenSet: LineDataSet // 데이터 넣기
-                        ppgGreenSet = LineDataSet(ppgGreenArr, "Heart") // LineDataSet 변환
+                        ppgGreenSet = LineDataSet(ppgGreenArr, "ppgGreen") // LineDataSet 변환
 
                         val ppgGreenData = LineData() // 차트에 담길 데이터
                         ppgGreenData.addDataSet(ppgGreenSet)
@@ -151,7 +151,7 @@ class SensorActivity : AppCompatActivity() {
     fun serviceStart() {
         serviceIntent = Intent(this, AcceptService::class.java)
 //        serviceIntent.putExtra("ID", ID)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
         }
         else {
