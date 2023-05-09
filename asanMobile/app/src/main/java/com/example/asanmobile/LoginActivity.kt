@@ -16,22 +16,30 @@ class LoginActivity : AppCompatActivity() {
         val login = findViewById<Button>(R.id.login_btn)
         login.setOnClickListener{
 
-//            ServerConnection.login("gc_test1")
-
+            val id = findViewById<EditText>(R.id.id).text.toString()
+            val result = ServerConnection.login(id)
             // 로그인 처리
-//            val id = findViewById<EditText>(R.id.id)
-//            val intent = Intent(this, SensorActivity::class.java)
-//            intent.putExtra("ID", id.text.toString())
+            if(result){
+
+                val intent = Intent(this, SensorActivity::class.java)
+                intent.putExtra("ID", id)
+                startActivity(intent)
+
+                finish()
+            }
+            else{
+                Toast.makeText(this,"Login fail", Toast.LENGTH_LONG).show()
+            }
+
 //
 //            startActivity(intent)
 
             // 로그인 성공 시, SensorAcitivity로 접속
-            val id = findViewById<EditText>(R.id.id)
-            val intent = Intent(this, SensorActivity::class.java)
-            intent.putExtra("ID", id.text.toString())
-            startActivity(intent)
+//            val id = findViewById<EditText>(R.id.id)
+//            val intent = Intent(this, SensorActivity::class.java)
+//            intent.putExtra("ID", id.text.toString())
 
-            finish()
+
         }
 
     }
