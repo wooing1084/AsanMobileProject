@@ -9,11 +9,9 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 
 @SuppressLint("MissingPermission")
@@ -61,10 +59,6 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                     try {
                         bytes = mInputputStream.read(buffer)
                         val msg = String(buffer, 0, bytes, Charsets.UTF_8)
-                        // 타임 스탬프를 언제 넣는지 결정 필요
-//                        val currentTime: Long = System.currentTimeMillis()
-//                        val dataFormat = SimpleDateFormat("HH:mm:ss") // 시(0~23) 분 초
-//                        val current = dataFormat.format(currentTime).toString().split(":")
 
                         Thread(Runnable {
                             // UI를 업데이트하는 작업 수행
@@ -73,7 +67,6 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                                 intent.putExtra("message", msg)
                                 handler.post {
                                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                                    println(msg)
                                 }
                             } else {
                                 csvController.csvFirst()
@@ -81,7 +74,6 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                                 intent.putExtra("message", msg)
                                 handler.post {
                                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                                    println(msg)
                                 }
                             }
                             // csv 작성

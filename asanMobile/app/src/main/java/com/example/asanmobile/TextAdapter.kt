@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+// 리사이클러 어댑터
 class TextAdapter(private val textList: MutableList<String>) : RecyclerView.Adapter<TextAdapter.TextViewHolder>() {
 
     inner class TextViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
