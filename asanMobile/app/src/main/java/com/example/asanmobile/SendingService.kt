@@ -53,6 +53,7 @@ class SendingService : Service() {
         }
     }
 
+    //워치에서 데이터 받아서 저장된 후 테스트 필요
     private fun getFile(name : String, uTime : String): File? {
         val context = applicationContext
         val path = context.filesDir.toString()
