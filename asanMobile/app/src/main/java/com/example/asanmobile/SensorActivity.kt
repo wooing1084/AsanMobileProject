@@ -44,6 +44,9 @@ class SensorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sensor)
 
+        val sendIntent = Intent(this, SendingService::class.java)
+        startService(sendIntent)
+
         // 권한 허가
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestPermissions(

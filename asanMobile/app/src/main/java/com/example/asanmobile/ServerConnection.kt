@@ -1,7 +1,6 @@
 package com.example.asanmobile
 
 import android.util.Log
-import android.widget.Toast
 import okhttp3.*
 import java.io.*
 
@@ -40,16 +39,18 @@ abstract class ServerConnection{
             })
         }
 
-        fun login(watchid : String): String {
+        fun login(authcode : String, deviceID : String = "device_id_test", regID: String = "reg_id_test"): String {
             val client = OkHttpClient()
 
             val httpBuilder = HttpUrl.parse(requestUrl)?.newBuilder()
             if (httpBuilder != null) {
-                httpBuilder.addQueryParameter("userID", watchid)
+                httpBuilder.addQueryParameter("userID", authcode)
+                httpBuilder.addQueryParameter("deviceID", deviceID)
+                httpBuilder.addQueryParameter("regID", regID)
             }
 
             val request = Request.Builder()
-                .url(httpBuilder?.build())
+                .url(httpBuilder!!.build())
                 .build()
             val responseBody:String
             client.newCall(request).execute().use { response ->
