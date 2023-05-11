@@ -1,6 +1,9 @@
 package com.example.asanmobile
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import okhttp3.*
 import java.io.*
 
@@ -41,7 +44,7 @@ abstract class ServerConnection{
             })
         }
 
-        fun login(authcode : String, deviceID : String = "device_id_test", regID: String = "reg_id_test"): Boolean {
+        fun login(authcode : String, deviceID : String = "abcdefg", regID: String = "hijklmnop", context: Activity) {
             val client = OkHttpClient()
 
             val httpBuilder = HttpUrl.parse(loginURL)?.newBuilder()
@@ -54,21 +57,22 @@ abstract class ServerConnection{
             val request = Request.Builder()
                 .url(httpBuilder!!.build())
                 .build()
-            var responseBody = true
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     Log.e(tag,e.printStackTrace().toString())
-                    responseBody = false
+                    Toast.makeText(context,"Login fail", Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(call: Call, response: Response) {
                    Log.e(tag, response.body().toString())
-                    responseBody = true
 
+                    val intent = Intent(context, SensorActivity::class.java)
+                    intent.putExtra("ID", authcode)
+                    context.startActivity(intent)
+                    context.finish()
                 }
             })
-            return responseBody
         }
 
     }
