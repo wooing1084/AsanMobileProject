@@ -7,6 +7,7 @@ import android.icu.util.TimeZone
 import android.os.IBinder
 import android.util.Log
 import java.io.File
+import java.io.IOException
 import java.sql.Date
 import kotlin.concurrent.timer
 
@@ -22,7 +23,7 @@ class SendingService : Service() {
         Log.d( tag, "start service")
         val t = timer(period = (second * 1000).toLong()){
             Log.d("Sending Service", "Send!")
-            //sendCSV()
+            sendCSV()
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -46,10 +47,26 @@ class SendingService : Service() {
         val hrm = getFile("hrm", unixtime.toString())
         val acc = getFile("acc", unixtime.toString())
 
-
         // 서버에 Post전송(테스트를 위해 하나만 전송하는 중)
+        val data = getFile("data", unixtime.toString())
+
+        if(data != null)
+        {
+            //ServerConnection.postFile(data, "gachon_test", "100", formattedDate.toString())
+            Log.e(tag, "Data sensor file sending!")
+        }
+
         if (ppg != null) {
-            ServerConnection.postFile(ppg, "gachon_test", "100", formattedDate.toString())
+            //ServerConnection.postFile(ppg, "gachon_test", "100", formattedDate.toString())
+            Log.e(tag, "PPG sensor file sending!")
+        }
+        if(hrm != null)
+        {
+            Log.e(tag, "PPG sensor file sending!")
+        }
+        if(acc != null)
+        {
+            Log.e(tag, "PPG sensor file sending!")
         }
     }
 
@@ -58,15 +75,18 @@ class SendingService : Service() {
         val context = applicationContext
         val path = context.filesDir.toString()
 
-        val src = File(path, name+".csv")
+        var src = File(path, name +".csv")
         if(!src.exists())
         {
             Log.d(tag, name + " File does not found")
             return null
         }
 
-        val dest = File(name + "_"+uTime+".csv")
-        val result = src.renameTo(dest)
+        val dest = File(path, name + "_"+uTime+".csv")
+        if(src.renameTo(dest))
+        {
+            src = File(path, name + "_"+uTime+".csv")
+        }
 
         return src
     }

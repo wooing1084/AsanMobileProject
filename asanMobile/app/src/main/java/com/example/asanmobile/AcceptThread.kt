@@ -65,18 +65,19 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                             if (csvController.fileExist()) {
                                 val intent = Intent("my-event")
                                 intent.putExtra("message", msg)
-                                handler.post {
-                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                                }
+//                                handler.post {
+//                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+//                                }
                             } else {
                                 csvController.csvFirst()
                                 val intent = Intent("my-event")
                                 intent.putExtra("message", msg)
-                                handler.post {
-                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                                }
+//                                handler.post {
+//                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+//                                }
                             }
                             // csv 작성
+                            Log.d("acceptThread", msg);
                             csvController.csvSave(msg)
                         }).start()
                         // 오류 발생시 소켓 close

@@ -39,7 +39,7 @@ abstract class ServerConnection{
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    println(response.body()?.string())
+                    Log.e(tag, "File Send response code: " + response.body()?.string().toString())
                 }
             })
         }
@@ -60,12 +60,12 @@ abstract class ServerConnection{
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    Log.e(tag,e.printStackTrace().toString())
+                    Log.d(tag,e.printStackTrace().toString())
                     Toast.makeText(context,"Login fail", Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                   Log.e(tag, response.body().toString())
+                   Log.d(tag, "Login response code: "+response.code().toString())
 
                     val intent = Intent(context, SensorActivity::class.java)
                     intent.putExtra("ID", authcode)
