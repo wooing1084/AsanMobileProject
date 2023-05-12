@@ -71,5 +71,14 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <Button
+        android:id="@+id/rename"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="rename"
+        tools:layout_editor_absoluteX="157dp"
+        tools:layout_editor_absoluteY="560dp"
+        tools:ignore="MissingConstraints" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

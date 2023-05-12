@@ -30,6 +30,7 @@ class SensorActivity : AppCompatActivity() {
 
     private lateinit var btnStart: Button
     private lateinit var btnStop: Button
+    private lateinit var btnRename: Button
 
     private lateinit var ppgGreenChart: LineChart
     private lateinit var heartRateChart: LineChart
@@ -63,6 +64,7 @@ class SensorActivity : AppCompatActivity() {
                 1
             )
         }
+        val csvController = CSVController(this)
 
         // 화면
         btnStart = findViewById<Button>(R.id.BtnStart)
@@ -74,6 +76,14 @@ class SensorActivity : AppCompatActivity() {
             val intent = Intent(this, AcceptService::class.java)
             stopService(intent)
         })
+
+        btnRename = findViewById<Button>(R.id.rename)
+        btnRename.setOnClickListener(View.OnClickListener {
+            csvController.fileRename(csvController.path, "data.csv", "changed.csv")
+        })
+
+        csvController.csvFirst()
+        csvController.csvSave("1")
 
         // 리사이클러 뷰 관련 코드
 //        recyclerView = findViewById(R.id.recyclerView)
@@ -98,7 +108,6 @@ class SensorActivity : AppCompatActivity() {
                 val data = msg?.split(":")
                 var extractData = data?.get(1)?.trim()?.toFloat()
 
-                // 리사이클러뷰에 메시지 추가
                 if (msg != null) {
                     println(msg)
 //                    addItem(msg)
@@ -115,14 +124,14 @@ class SensorActivity : AppCompatActivity() {
                         // 차트에 데이터 추가
                         heartRateChart?.setData(heartData)
                         heartRateChart?.invalidate() // 차트 업데이트
-                        heartRateChart?.setTouchEnabled(false) //차트 터치 disable
+                        heartRateChart?.setTouchEnabled(false) // 차트 터치 disable
                         heartIndex++
                     }
                     else if (data?.get(0).equals("ppgGreen")) {
                         ppgGreenArr.add(Entry(ppgGIndex, extractData!!))
 
                         val ppgGreenSet: LineDataSet // 데이터 넣기
-                        ppgGreenSet = LineDataSet(ppgGreenArr, "Heart") // LineDataSet 변환
+                        ppgGreenSet = LineDataSet(ppgGreenArr, "ppgGreenArr") // LineDataSet 변환
 
                         val ppgGreenData = LineData() // 차트에 담길 데이터
                         ppgGreenData.addDataSet(ppgGreenSet)
@@ -130,7 +139,7 @@ class SensorActivity : AppCompatActivity() {
                         // 차트에 데이터 추가
                         ppgGreenChart?.setData(ppgGreenData)
                         ppgGreenChart?.invalidate() // 차트 업데이트
-                        ppgGreenChart?.setTouchEnabled(false) //차트 터치 disable
+                        ppgGreenChart?.setTouchEnabled(false) // 차트 터치 disable
                         ppgGIndex++
                     }
                 }

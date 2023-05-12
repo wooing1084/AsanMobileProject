@@ -7,6 +7,7 @@ import android.util.Log
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
+import java.io.IOException
 
 class CSVController {
     private var context: Context
@@ -47,6 +48,26 @@ class CSVController {
             bw.close()
         } catch (e: Exception) {
             Log.d(TAG, e.toString())
+        }
+    }
+
+    fun fileRename(path:String, origin: String, change: String) {
+        try {
+            val file = File(path, origin)
+            if (!file.exists()) {
+//                throw NoSuchFileException("Source file doesn't exist")
+            }
+
+            val dest = File(path, change)
+            if (dest.exists()) {
+//                throw FileAlreadyExistsException("Destination file already exist")
+            }
+            val success = file.renameTo(dest)
+            if (success) {
+                println("Renaming succeeded")
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 }
