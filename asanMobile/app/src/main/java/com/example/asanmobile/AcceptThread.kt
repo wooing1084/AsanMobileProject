@@ -17,7 +17,6 @@ import java.util.*
 @SuppressLint("MissingPermission")
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
-    private val csvController: CSVController = CSVController(context)
     private val handler = Handler(Looper.getMainLooper())
     private val context: Context = context
 
@@ -60,25 +59,26 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         bytes = mInputputStream.read(buffer)
                         val msg = String(buffer, 0, bytes, Charsets.UTF_8)
 
-                        Thread(Runnable {
-                            // UI를 업데이트하는 작업 수행
-                            if (csvController.fileExist()) {
-                                val intent = Intent("my-event")
-                                intent.putExtra("message", msg)
-                                handler.post {
-                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                                }
-                            } else {
-                                csvController.csvFirst()
-                                val intent = Intent("my-event")
-                                intent.putExtra("message", msg)
-                                handler.post {
-                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                                }
-                            }
-                            // csv 작성
-                            csvController.csvSave(msg)
-                        }).start()
+                        // 대대적인 수정 필요
+//                        Thread(Runnable {
+//                            // UI를 업데이트하는 작업 수행
+//                            if (csvController.fileExist()) {
+//                                val intent = Intent("my-event")
+//                                intent.putExtra("message", msg)
+//                                handler.post {
+//                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+//                                }
+//                            } else {
+//                                csvController.csvFirst()
+//                                val intent = Intent("my-event")
+//                                intent.putExtra("message", msg)
+//                                handler.post {
+//                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+//                                }
+//                            }
+//                            // csv 작성
+//                            csvController.csvSave(msg)
+//                        }).start()
                         // 오류 발생시 소켓 close
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to read message form socket", e)

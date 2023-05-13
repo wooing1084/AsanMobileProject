@@ -64,7 +64,7 @@ class SensorActivity : AppCompatActivity() {
                 1
             )
         }
-        val csvController = CSVController(this)
+//        val csvController = CSVController(this)
 
         // 화면
         btnStart = findViewById<Button>(R.id.BtnStart)
@@ -77,13 +77,10 @@ class SensorActivity : AppCompatActivity() {
             stopService(intent)
         })
 
-        btnRename = findViewById<Button>(R.id.rename)
-        btnRename.setOnClickListener(View.OnClickListener {
-            csvController.fileRename(csvController.path, "data.csv", "changed.csv")
-        })
-
-        csvController.csvFirst()
-        csvController.csvSave("1")
+//        btnRename = findViewById<Button>(R.id.rename)
+//        btnRename.setOnClickListener(View.OnClickListener {
+//            csvController.fileRename(csvController.path, "data.csv", "changed.csv")
+//        })
 
         // 리사이클러 뷰 관련 코드
 //        recyclerView = findViewById(R.id.recyclerView)

@@ -4,7 +4,6 @@ import android.icu.text.SimpleDateFormat
 import android.icu.util.TimeZone
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import com.opencsv.CSVWriter
 import java.io.File
