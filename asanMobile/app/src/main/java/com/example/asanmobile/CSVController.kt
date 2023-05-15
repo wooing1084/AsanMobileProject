@@ -21,8 +21,8 @@ object CSVController {
         return CSVWriter(FileWriter("$path/$fileName"))
     }
 
-    // 파일이 저장될 외부 저장소 주소 불러오는 함수
-    // 파일이 저장될 주소 리턴
+    // 파일이 저장될 외부 저장소 path 불러오는 함수
+    // 파일이 저장될 path 리턴
     private fun getExternalPath(): String{
         var dir: File? = Environment.getExternalStorageDirectory()
         var abPath: String? = dir?.absolutePath
