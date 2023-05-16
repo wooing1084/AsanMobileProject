@@ -1,23 +1,22 @@
 package com.example.asanmobile
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.room.Room
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
+import kotlin.concurrent.schedule
 
 @SuppressLint("MissingPermission")
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
@@ -64,7 +63,6 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         bytes = mInputputStream.read(buffer)
                         val msg = String(buffer, 0, bytes, Charsets.UTF_8)
 
-                        // 대대적인 수정 필요
                         // Synchronized 필요 -> 데이터가 끊겨서 들어올 수 있기 때문에
 //                        Thread(Runnable {
 //                            // UI를 업데이트하는 작업 수행
@@ -85,6 +83,10 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 //                            // csv 작성
 //                            csvController.csvSave(msg)
 //                        }).start()
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            AcceptController.dataAccept(msg)
+                        }
                         // 오류 발생시 소켓 close
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to read message form socket", e)
@@ -97,8 +99,11 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
     }
 
     object AcceptController {
-
-        private lateinit var splitData: String
+        // 저 db를 어디서 만들지 고민
+//        val db = Room.databaseBuilder(
+//            ,
+//            AppDatabase::class.java, "database-name"
+//        ).build()
 
         suspend fun dataAccept(data: String) = coroutineScope {
             val bufferSize = 1024 // 버퍼 사이즈 설정
@@ -106,54 +111,84 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
             val buffer = mutableListOf<String>() // 버퍼 선언
 
             // 데이터를 전달하는 채널 선언
-            val channel = Channel<String>(bufferSize)
+//            val channel = Channel<String>(bufferSize)
 
             // 데이터를 받아서 버퍼에 저장하는 코루틴
             launch {
-                channel.consumeEach { data ->
-                    buffer.add(data) // 데이터를 버퍼에 추가
-                    println("Added: $data")
-
-                    if (buffer.size >= bufferSize) { // 버퍼가 가득 찼을 경우
-                        flushBuffer(buffer) // 버퍼 내용을 처리
-                        buffer.clear()
-                    }
+                buffer.add(data) // 데이터를 버퍼에 추가
+//                println("Added: $data")
+//                channel.consumeEach { data ->
+//
+//                }
+                if (buffer.size >= bufferSize) { // 버퍼가 가득 찼을 경우
+                    flushBuffer(buffer) // 버퍼 내용을 처리
+                    buffer.clear()
                 }
             }
 
             // 일정 주기마다 버퍼 내용을 처리하는 코루틴
             launch {
-                while (true) {
-                    delay(bufferTime) // 일정 시간 대기
-
-                    if (buffer.isNotEmpty()) { // 버퍼에 내용이 있을 경우
-                        flushBuffer(buffer) // 버퍼 내용을 처리
-                        buffer.clear()
-                    }
+                delay(2000)
+                if (buffer.isNotEmpty()) { // 버퍼에 내용이 있을 경우
+                    flushBuffer(buffer) // 버퍼 내용을 처리
+                    buffer.clear()
                 }
             }
         }
 
         // 버퍼 내용을 처리하는 함수
         suspend fun flushBuffer(buffer: MutableList<String>) {
-            // 심장박동수 정규표현식
-            val heartRegex = "\\d{10,}:\\d{1,4}[.]\\d|\\d{10,}:\\d{1,4}-".toRegex()
-
-            // ppgGreen 정규표현식
-            // 처음오는 숫자가 10이상이 오고, '['로 시작하고 안에는 어떤 문장이 와도 괜찮고, ']'로 끝나야 한다
-            val ppgGreen = "(\\d{10,}): \\[[^\\]]*\\]".toRegex()
-            val bufferData = buffer.toList() // 버퍼 데이터를 리스트로 복사
-
-            // bufferData를 SensorRepository에 작성해야함
-            bufferData
+            // bufferData를 SensorRepository에 작성
+            writeSensorRepo(buffer)
             buffer.clear() // 버퍼 내용을 비움
 
             // 복사한 버퍼 데이터를 처리
-            println("Processing: $bufferData")
+            println("Processing: $buffer")
         }
         
-        suspend fun writeSensorRepo() {
-            
+        suspend fun writeSensorRepo(bufferData: List<String>) = coroutineScope {
+            // 심장박동수 정규표현식
+            val heartRegex = "\\d{12,}:\\d{1,4}[.]\\d|\\d{12,}:\\d{1,4}-".toRegex()
+
+            // ppgGreen 정규표현식
+            // 처음오는 숫자가 12 이상이 오고, '['로 시작하고 안에는 어떤 문장이 와도 괜찮고, ']'로 끝나야 한다
+            val ppgGreen = "(\\d{12,}): \\[[^\\]]*\\]".toRegex()
+            for (str in bufferData) {
+                val heartStr = heartRegex.find(str)
+                val ppgGreenStr = ppgGreen.find(str)
+
+                // 데이터 레포에 넣는 코루틴
+                launch {
+                    do {
+                        var value = heartStr?.value
+                        val res = value.toString().split(":")
+                        val time = res[0].trim()
+                        val data = res[1].trim().toFloat()
+
+//                        Log.d(TAG, "SAVED: $time, $data")
+//                        SensorRepository.writeSensor(time, data)
+                    } while(heartStr?.next() != null)
+
+
+//                    ppgGreenStr.forEach {
+//                        val res = it.toString().split(":")
+//                        val time = res[0].trim()
+//                        val dataSet = res[1].split(",")
+//
+//                        for (data in dataSet) {
+//                            if (data.contains('[')) {
+//                                data.replace("[", "")
+//                            } else if (data.contains(']')) {
+//                                data.replace("]", "")
+//                            }
+//
+//                            print("$time, $data")
+//                            SensorRepository.writeSensor(time, data.toInt())
+//                        }
+//                    }
+                }
+
+            }
         }
     }
 }

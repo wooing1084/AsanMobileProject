@@ -85,21 +85,21 @@ object CSVController {
         }
     }
 
-    fun csvSave(sensorName: String, 데이터배열) {
-        val path: String = getExternalPath()
-        val name = getFileName(sensorName)
-
-        val csvWriter = getCSVWriter(path, name)
-        try {
-            for (data in dataList) {
-                csvWriter.use {
-                    it.writeNext(data)
-                }
-            }
-        } catch (e: Exception) {
-            Log.d(TAG, e.toString())
-        }
-    }
+//    fun csvSave(sensorName: String, 데이터배열) {
+//        val path: String = getExternalPath()
+//        val name = getFileName(sensorName)
+//
+//        val csvWriter = getCSVWriter(path, name)
+//        try {
+//            for (data in dataList) {
+//                csvWriter.use {
+//                    it.writeNext(data)
+//                }
+//            }
+//        } catch (e: Exception) {
+//            Log.d(TAG, e.toString())
+//        }
+//    }
 
     fun fileRename(path:String, origin: String, change: String) {
         try {
