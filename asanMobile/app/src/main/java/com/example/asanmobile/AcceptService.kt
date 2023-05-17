@@ -115,7 +115,7 @@ class AcceptService: Service() {
         bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
 
-        acceptThread = AcceptThread(bluetoothAdapter, this)
+        acceptThread = AcceptThread(bluetoothAdapter, applicationContext)
         acceptThread.start()
 
         localBroadcastManager = LocalBroadcastManager.getInstance(this)
