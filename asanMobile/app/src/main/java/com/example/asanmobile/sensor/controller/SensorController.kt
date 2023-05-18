@@ -1,5 +1,6 @@
 package com.example.asanmobile.sensor.controller
 
+import android.app.Application
 import android.content.Context
 import com.example.asanmobile.AcceptThread
 import com.example.asanmobile.AppDatabase
@@ -8,6 +9,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// 전역 객체
 class SensorController(context: Context) {
     private var db: AppDatabase = AppDatabase.getInstance(context)!!
 

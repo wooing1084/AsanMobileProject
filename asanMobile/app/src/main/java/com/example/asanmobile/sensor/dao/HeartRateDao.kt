@@ -13,7 +13,7 @@ interface HeartRateDao {
 //    @Query("SELECT * FROM ")
 //    fun get(id: Long):
 
-    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
+    @Query("SELECT * FROM heartRate WHERE id IN (:userIds)")
     fun loadAllByIds(userIds: IntArray): List<HeartRate>
 
     @Insert

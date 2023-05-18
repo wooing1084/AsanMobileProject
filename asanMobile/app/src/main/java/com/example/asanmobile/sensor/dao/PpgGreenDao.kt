@@ -9,10 +9,10 @@ import com.example.asanmobile.sensor.model.PpgGreen
 @Dao
 interface PpgGreenDao {
 
-    @Query("SELECT * FROM sensor")
+    @Query("SELECT * FROM ppgGreen")
     fun getAll(): List<PpgGreen>
 
-    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
+    @Query("SELECT * FROM ppgGreen WHERE id IN (:userIds)")
     fun loadAllByIds(userIds: IntArray): List<PpgGreen>
 
     @Insert

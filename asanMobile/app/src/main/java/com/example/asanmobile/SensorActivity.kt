@@ -14,15 +14,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.asanmobile.sensor.controller.SensorController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 
 
-class SensorActivity : AppCompatActivity() {
-
+class SensorActivity() : AppCompatActivity() {
     private lateinit var serviceIntent : Intent
+    private var sensorController: SensorController = SensorController.getInstance(applicationContext)
 
 //    private lateinit var recyclerView: RecyclerView
 //    private lateinit var adapter: TextAdapter
@@ -64,7 +65,6 @@ class SensorActivity : AppCompatActivity() {
                 1
             )
         }
-//        val csvController = CSVController(this)
 
         // 화면
         btnStart = findViewById<Button>(R.id.BtnStart)
@@ -74,13 +74,9 @@ class SensorActivity : AppCompatActivity() {
         btnStop = findViewById<Button>(R.id.BtnStop)
         btnStop.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, AcceptService::class.java)
+//            intent.putExtra("controller", sensorController)
             stopService(intent)
         })
-
-//        btnRename = findViewById<Button>(R.id.rename)
-//        btnRename.setOnClickListener(View.OnClickListener {
-//            csvController.fileRename(csvController.path, "data.csv", "changed.csv")
-//        })
 
         // 리사이클러 뷰 관련 코드
 //        recyclerView = findViewById(R.id.recyclerView)
@@ -91,8 +87,8 @@ class SensorActivity : AppCompatActivity() {
 //        recyclerView.adapter = adapter
 //        adapter.notifyDataSetChanged()
 
-        ppgGreenChart = findViewById<LineChart>(R.id.chart_ppgGreen)
-        heartRateChart = findViewById<LineChart>(R.id.chart_heart)
+//        ppgGreenChart = findViewById<LineChart>(R.id.chart_ppgGreen)
+//        heartRateChart = findViewById<LineChart>(R.id.chart_heart)
 
         val filter = IntentFilter("my-event")
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter)
@@ -152,8 +148,8 @@ class SensorActivity : AppCompatActivity() {
 //    }
 
     fun serviceStart() {
-        serviceIntent = Intent(this, AcceptService::class.java)
-//        serviceIntent.putExtra("ID", ID)
+        serviceIntent = Intent(applicationContext, AcceptService::class.java)
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
         }

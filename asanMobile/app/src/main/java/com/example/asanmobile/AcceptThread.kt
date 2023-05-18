@@ -21,13 +21,13 @@ import java.util.*
 import kotlin.concurrent.schedule
 
 @SuppressLint("MissingPermission")
-class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
+class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context,
+                   private val sensorController: SensorController
+) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
 //    private val serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
-    private val handler = Handler(Looper.getMainLooper())
+//    private val handler = Handler(Looper.getMainLooper())
     private val context: Context = context
-    private var sensorController: SensorController = SensorController.getInstance(context)
-//    private lateinit var sensorController: SensorController
 
     companion object {
         private const val TAG = "ACCEPT_THREAD"
@@ -98,6 +98,16 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         Log.e(TAG, "unable to read message form socket", e)
                         socket.close()
                         break
+                    } finally {
+                        try {
+                            if (!socket.isConnected) {
+                                socket.use {
+                                    socket.close()
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
                 }
             }

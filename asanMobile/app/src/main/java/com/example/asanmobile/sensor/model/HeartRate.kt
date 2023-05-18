@@ -7,9 +7,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "heartRate")
 data class HeartRate(
     @ColumnInfo(name = "time") val time: String,
-    @ColumnInfo(name = "data") val data: Float
+    @ColumnInfo(name = "value") val value: Float
 ) {
     // AutoIncrement 구현
     @PrimaryKey(autoGenerate = true)
-    var uid: Long = 0
+    @ColumnInfo
+    var id: Long = 0
 }

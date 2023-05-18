@@ -6,8 +6,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "ppgGreen")
 data class PpgGreen(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
     @ColumnInfo(name = "time") val time: String,
     @ColumnInfo(name = "value") val value: Float
-)
+) {
+    // AutoIncrement 구현
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo
+    var id: Long = 0
+}
