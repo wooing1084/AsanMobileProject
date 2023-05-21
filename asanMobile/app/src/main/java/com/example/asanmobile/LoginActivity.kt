@@ -15,7 +15,6 @@ class LoginActivity : AppCompatActivity() {
 
         val login = findViewById<Button>(R.id.login_btn)
         login.setOnClickListener{
-
             val id = findViewById<EditText>(R.id.id).text.toString()
            ServerConnection.login(id, context = this)
         }

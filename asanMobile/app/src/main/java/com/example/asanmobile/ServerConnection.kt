@@ -2,10 +2,15 @@ package com.example.asanmobile
 
 import android.app.Activity
 import android.content.Intent
+import android.icu.text.SimpleDateFormat
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import okhttp3.*
 import java.io.*
+import java.util.Date
+import java.util.Locale
+import java.util.logging.Handler
 
 
 abstract class ServerConnection{
@@ -13,8 +18,8 @@ abstract class ServerConnection{
         val tag = "Server Connection"
         //val urlText = "http://172.16.226.109:8000/csv"
         //val urlText = "http://10.0.2.2:8000/csv"
-        val requestUrl = "http://220.149.46.249:7778/tmp_get/"
-        val loginURL = "http://220.149.46.249:7778/registUser/"
+        val requestUrl = "http://220.149.46.249:7778/forUser/postCurrentData/"
+        val loginURL = "http://220.149.46.249:7778/forUser/registUser/"
         // 서버에 Post로 파일 전송하는 부분
         fun postFile(file: File, deviceID: String, battery: String, timestamp: String, url: String = requestUrl) {
             //Post에 붙일 요청 body생성부분
@@ -44,7 +49,12 @@ abstract class ServerConnection{
             })
         }
 
-        fun login(authcode : String, deviceID : String = "abcdefg", regID: String = "hijklmnop", context: Activity) {
+        fun login(authcode : String, deviceID : String = "123456", regID: String = "1234567", context: Activity) {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val date = Date()
+            val strDate: String = dateFormat.format(date)
+
+
             val client = OkHttpClient()
 
             val httpBuilder = HttpUrl.parse(loginURL)?.newBuilder()
@@ -52,6 +62,7 @@ abstract class ServerConnection{
                 httpBuilder.addQueryParameter("userID", authcode)
                 httpBuilder.addQueryParameter("deviceID", deviceID)
                 httpBuilder.addQueryParameter("regID", regID)
+                httpBuilder.addQueryParameter("timestamp",strDate)
             }
 
             val request = Request.Builder()
@@ -61,16 +72,35 @@ abstract class ServerConnection{
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     Log.d(tag,e.printStackTrace().toString())
-                    Toast.makeText(context,"Login fail", Toast.LENGTH_LONG).show()
+                    val handler = android.os.Handler(Looper.getMainLooper())
+                    handler.postDelayed(Runnable {
+                        Toast.makeText(
+                            context,
+                            "Login failed!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }, 0)
                 }
 
                 override fun onResponse(call: Call, response: Response) {
                    Log.d(tag, "Login response code: "+response.code().toString())
+                    if(response.code().toString() == "200"){
+                        val intent = Intent(context, SensorActivity::class.java)
+                        intent.putExtra("ID", authcode)
+                        context.startActivity(intent)
+                        context.finish()
+                    }
+                    else{
+                        val handler = android.os.Handler(Looper.getMainLooper())
+                        handler.postDelayed(Runnable {
+                            Toast.makeText(
+                                context,
+                                "Login failed!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }, 0)
+                    }
 
-                    val intent = Intent(context, SensorActivity::class.java)
-                    intent.putExtra("ID", authcode)
-                    context.startActivity(intent)
-                    context.finish()
                 }
             })
         }
