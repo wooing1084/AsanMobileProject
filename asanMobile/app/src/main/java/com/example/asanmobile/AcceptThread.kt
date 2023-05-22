@@ -1,30 +1,22 @@
 package com.example.asanmobile
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.room.Room
 import com.example.asanmobile.sensor.controller.SensorController
-import com.example.asanmobile.sensor.model.HeartRate
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
 import java.io.IOException
 import java.util.*
-import kotlin.concurrent.schedule
+
 
 @SuppressLint("MissingPermission")
-class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context,
-                   private val sensorController: SensorController
-) : Thread() {
+class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
+    private lateinit var sensorController: SensorController
 //    private val serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
 //    private val handler = Handler(Looper.getMainLooper())
     private val context: Context = context
@@ -40,7 +32,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
             Toast.makeText(context, "Start Service", Toast.LENGTH_LONG).show()
             // 서버 소켓
              serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
-//            sensorController = SensorController.getInstance(context)
+            sensorController = SensorController.getInstance(context)
         } catch (e: Exception) {
             Log.d(TAG, e.message.toString())
         }
@@ -68,27 +60,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                     try {
                         bytes = mInputputStream.read(buffer)
                         val msg = String(buffer, 0, bytes, Charsets.UTF_8)
-
-                        // Synchronized 필요 -> 데이터가 끊겨서 들어올 수 있기 때문에
-//                        Thread(Runnable {
-//                            // UI를 업데이트하는 작업 수행
-//                            if (csvController.fileExist()) {
-//                                val intent = Intent("my-event")
-//                                intent.putExtra("message", msg)
-//                                handler.post {
-//                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-//                                }
-//                            } else {
-//                                csvController.csvFirst()
-//                                val intent = Intent("my-event")
-//                                intent.putExtra("message", msg)
-//                                handler.post {
-//                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-//                                }
-//                            }
-//                            // csv 작성
-//                            csvController.csvSave(msg)
-//                        }).start()
+                        Log.d(this.toString(), msg)
 
                         CoroutineScope(Dispatchers.IO).launch {
                             sensorController.dataAccept(msg)
@@ -114,4 +86,3 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         }
     }
 }
-

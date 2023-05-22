@@ -6,9 +6,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "heartRate")
 data class HeartRate(
-    @ColumnInfo(name = "time") val time: String,
-    @ColumnInfo(name = "value") val value: Float
-) {
+    @ColumnInfo(name = "time") override val time: String,
+    @ColumnInfo(name = "value") override val value: Float
+): Sensor(time, value) {
     // AutoIncrement 구현
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo

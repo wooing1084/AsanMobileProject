@@ -47,7 +47,7 @@ android {
 }
 
 dependencies {
-    def room_version = "2.3.0"
+    def room_version = "2.5.0"
     implementation "androidx.room:room-runtime:2.3.0"
     annotationProcessor "androidx.room:room-compiler:2.3.0"
     implementation "androidx.room:room-ktx:$room_version"
@@ -67,6 +67,6 @@ dependencies {
 
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 
-    // 디버그용 leakCanary
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
+//    // 디버그용 leakCanary
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
 }

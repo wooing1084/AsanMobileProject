@@ -20,7 +20,7 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
         fun getInstance(context: Context): AppDatabase? {
-            if(INSTANCE == null) {
+            if (INSTANCE == null) {
                 synchronized(AppDatabase::class) {
                     INSTANCE = Room.databaseBuilder(
                         context,
@@ -29,6 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
                     ).build()
                 }
             }
+            INSTANCE!!.openHelper.readableDatabase
             return INSTANCE
         }
     }

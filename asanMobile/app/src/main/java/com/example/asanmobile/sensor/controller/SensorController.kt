@@ -1,26 +1,27 @@
 package com.example.asanmobile.sensor.controller
 
-import android.app.Application
 import android.content.Context
-import com.example.asanmobile.AcceptThread
-import com.example.asanmobile.AppDatabase
+import android.util.Log
+import com.example.asanmobile.CsvController
 import com.example.asanmobile.sensor.model.HeartRate
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.example.asanmobile.sensor.model.PpgGreen
+import com.example.asanmobile.sensor.model.Sensor
+import com.example.asanmobile.sensor.repository.HeartRateRepository
+import com.example.asanmobile.sensor.repository.PpgGreenRepository
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
 // 전역 객체
 class SensorController(context: Context) {
-    private var db: AppDatabase = AppDatabase.getInstance(context)!!
+    private val heartRateRepository: HeartRateRepository = HeartRateRepository.getInstance(context)
+    private val ppgGreenRepository: PpgGreenRepository = PpgGreenRepository.getInstance(context)
 
     companion object {
         private var INSTANCE: SensorController? = null
-//        private lateinit var context: Context
 
         fun getInstance(_context: Context): SensorController {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: SensorController(_context).also {
-//                    context = _context
                     INSTANCE = it
                 }
             }
@@ -38,10 +39,6 @@ class SensorController(context: Context) {
         // 데이터를 받아서 버퍼에 저장하는 코루틴
         launch {
             buffer.add(data) // 데이터를 버퍼에 추가
-//                println("Added: $data")
-//                channel.consumeEach { data ->
-//
-//                }
             if (buffer.size >= bufferSize) { // 버퍼가 가득 찼을 경우
                 flushBuffer(buffer) // 버퍼 내용을 처리
                 buffer.clear()
@@ -58,17 +55,44 @@ class SensorController(context: Context) {
         }
     }
 
+    // sensor 재활용성을 높이기 위해 제네릭 타입에 * 사용
+//    suspend fun dataExport(sensorName: String): List<Sensor> = withContext(Dispatchers.IO){
+//        var sensorFlow: Flow<List<Sensor>>? = null
+//        val collectedQueue = mutableListOf<Sensor>()
+//
+//        if (sensorName == "HeartRate") {
+//            sensorFlow = heartRateRepository.getAll()
+//            Log.d(this.toString(), "도킹!")
+//        } else if (sensorName == "PpgGreen") {
+////            sensorFlow =
+//        }
+//
+//        val collectedList = sensorFlow?.flatMapConcat { it.asFlow() }?.toList() ?: emptyList()
+//        Log.d(this.toString(), collectedQueue.toString())
+//        return@withContext collectedList
+//    }
+
+    private suspend fun dataExport(sensorName: String): List<Sensor> = withContext(Dispatchers.IO) {
+        val sensorSet: List<Sensor> = when (sensorName) {
+            "HeartRate" -> heartRateRepository.getAll()
+             "PpgGreen" -> ppgGreenRepository.getAll()
+            else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
+        }
+        return@withContext sensorSet
+    }
+
     // 버퍼 내용을 처리하는 함수
-    suspend fun flushBuffer(buffer: MutableList<String>) {
+    private suspend fun flushBuffer(buffer: MutableList<String>) {
         // bufferData를 SensorRepository에 작성
+        Log.d(this.toString(), buffer.toString())
         writeSensorRepo(buffer)
         buffer.clear() // 버퍼 내용을 비움
 
-        // 복사한 버퍼 데이터를 처리
-        println("Processing: $buffer")
+//        // 복사한 버퍼 데이터를 처리
+//        println("Processing: $buffer")
     }
 
-    suspend fun writeSensorRepo(bufferData: List<String>) = coroutineScope {
+    private suspend fun writeSensorRepo(bufferData: List<String>) = coroutineScope {
         // 심장박동수 정규표현식
         val heartRegex = "\\d{12,}:\\d{1,4}[.]\\d|\\d{12,}:\\d{1,4}-".toRegex()
 
@@ -76,41 +100,77 @@ class SensorController(context: Context) {
         // 처음오는 숫자가 12 이상이 오고, '['로 시작하고 안에는 어떤 문장이 와도 괜찮고, ']'로 끝나야 한다
         val ppgGreen = "(\\d{12,}): \\[[^\\]]*\\]".toRegex()
         for (str in bufferData) {
-            val heartStr = heartRegex.find(str)
-            val ppgGreenStr = ppgGreen.find(str)
+            val hrStr = heartRegex.find(str)
+            val pgStr = ppgGreen.find(str)
 
             // 데이터 레포에 넣는 코루틴
             launch {
                 do {
                     // 방어 코드 필요
-                    var value = heartStr?.value
-                    val res = value.toString().split(":")
-                    val time = res[0].trim()
-                    val data = res[1].trim().toFloat()
+                    var hrValue = hrStr?.value
+                    val hrRes = hrValue.toString().split(":")
+                    val time = hrRes[0].trim()
+                    val data = hrRes[1].trim().toFloat()
 
+                    // data = 0은 스킵
+                    if (data.toInt() == (0.0).toInt()) {
+                        continue
+                    } else {
+                        heartRateRepository.insert(HeartRate(time, data))
+                    }
 //                        Log.d(TAG, "SAVED: $time, $data")
-                    db.heartRateDao().insertAll(HeartRate(time,data))
-                } while(heartStr?.next() != null)
+                } while(hrStr?.next() != null)
+            }
 
+            launch {
+                if (pgStr != null) {
+                    try {
+                        val ppgGreenValue = pgStr.value
+                        val pgRes = ppgGreenValue.split(":")
+                        val pgTime = pgRes[0].trim()
+                        val innerPpg = pgRes[1].trim()
+                        val innerRex = "^[+-]?\\d*(\\.?\\d*)?$".toRegex()
+                        do {
+                            val pgStr = innerRex.find(innerPpg)
+                            val pgValue = pgStr.toString().toFloat()
 
-//                    ppgGreenStr.forEach {
-//                        val res = it.toString().split(":")
-//                        val time = res[0].trim()
-//                        val dataSet = res[1].split(",")
+                            if (pgValue.toInt() == (0.0).toInt()) {
+                                continue
+                            } else {
+                                Log.d(this.toString(), "SAVED: $pgTime, $pgValue")
+                                ppgGreenRepository.insert(PpgGreen(pgTime, pgValue))
+                            }
+                        } while (pgStr?.next() != null)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+//                    val res = toString().split(":")
+//                    val time = res[0].trim()
+//                    val dataSet = res[1].split(",")
 //
-//                        for (data in dataSet) {
-//                            if (data.contains('[')) {
-//                                data.replace("[", "")
-//                            } else if (data.contains(']')) {
-//                                data.replace("]", "")
-//                            }
-//
-//                            print("$time, $data")
-//                            SensorRepository.writeSensor(time, data.toInt())
+//                    for (data in dataSet) {
+//                        if (data.contains('[')) {
+//                            data.replace("[", "")
+//                        } else if (data.contains(']')) {
+//                            data.replace("]", "")
 //                        }
 //                    }
             }
-
         }
+    }
+
+    // 커서랑 개수 정해야 함
+    suspend fun writeCsv(context: Context, sensorName: String) = coroutineScope {
+        // sensorName 적절하게 들어왔는지, 네임을 적절하게 넣어야 함
+        Log.d(this.toString(), "csv 시작")
+        val sensorSet = dataExport(sensorName)
+        if (CsvController.fileExist(context, sensorName) == null) {
+            CsvController.csvFirst(context, sensorName)
+        }
+        val fileName = CsvController.fileExist(context, sensorName)
+        CsvController.csvSave(context, fileName!!, sensorSet)
+        Log.d(this.toString(), "csv 생성")
     }
 }
