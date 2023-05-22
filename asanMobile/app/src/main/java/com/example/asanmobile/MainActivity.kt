@@ -23,6 +23,10 @@ class MainActivity : AppCompatActivity() {
         intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
 
+//        // 테스트용 바로 센서액티비티
+//        val intent = Intent(this, SensorActivity::class.java)
+//        startActivity(intent)
+
     }
 
     // 뒤로가기 버튼을 누를 때 액티비티 종료

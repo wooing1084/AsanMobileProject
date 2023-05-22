@@ -55,23 +55,6 @@ class SensorController(context: Context) {
         }
     }
 
-    // sensor 재활용성을 높이기 위해 제네릭 타입에 * 사용
-//    suspend fun dataExport(sensorName: String): List<Sensor> = withContext(Dispatchers.IO){
-//        var sensorFlow: Flow<List<Sensor>>? = null
-//        val collectedQueue = mutableListOf<Sensor>()
-//
-//        if (sensorName == "HeartRate") {
-//            sensorFlow = heartRateRepository.getAll()
-//            Log.d(this.toString(), "도킹!")
-//        } else if (sensorName == "PpgGreen") {
-////            sensorFlow =
-//        }
-//
-//        val collectedList = sensorFlow?.flatMapConcat { it.asFlow() }?.toList() ?: emptyList()
-//        Log.d(this.toString(), collectedQueue.toString())
-//        return@withContext collectedList
-//    }
-
     private suspend fun dataExport(sensorName: String): List<Sensor> = withContext(Dispatchers.IO) {
         val sensorSet: List<Sensor> = when (sensorName) {
             "HeartRate" -> heartRateRepository.getAll()

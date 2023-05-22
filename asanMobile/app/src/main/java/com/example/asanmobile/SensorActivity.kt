@@ -22,7 +22,6 @@ class SensorActivity() : AppCompatActivity() {
     private lateinit var btnStop: Button
     private lateinit var btnRename: Button
     private lateinit var btnCsvCheck: Button
-    private lateinit var btnCsv: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +59,6 @@ class SensorActivity() : AppCompatActivity() {
         btnStop = findViewById<Button>(R.id.BtnStop)
         btnStop.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, AcceptService::class.java)
-//            intent.putExtra("controller", sensorController)
             stopService(intent)
         })
 
@@ -79,6 +77,7 @@ class SensorActivity() : AppCompatActivity() {
     }
 
     fun serviceStart() {
+        serviceIntent = Intent(this, AcceptService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
         }

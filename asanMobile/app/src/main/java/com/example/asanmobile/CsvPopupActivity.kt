@@ -35,7 +35,6 @@ class CsvPopupActivity: AppCompatActivity() {
 
         adapter = TextAdapter(itemList)
         recyclerView.adapter = adapter
-        adapter.notifyDataSetChanged()
 
         // CSV 파일 개수 가져오기
         val csvFolderPath = CsvController.getExternalPath(applicationContext)// CSV 파일들이 있는 폴더 경로 설정
@@ -48,7 +47,7 @@ class CsvPopupActivity: AppCompatActivity() {
                 itemList.clear()
                 itemList.addAll(csvFiles.map { file ->
                     val fileSize = file.length() // 파일 크기
-                    val fileName = "${file.nameWithoutExtension} (${fileSize} bytes)" // 파일명과 크기 조합하여 표시
+                    val fileName = "$file   (${fileSize} bytes)" // 파일명과 크기 조합하여 표시
                     fileName
                 })
                 adapter.notifyDataSetChanged()
