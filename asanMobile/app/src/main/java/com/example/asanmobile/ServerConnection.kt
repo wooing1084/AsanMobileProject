@@ -1,16 +1,25 @@
 package com.example.asanmobile
 
+import android.app.Activity
+import android.content.Intent
+import android.icu.text.SimpleDateFormat
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import okhttp3.*
 import java.io.*
+import java.util.Date
+import java.util.Locale
+import java.util.logging.Handler
 
 
 abstract class ServerConnection{
     companion object{
+        val tag = "Server Connection"
         //val urlText = "http://172.16.226.109:8000/csv"
         //val urlText = "http://10.0.2.2:8000/csv"
-        val requestUrl = "http://220.149.46.249:7778/tmp_get/"
+        val requestUrl = "http://220.149.46.249:7778/forUser/postCurrentData/"
+        val loginURL = "http://220.149.46.249:7778/forUser/registUser/"
         // 서버에 Post로 파일 전송하는 부분
         fun postFile(file: File, deviceID: String, battery: String, timestamp: String, url: String = requestUrl) {
             //Post에 붙일 요청 body생성부분
@@ -31,34 +40,69 @@ abstract class ServerConnection{
             val client = OkHttpClient()
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    Log.e("Client",e.printStackTrace().toString())
+                    Log.e(tag,e.printStackTrace().toString())
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    println(response.body()?.string())
+                    Log.e(tag, "File Send response code: " + response.body()?.string().toString())
                 }
             })
         }
 
-        fun login(watchid : String): String {
+        fun login(authcode : String, deviceID : String = "123456", regID: String = "1234567", context: Activity) {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val date = Date()
+            val strDate: String = dateFormat.format(date)
+
+
             val client = OkHttpClient()
 
-            val httpBuilder = HttpUrl.parse(requestUrl)?.newBuilder()
+            val httpBuilder = HttpUrl.parse(loginURL)?.newBuilder()
             if (httpBuilder != null) {
-                httpBuilder.addQueryParameter("userID", watchid)
+                httpBuilder.addQueryParameter("userID", authcode)
+                httpBuilder.addQueryParameter("deviceID", deviceID)
+                httpBuilder.addQueryParameter("regID", regID)
+                httpBuilder.addQueryParameter("timestamp",strDate)
             }
 
             val request = Request.Builder()
-                .url(httpBuilder?.build())
+                .url(httpBuilder!!.build())
                 .build()
-            val responseBody:String
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("Unexpected code $response")
 
-                responseBody = response.body().toString()
-                // response 값을 가지고 작업을 수행합니다
-            }
-            return responseBody
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.d(tag,e.printStackTrace().toString())
+                    val handler = android.os.Handler(Looper.getMainLooper())
+                    handler.postDelayed(Runnable {
+                        Toast.makeText(
+                            context,
+                            "Login failed!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }, 0)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                   Log.d(tag, "Login response code: "+response.code().toString())
+                    if(response.code().toString() == "200"){
+                        val intent = Intent(context, SensorActivity::class.java)
+                        intent.putExtra("ID", authcode)
+                        context.startActivity(intent)
+                        context.finish()
+                    }
+                    else{
+                        val handler = android.os.Handler(Looper.getMainLooper())
+                        handler.postDelayed(Runnable {
+                            Toast.makeText(
+                                context,
+                                "Login failed!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }, 0)
+                    }
+
+                }
+            })
         }
 
     }

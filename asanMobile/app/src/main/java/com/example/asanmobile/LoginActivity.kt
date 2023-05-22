@@ -15,21 +15,8 @@ class LoginActivity : AppCompatActivity() {
 
         val login = findViewById<Button>(R.id.login_btn)
         login.setOnClickListener{
-
-            // 로그인 처리
-//            val id = findViewById<EditText>(R.id.id)
-//            val intent = Intent(this, SendingActivity::class.java)
-//            intent.putExtra("ID", id.text.toString())
-//
-//            startActivity(intent)
-
-            // 로그인 성공 시, SensorAcitivity로 접속
-            val id = findViewById<EditText>(R.id.id)
-            val intent = Intent(this, SensorActivity::class.java)
-            intent.putExtra("ID", id.text.toString())
-            startActivity(intent)
-
-            finish()
+            val id = findViewById<EditText>(R.id.id).text.toString()
+           ServerConnection.login(id, context = this)
         }
 
     }

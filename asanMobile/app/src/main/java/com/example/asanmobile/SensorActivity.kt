@@ -29,6 +29,9 @@ class SensorActivity() : AppCompatActivity() {
         setContentView(R.layout.activity_sensor)
         sensorController = SensorController.getInstance(this)
 
+        val sendIntent = Intent(this, SendingService::class.java)
+        startService(sendIntent)
+
         // 권한 허가
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestPermissions(
@@ -76,9 +79,7 @@ class SensorActivity() : AppCompatActivity() {
     }
 
     fun serviceStart() {
-        serviceIntent = Intent(applicationContext, AcceptService::class.java)
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
         }
         else {

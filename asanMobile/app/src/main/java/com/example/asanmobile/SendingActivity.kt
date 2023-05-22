@@ -15,18 +15,18 @@ class SendingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sending)
+//        setContentView(R.layout.activity_sending)
 
         val getIntent = intent
         deviceID = getIntent.getStringExtra("ID").toString()
         //deviceID = "fSUwYR8iSuCByyJ2+qJk3lR6SUQ="
 
 
-        val sendBtn = findViewById<Button>(R.id.sendButton)
-        sendBtn.setOnClickListener{
+//        val sendBtn = findViewById<Button>(R.id.sendButton)
+//        sendBtn.setOnClickListener{
 
-            sendCSV()
-        }
+//            sendCSV()
+//        }
     }
 
     public fun makeCSV(name: String, data: String): File {
