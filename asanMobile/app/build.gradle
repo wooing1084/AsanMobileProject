@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-android-extensions'
+    id "org.jetbrains.kotlin.kapt"
 }
 
 android {
@@ -46,8 +47,16 @@ android {
 }
 
 dependencies {
+    def room_version = "2.5.0"
+    implementation "androidx.room:room-runtime:2.3.0"
+    annotationProcessor "androidx.room:room-compiler:2.3.0"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    implementation 'com.opencsv:opencsv:5.7.1'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
@@ -56,7 +65,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    implementation 'com.opencsv:opencsv:5.5.2'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 
+//    // 디버그용 leakCanary
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
 }

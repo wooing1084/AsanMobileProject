@@ -5,20 +5,20 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.example.asanmobile.sensor.controller.SensorController
+import kotlinx.coroutines.*
 import java.io.IOException
 import java.util.*
+
 
 @SuppressLint("MissingPermission")
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
-    private val csvController: CSVController = CSVController(context)
-    private val handler = Handler(Looper.getMainLooper())
+    private lateinit var sensorController: SensorController
+//    private val serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
+//    private val handler = Handler(Looper.getMainLooper())
     private val context: Context = context
 
     companion object {
@@ -31,7 +31,8 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         try {
             Toast.makeText(context, "Start Service", Toast.LENGTH_LONG).show()
             // 서버 소켓
-            serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
+             serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
+            sensorController = SensorController.getInstance(context)
         } catch (e: Exception) {
             Log.d(TAG, e.message.toString())
         }
@@ -59,32 +60,26 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                     try {
                         bytes = mInputputStream.read(buffer)
                         val msg = String(buffer, 0, bytes, Charsets.UTF_8)
+                        Log.d(this.toString(), msg)
 
-                        Thread(Runnable {
-                            // UI를 업데이트하는 작업 수행
-                            if (csvController.fileExist()) {
-                                val intent = Intent("my-event")
-                                intent.putExtra("message", msg)
-//                                handler.post {
-//                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-//                                }
-                            } else {
-                                csvController.csvFirst()
-                                val intent = Intent("my-event")
-                                intent.putExtra("message", msg)
-//                                handler.post {
-//                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-//                                }
-                            }
-                            // csv 작성
-                            Log.d("acceptThread", msg);
-                            csvController.csvSave(msg)
-                        }).start()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            sensorController.dataAccept(msg)
+                        }
                         // 오류 발생시 소켓 close
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to read message form socket", e)
-                        socket?.close()
+                        socket.close()
                         break
+                    } finally {
+                        try {
+                            if (!socket.isConnected) {
+                                socket.use {
+                                    socket.close()
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
                 }
             }
