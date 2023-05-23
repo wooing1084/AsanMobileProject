@@ -28,9 +28,6 @@ class SensorActivity() : AppCompatActivity() {
         setContentView(R.layout.activity_sensor)
         sensorController = SensorController.getInstance(this)
 
-        val sendIntent = Intent(this, SendingService::class.java)
-        startService(sendIntent)
-
         // 권한 허가
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestPermissions(
@@ -55,11 +52,15 @@ class SensorActivity() : AppCompatActivity() {
         btnStart = findViewById<Button>(R.id.BtnStart)
         btnStart.setOnClickListener(View.OnClickListener {
             serviceStart()
+            val sendIntent = Intent(this, SendingService::class.java)
+            startService(sendIntent)
         })
         btnStop = findViewById<Button>(R.id.BtnStop)
         btnStop.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, AcceptService::class.java)
             stopService(intent)
+            val sendIntent = Intent(this, SendingService::class.java)
+            stopService(sendIntent)
         })
 
 //        btnCsv = findViewById<Button>(R.id.sameleButton)

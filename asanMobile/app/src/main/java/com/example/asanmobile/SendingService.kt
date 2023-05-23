@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.icu.util.TimeZone
@@ -14,6 +15,7 @@ import java.io.File
 import java.sql.Date
 import kotlin.concurrent.timer
 import androidx.core.app.NotificationCompat
+import java.io.IOException
 
 
 class SendingService : Service() {
@@ -72,60 +74,94 @@ class SendingService : Service() {
     //[데이터 전송시 timestamp]
     //dd_MM_yyyy
     private fun sendCSV(){
-        //Unix time 생성
-        var unixtime = System.currentTimeMillis()
+        //HeartRate
+        val hrFileName = getExistFileName(this, "HeartRate")
+        val hrSrcPath = getExternalPath(this,"sensor") + "/" +hrFileName
+        val hrDestPath = getExternalPath(this,"sensor/sended") + "/"+ hrFileName
 
-        val date = Date(unixtime)
-        // SimpleDateFormat을 사용하여 날짜와 시간을 포맷팅하기
-        val formatter = SimpleDateFormat("dd_MM_yyyy")
-        formatter.timeZone = TimeZone.getTimeZone("UTC")
-        val formattedDate = formatter.format(date)
+        //파일 이동 후 삭제
+        moveFile(hrSrcPath,hrDestPath)
+        val hrSrcFile = getFile(hrSrcPath)
+        hrSrcFile?.delete()
 
-        val ppg = getFile("ppg", unixtime.toString())
-        val hrm = getFile("hrm", unixtime.toString())
-        val acc = getFile("acc", unixtime.toString())
+        val heartFile = getFile(hrDestPath)
 
-        // 서버에 Post전송(테스트를 위해 하나만 전송하는 중)
-        val data = getFile("data", unixtime.toString())
+        //PpgGreen
+        val ppgFileName = getExistFileName(this, "PpgGreen")
+        val ppgSrcPath = getExternalPath(this,"sensor") + "/" +ppgFileName
+        val ppgDestPath = getExternalPath(this,"sensor/sended") + "/"+ ppgFileName
 
-        if(data != null)
-        {
-            //ServerConnection.postFile(data, "gachon_test", "100", formattedDate.toString())
-            Log.e(tag, "Data sensor file sending!")
-        }
+        //파일 이동 후 삭제
+        moveFile(ppgSrcPath,ppgDestPath)
+        val ppgSrcFile = getFile(ppgSrcPath)
+        ppgSrcFile?.delete()
 
-        if (ppg != null) {
+        val ppgFile = getFile(ppgDestPath)
+
+        if (ppgFile != null) {
             //ServerConnection.postFile(ppg, "gachon_test", "100", formattedDate.toString())
-            Log.e(tag, "PPG sensor file sending!")
+            Log.e(tag, "PPG Green sensor file sending!")
         }
-        if(hrm != null)
+        if(heartFile != null)
         {
-            Log.e(tag, "PPG sensor file sending!")
+            Log.e(tag, "Heartrate sensor file sending!")
         }
-        if(acc != null)
-        {
-            Log.e(tag, "PPG sensor file sending!")
-        }
+
     }
 
-    //워치에서 데이터 받아서 저장된 후 테스트 필요
-    private fun getFile(name : String, uTime : String): File? {
-        val context = applicationContext
-        val path = context.filesDir.toString()
-
-        var src = File(path, name +".csv")
-        if(!src.exists())
+    private fun getFile(fileName : String): File? {
+        val file = File(fileName)
+        if(!file.exists())
         {
-            Log.d(tag, name + " File does not found")
+            Log.d(tag, fileName + " File does not found")
             return null
         }
 
-        val dest = File(path, name + "_"+uTime+".csv")
-        if(src.renameTo(dest))
-        {
-            src = File(path, name + "_"+uTime+".csv")
-        }
+        return file
+    }
 
-        return src
+    //파일 디렉토리 옮기기
+    //soure -> dest로
+    fun moveFile(sourcePath: String, destinationPath: String) {
+        val sourceFile = File(sourcePath)
+        val destinationFile = File(destinationPath)
+
+        try {
+            // 파일을 이동합니다.
+            sourceFile.renameTo(destinationFile)
+            Log.d(tag, "파일 이동 성공")
+        } catch (e: IOException) {
+            println("파일 이동 실패: ${e.message}")
+        }
+    }
+
+    //디바이스의 센서_unixtime.csv파일명 가져오기
+    //unixtime은 알 수 없기 때문에 파일명을 알아내기 위해 사용
+    fun getExistFileName(context: Context, name: String): String? {
+        val path: String = getExternalPath(context, "sensor")
+        val directory: File = File(path)
+
+        if (directory.exists()) {
+            val files: Array<out File>? = directory.listFiles()
+
+            for (file in files!!) {
+                if (file.name.contains(name)) {
+                    return file.name
+                }
+            }
+        }
+        return null
+    }
+
+    public fun getExternalPath(context: Context, dirName : String): String{
+        val dir: File? = context.getExternalFilesDir(null)
+        val path = dir?.absolutePath + File.separator + dirName
+
+        // 외부 저장소 경로가 있는지 확인, 없으면 생성
+        val file: File = File(path)
+        if (!file.exists()) {
+            file.mkdir()
+        }
+        return path
     }
 }
