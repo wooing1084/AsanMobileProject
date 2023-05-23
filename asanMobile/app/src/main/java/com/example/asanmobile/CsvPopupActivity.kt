@@ -47,7 +47,7 @@ class CsvPopupActivity: AppCompatActivity() {
                 itemList.clear()
                 itemList.addAll(csvFiles.map { file ->
                     val fileSize = file.length() // 파일 크기
-                    val fileName = "$file   (${fileSize} bytes)" // 파일명과 크기 조합하여 표시
+                    val fileName = "${file.name}   (${fileSize} bytes)" // 파일명과 크기 조합하여 표시
                     fileName
                 })
                 adapter.notifyDataSetChanged()

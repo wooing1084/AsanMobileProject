@@ -89,7 +89,7 @@ object CsvController {
         Log.d(this.toString(), "csv 생성")
     }
 
-    fun csvSave(context: Context, sensorName: String, sensorSet: LinkedBlockingQueue<Sensor>) {
+    fun csvSave(context: Context, sensorName: String, sensorSet: List<Sensor>) {
         val path: String = getExternalPath(context)
         val name = fileExist(context, sensorName)
 

@@ -1,6 +1,7 @@
 package com.example.asanmobile.sensor.controller
 
 import android.app.Activity
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
@@ -58,23 +59,24 @@ class SensorController(context: Context) {
         }
     }
 
-    private suspend fun dataExport(sensorName: String): LinkedBlockingQueue<Sensor> = withContext(Dispatchers.IO) {
+    private suspend fun dataExport(sensorName: String): List<Sensor> = withContext(Dispatchers.IO) {
 
-        // 센서의 값을 불러온 후, 그 리스트의 사이즈 + 1 값을 커서로 저장
+        // 센서의 값을 불러온 후, 그 리스트의 사이즈 값을 커서로 저장
         // 다음 호출시 그 커서부터 다시 데이터 호출
-        val sensorSet: LinkedBlockingQueue<Sensor> = when (sensorName) {
+        val sensorSet: List<Sensor> = when (sensorName) {
             "HeartRate" -> {
                 val heartCursor = prefManager.getCursor("HeartRate")
+                Log.d(TAG, "Start cursor: $heartCursor")
                 val heartRateSet = heartRateRepository.getAll(heartCursor)
                 val heartRateSize = heartRateSet.size
-                prefManager.putCursor("HeartRate", heartRateSize + 1)
+                prefManager.putCursor("HeartRate", heartCursor + heartRateSize)
                 heartRateSet
             }
              "PpgGreen" -> {
                  val ppgGreenCursor = prefManager.getCursor("PpgGreen")
                  val ppgGreenSet = ppgGreenRepository.getAll(ppgGreenCursor)
                  val ppgGreenSize = ppgGreenSet.size
-                 prefManager.putCursor("PpgGreen", ppgGreenSize + 1)
+                 prefManager.putCursor("PpgGreen", ppgGreenCursor + ppgGreenSize)
                  ppgGreenSet
              }
             else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")

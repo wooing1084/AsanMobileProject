@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class HeartRate(
     @ColumnInfo(name = "time") override val time: String,
     @ColumnInfo(name = "value") override val value: Float
-): Sensor(time, value) {
+): Sensor() {
     // AutoIncrement 구현
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo

@@ -52,15 +52,15 @@ class SensorActivity() : AppCompatActivity() {
         btnStart = findViewById<Button>(R.id.BtnStart)
         btnStart.setOnClickListener(View.OnClickListener {
             serviceStart()
-            val sendIntent = Intent(this, SendingService::class.java)
-            startService(sendIntent)
+//            val sendIntent = Intent(this, SendingService::class.java)
+//            startService(sendIntent)
         })
         btnStop = findViewById<Button>(R.id.BtnStop)
         btnStop.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, AcceptService::class.java)
             stopService(intent)
-            val sendIntent = Intent(this, SendingService::class.java)
-            stopService(sendIntent)
+//            val sendIntent = Intent(this, SendingService::class.java)
+//            stopService(sendIntent)
         })
 
 //        btnCsv = findViewById<Button>(R.id.sameleButton)

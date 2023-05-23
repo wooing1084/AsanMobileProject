@@ -16,7 +16,7 @@ interface HeartRateDao {
 //    fun getAll(limit: Int): LinkedBlockingQueue<HeartRate>
 
     @Query("SELECT * FROM heartRate WHERE id > :cursor ORDER BY id ASC")
-    fun getAll(cursor: Int): LinkedBlockingQueue<Sensor>
+    fun getAll(cursor: Int): List<HeartRate>
 
 //    @Query("SELECT * FROM heartRate where id = id")
 //    suspend fun get(id: Long): List<HeartRate>

@@ -19,13 +19,13 @@ class MainActivity : AppCompatActivity() {
         db = AppDatabase.getInstance(applicationContext)!!
         //====
 
-        // 로그인페이지로 전환
-        intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-
-//        // 테스트용 바로 센서액티비티
-//        val intent = Intent(this, SensorActivity::class.java)
+//        // 로그인페이지로 전환
+//        intent = Intent(this, LoginActivity::class.java)
 //        startActivity(intent)
+
+        // 테스트용 바로 센서액티비티
+        val intent = Intent(this, SensorActivity::class.java)
+        startActivity(intent)
 
     }
 

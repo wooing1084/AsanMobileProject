@@ -35,7 +35,7 @@ class PpgGreenRepository(context: Context) {
         ppgGreenDao.insertAll(ppgGreen)
     }
 
-    fun getAll(cursor: Int): LinkedBlockingQueue<Sensor> {
+    fun getAll(cursor: Int): List<Sensor> {
         return ppgGreenDao.getAll(cursor)
     }
 

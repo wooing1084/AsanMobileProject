@@ -37,7 +37,7 @@ class HeartRateRepository(context: Context) {
         heartRateDao.insertAll(heartRate)
     }
 
-    fun getAll(cursor: Int): LinkedBlockingQueue<Sensor> {
+    fun getAll(cursor: Int): List<Sensor> {
         return heartRateDao.getAll(cursor)
     }
 
