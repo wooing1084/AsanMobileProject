@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
+import java.util.concurrent.LinkedBlockingQueue
 
 
 object CsvController {
@@ -88,7 +89,7 @@ object CsvController {
         Log.d(this.toString(), "csv 생성")
     }
 
-    fun csvSave(context: Context, sensorName: String, sensorSet: List<Sensor>) {
+    fun csvSave(context: Context, sensorName: String, sensorSet: LinkedBlockingQueue<Sensor>) {
         val path: String = getExternalPath(context)
         val name = fileExist(context, sensorName)
 

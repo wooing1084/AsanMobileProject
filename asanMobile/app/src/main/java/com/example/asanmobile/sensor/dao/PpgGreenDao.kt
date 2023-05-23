@@ -13,8 +13,8 @@ import java.util.concurrent.LinkedBlockingQueue
 @Dao
 interface PpgGreenDao {
 
-    @Query("SELECT * FROM ppgGreen")
-    fun getAll(): List<PpgGreen>
+    @Query("SELECT * FROM ppgGreen WHERE id > :cursor ORDER BY id ASC")
+    fun getAll(cursor: Int): LinkedBlockingQueue<Sensor>
 
 //    @Query("SELECT * FROM ppgGreen where id = id")
 //    suspend fun get(id: Long): PpgGreen

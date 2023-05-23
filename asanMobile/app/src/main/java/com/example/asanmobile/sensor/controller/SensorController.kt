@@ -1,6 +1,8 @@
 package com.example.asanmobile.sensor.controller
 
+import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import com.example.asanmobile.CsvController
 import com.example.asanmobile.sensor.model.HeartRate
@@ -9,12 +11,13 @@ import com.example.asanmobile.sensor.model.Sensor
 import com.example.asanmobile.sensor.repository.HeartRateRepository
 import com.example.asanmobile.sensor.repository.PpgGreenRepository
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import java.util.concurrent.LinkedBlockingQueue
 
 // 전역 객체
 class SensorController(context: Context) {
     private val heartRateRepository: HeartRateRepository = HeartRateRepository.getInstance(context)
     private val ppgGreenRepository: PpgGreenRepository = PpgGreenRepository.getInstance(context)
+    private val prefManager: SharePreferenceManager = SharePreferenceManager.getInstance(context)
 
     companion object {
         private var INSTANCE: SensorController? = null
@@ -55,10 +58,25 @@ class SensorController(context: Context) {
         }
     }
 
-    private suspend fun dataExport(sensorName: String): List<Sensor> = withContext(Dispatchers.IO) {
-        val sensorSet: List<Sensor> = when (sensorName) {
-            "HeartRate" -> heartRateRepository.getAll()
-             "PpgGreen" -> ppgGreenRepository.getAll()
+    private suspend fun dataExport(sensorName: String): LinkedBlockingQueue<Sensor> = withContext(Dispatchers.IO) {
+
+        // 센서의 값을 불러온 후, 그 리스트의 사이즈 + 1 값을 커서로 저장
+        // 다음 호출시 그 커서부터 다시 데이터 호출
+        val sensorSet: LinkedBlockingQueue<Sensor> = when (sensorName) {
+            "HeartRate" -> {
+                val heartCursor = prefManager.getCursor("HeartRate")
+                val heartRateSet = heartRateRepository.getAll(heartCursor)
+                val heartRateSize = heartRateSet.size
+                prefManager.putCursor("HeartRate", heartRateSize + 1)
+                heartRateSet
+            }
+             "PpgGreen" -> {
+                 val ppgGreenCursor = prefManager.getCursor("PpgGreen")
+                 val ppgGreenSet = ppgGreenRepository.getAll(ppgGreenCursor)
+                 val ppgGreenSize = ppgGreenSet.size
+                 prefManager.putCursor("PpgGreen", ppgGreenSize + 1)
+                 ppgGreenSet
+             }
             else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
         }
         return@withContext sensorSet
@@ -155,5 +173,36 @@ class SensorController(context: Context) {
         val fileName = CsvController.fileExist(context, sensorName)
         CsvController.csvSave(context, fileName!!, sensorSet)
         Log.d(this.toString(), "csv 생성")
+    }
+
+    // sharedPreference 싱글톤 객체
+    class SharePreferenceManager private constructor(private val context: Context) {
+        companion object {
+            private lateinit var pref: SharedPreferences
+            private lateinit var editor: SharedPreferences.Editor
+            private var instance: SharePreferenceManager? = null
+
+            fun getInstance(_context: Context): SharePreferenceManager {
+                if (instance == null) {
+                    instance = SharePreferenceManager(_context)
+                    initialize(_context)
+                }
+                return instance!!
+            }
+
+            private fun initialize(context: Context) {
+                pref = context.getSharedPreferences("pref", Activity.MODE_PRIVATE)
+                editor = pref.edit()
+            }
+        }
+
+        fun getCursor(sensorName: String): Int {
+            return pref.getInt(sensorName + "Cursor", 0);
+        }
+
+        fun putCursor(sensorName: String, lastCursor: Int) {
+            editor.putInt(sensorName + "Cursor", lastCursor)
+            editor.apply()
+        }
     }
 }

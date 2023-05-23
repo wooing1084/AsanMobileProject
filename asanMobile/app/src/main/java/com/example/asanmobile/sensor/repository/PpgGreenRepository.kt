@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.asanmobile.AppDatabase
 import com.example.asanmobile.sensor.dao.PpgGreenDao
 import com.example.asanmobile.sensor.model.PpgGreen
+import com.example.asanmobile.sensor.model.Sensor
+import java.util.concurrent.LinkedBlockingQueue
 
 class PpgGreenRepository(context: Context) {
 
@@ -33,8 +35,8 @@ class PpgGreenRepository(context: Context) {
         ppgGreenDao.insertAll(ppgGreen)
     }
 
-    fun getAll(): List<PpgGreen> {
-        return ppgGreenDao.getAll()
+    fun getAll(cursor: Int): LinkedBlockingQueue<Sensor> {
+        return ppgGreenDao.getAll(cursor)
     }
 
 //    fun delete(id: Long) {

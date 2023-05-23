@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import com.example.asanmobile.AppDatabase
 import com.example.asanmobile.sensor.dao.HeartRateDao
 import com.example.asanmobile.sensor.model.HeartRate
+import com.example.asanmobile.sensor.model.Sensor
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -36,8 +37,8 @@ class HeartRateRepository(context: Context) {
         heartRateDao.insertAll(heartRate)
     }
 
-    fun getAll(): List<HeartRate> {
-        return heartRateDao.getAll()
+    fun getAll(cursor: Int): LinkedBlockingQueue<Sensor> {
+        return heartRateDao.getAll(cursor)
     }
 
     fun delete(id: Long) {

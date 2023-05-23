@@ -1,5 +1,6 @@
 package com.example.asanmobile
 
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -7,6 +8,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings.Global
@@ -78,7 +80,7 @@ class AcceptService: Service() {
         acceptThread = AcceptThread(bluetoothAdapter, applicationContext)
         acceptThread.start()
 
-        csvWrite(60000 * 5) // 1분 * n
+        csvWrite(60000 * 7) // 1분 * n
         return START_REDELIVER_INTENT
     }
 
@@ -101,4 +103,5 @@ class AcceptService: Service() {
         timer.schedule(timerTask, 0, time)
 
     }
+
 }
