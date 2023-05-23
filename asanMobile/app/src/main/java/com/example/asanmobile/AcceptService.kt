@@ -1,6 +1,5 @@
 package com.example.asanmobile
 
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -8,16 +7,12 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.IBinder
-import android.provider.Settings.Global
 import androidx.core.app.NotificationCompat
 import com.example.asanmobile.sensor.controller.SensorController
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Timer
 import java.util.TimerTask
 
