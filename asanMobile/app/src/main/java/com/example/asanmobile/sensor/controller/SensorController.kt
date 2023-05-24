@@ -72,13 +72,15 @@ class SensorController(context: Context) {
                 prefManager.putCursor("HeartRate", heartCursor + heartRateSize)
                 heartRateSet
             }
-             "PpgGreen" -> {
-                 val ppgGreenCursor = prefManager.getCursor("PpgGreen")
-                 val ppgGreenSet = ppgGreenRepository.getAll(ppgGreenCursor)
-                 val ppgGreenSize = ppgGreenSet.size
-                 prefManager.putCursor("PpgGreen", ppgGreenCursor + ppgGreenSize)
-                 ppgGreenSet
-             }
+
+            "PpgGreen" -> {
+                val ppgGreenCursor = prefManager.getCursor("PpgGreen")
+                val ppgGreenSet = ppgGreenRepository.getAll(ppgGreenCursor)
+                val ppgGreenSize = ppgGreenSet.size
+                prefManager.putCursor("PpgGreen", ppgGreenCursor + ppgGreenSize)
+                ppgGreenSet
+            }
+
             else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
         }
         return@withContext sensorSet
@@ -108,21 +110,23 @@ class SensorController(context: Context) {
 
             // 데이터 레포에 넣는 코루틴
             launch {
-                do {
-                    // 방어 코드 필요
-                    var hrValue = hrStr?.value
-                    val hrRes = hrValue.toString().split(":")
-                    val time = hrRes[0].trim()
-                    val data = hrRes[1].trim().toFloat()
+                if (hrStr != null) {
+                    do {
+                        // 방어 코드 필요
+                        var hrValue = hrStr?.value
+                        val hrRes = hrValue.toString().split(":")
+                        val time = hrRes[0].trim()
+                        val data = hrRes[1].trim().toFloat()
 
-                    // data = 0은 스킵
-                    if (data.toInt() == (0.0).toInt()) {
-                        continue
-                    } else {
-                        heartRateRepository.insert(HeartRate(time, data))
-                    }
+                        // data = 0은 스킵
+                        if (data.toInt() == (0.0).toInt()) {
+                            continue
+                        } else {
+                            heartRateRepository.insert(HeartRate(time, data))
+                        }
 //                        Log.d(TAG, "SAVED: $time, $data")
-                } while(hrStr?.next() != null)
+                    } while (hrStr?.next() != null)
+                }
             }
 
             launch {

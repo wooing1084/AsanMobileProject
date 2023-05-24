@@ -24,7 +24,7 @@ class SendingService : Service() {
         private val NOTIFICATION_ID = 1
         private val CHANNEL_ID = "ForegroundServiceChannel"
         val tag = "Sending Sevice"
-        val second = 10
+        val second = 120
     }
 
 
