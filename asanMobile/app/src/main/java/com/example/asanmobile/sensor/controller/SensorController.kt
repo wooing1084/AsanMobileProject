@@ -106,6 +106,8 @@ class SensorController(context: Context) {
         // 처음오는 숫자가 12 이상이 오고, '['로 시작하고 안에는 어떤 문장이 와도 괜찮고, ']'로 끝나야 한다
 //        val ppgGreen = "(\\d{12,}): \\[[^\\]]*\\]".toRegex()
         val pgRegex = "^1\\|.+-\$".toRegex()
+
+        val valueRegex = "(\\d{12,}):-?\\d+(\\.\\d+)?".toRegex()
         for (str in bufferData) {
             val hrStr = heartRegex.find(str)
             val pgStr = pgRegex.find(str)
@@ -113,43 +115,49 @@ class SensorController(context: Context) {
             // 데이터 레포에 넣는 코루틴
             launch {
                 if (hrStr != null) {
-                    do {
-                        // 방어 코드 필요
-                        val hrValue = hrStr.value
-                        val hrRes = hrValue.toString().split(":")
-                        val time = hrRes[0].trim()
-                        val data = hrRes[1].trim().toFloat()
+                    try {
+                        do {
+                            // 방어 코드 필요
+                            val hrRes = valueRegex.find(hrStr.toString()).toString().split(":")
+                            val time = hrRes[0].trim()
+                            val data = hrRes[1].trim().toFloat()
 
-                        // data = 0은 스킵
-                        if (data.toInt() == (0.0).toInt()) {
-                            continue
-                        } else {
-                            heartRateRepository.insert(HeartRate(time, data))
-                        }
+                            // data = 0은 스킵
+                            if (data.toInt() == (0.0).toInt()) {
+                                continue
+                            } else {
+                                heartRateRepository.insert(HeartRate(time, data))
+                            }
 //                        Log.d(TAG, "SAVED: $time, $data")
-                    } while (hrStr.next() != null)
+                        } while (hrStr.next() != null)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
 
             launch {
                 if (pgStr != null) {
                     try {
-                        val ppgGreenValue = pgStr.value
-                        val pgRes = ppgGreenValue.split(":")
-                        val pgTime = pgRes[0].trim()
-                        val innerPpg = pgRes[1].trim()
-                        val innerRex = "^[+-]?\\d*(\\.?\\d*)?$".toRegex()
+//                        val ppgGreenValue = pgStr.value
+//                        val pgRes = ppgGreenValue.split(":")
+//                        val pgTime = pgRes[0].trim()
+//                        val innerPpg = pgRes[1].trim()
+//                        val innerRex = "^[+-]?\\d*(\\.?\\d*)?$".toRegex()
                         do {
-                            val pgStr = innerRex.find(innerPpg)
-                            val pgValue = pgStr.toString().toFloat()
+//                            val pgStr = innerRex.find(innerPpg)
+//                            val pgValue = pgStr.toString().toFloat()
+                            val pgRes = valueRegex.find(pgStr.toString()).toString().split(":")
+                            val time = pgRes[0].trim()
+                            val data = pgRes[1].trim().toFloat()
 
-                            if (pgValue.toInt() == (0.0).toInt()) {
+                            if (data.toInt() == (0.0).toInt()) {
                                 continue
                             } else {
-                                Log.d(this.toString(), "SAVED: $pgTime, $pgValue")
-                                ppgGreenRepository.insert(PpgGreen(pgTime, pgValue))
+//                                Log.d(this.toString(), "SAVED: $time, $data")
+                                ppgGreenRepository.insert(PpgGreen(time, data))
                             }
-                        } while (pgStr?.next() != null)
+                        } while (pgStr.next() != null)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }

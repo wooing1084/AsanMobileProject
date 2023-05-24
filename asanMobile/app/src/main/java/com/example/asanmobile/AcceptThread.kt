@@ -56,7 +56,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 
             socket?.let {
                 val mInputputStream = socket.inputStream
-                val buffer = ByteArray(1024)
+                val buffer = ByteArray(125000)
                 var bytes: Int
                 EventBus.getDefault().post(SocketStateEvent(SocketState.CONNECT))
 
