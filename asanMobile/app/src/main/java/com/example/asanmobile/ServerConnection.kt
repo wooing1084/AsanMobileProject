@@ -87,6 +87,7 @@ abstract class ServerConnection{
                     if(response.code().toString() == "200"){
                         val intent = Intent(context, SensorActivity::class.java)
                         intent.putExtra("ID", authcode)
+                        intent.putExtra("DeviceID", deviceID)
                         context.startActivity(intent)
                         context.finish()
                     }

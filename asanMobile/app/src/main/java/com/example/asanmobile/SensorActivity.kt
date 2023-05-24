@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
@@ -25,6 +26,12 @@ class SensorActivity() : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //로그인 페이지에서 온 id들 가져오기
+        DeviceInfo.init(intent.getStringExtra("ID").toString(),
+            intent.getStringExtra("DeviceID").toString())
+
+
         setContentView(R.layout.activity_sensor)
         sensorController = SensorController.getInstance(this)
 
@@ -52,15 +59,15 @@ class SensorActivity() : AppCompatActivity() {
         btnStart = findViewById<Button>(R.id.BtnStart)
         btnStart.setOnClickListener(View.OnClickListener {
             serviceStart()
-//            val sendIntent = Intent(this, SendingService::class.java)
-//            startService(sendIntent)
+            val sendIntent = Intent(this, SendingService::class.java)
+            startService(sendIntent)
         })
         btnStop = findViewById<Button>(R.id.BtnStop)
         btnStop.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, AcceptService::class.java)
             stopService(intent)
-//            val sendIntent = Intent(this, SendingService::class.java)
-//            stopService(sendIntent)
+            val sendIntent = Intent(this, SendingService::class.java)
+            stopService(sendIntent)
         })
 
 //        btnCsv = findViewById<Button>(R.id.sameleButton)
