@@ -15,6 +15,7 @@ import java.io.File
 import java.sql.Date
 import kotlin.concurrent.timer
 import androidx.core.app.NotificationCompat
+import com.example.asanmobile.common.DeviceInfo
 import java.io.IOException
 
 
@@ -99,12 +100,15 @@ class SendingService : Service() {
         val ppgFile = getFile(ppgDestPath)
 
         if (ppgFile != null) {
-            //ServerConnection.postFile(ppg, "gachon_test", "100", formattedDate.toString())
-            Log.e(tag, "PPG Green sensor file sending!")
+//            val token = ppgFileName!!.split('_')
+//            val ppgTime = token[1].split('.')[0]
+
+            //ServerConnection.postFile(ppgFile, DeviceInfo._deviceID, "100", ppgTime)
+            Log.d(tag, "PPG Green sensor file sending!")
         }
         if(heartFile != null)
         {
-            Log.e(tag, "Heartrate sensor file sending!")
+            Log.d(tag, "Heartrate sensor file sending!")
         }
 
     }
