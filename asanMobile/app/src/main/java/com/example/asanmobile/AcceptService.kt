@@ -81,7 +81,7 @@ class AcceptService: Service() {
         acceptThread = AcceptThread(bluetoothAdapter, applicationContext)
         acceptThread.start()
 
-        csvWrite(1000 * 10) // 1분 * n
+        csvWrite(60000 * 7) // 1분 * n
         return START_REDELIVER_INTENT
     }
 

@@ -100,14 +100,14 @@ class SensorController(context: Context) {
     private suspend fun writeSensorRepo(bufferData: List<String>) = coroutineScope {
         // 심장박동수 정규표현식
 //        val heartRegex = "\\d{12,}:\\d{1,4}[.]\\d|\\d{12,}:\\d{1,4}-".toRegex()
-        val heartRegex = "^0\\|.+-\$".toRegex()
+        val heartRegex = "^0\\|\\d{13,}:\\d+(\\.\\d+)?-\$".toRegex()
 
         // ppgGreen 정규표현식
         // 처음오는 숫자가 12 이상이 오고, '['로 시작하고 안에는 어떤 문장이 와도 괜찮고, ']'로 끝나야 한다
 //        val ppgGreen = "(\\d{12,}): \\[[^\\]]*\\]".toRegex()
-        val pgRegex = "^1\\|.+-\$".toRegex()
+        val pgRegex = "^1\\|\\d{13,}:\\d{7,}-\$".toRegex()
 
-        val valueRegex = "(\\d{12,}):-?\\d+(\\.\\d+)?".toRegex()
+        val valueRegex = "^(?!1\\|.*-.*\$).*[^-]\$".toRegex()
         for (str in bufferData) {
             val hrStr = heartRegex.find(str)
             val pgStr = pgRegex.find(str)
