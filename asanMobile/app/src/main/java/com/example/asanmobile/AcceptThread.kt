@@ -9,8 +9,11 @@ import android.util.Log
 import android.widget.Toast
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.*
+import org.greenrobot.eventbus.EventBus
 import java.io.IOException
 import java.util.*
+
+import com.example.asanmobile.SocketState
 
 
 @SuppressLint("MissingPermission")
@@ -55,6 +58,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                 val mInputputStream = socket.inputStream
                 val buffer = ByteArray(1024)
                 var bytes: Int
+                EventBus.getDefault().post(SocketStateEvent(SocketState.CONNECT))
 
                 while (true) {
                     try {
@@ -69,12 +73,14 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to read message form socket", e)
                         socket.close()
+                        EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
                         break
                     } finally {
                         try {
                             if (!socket.isConnected) {
                                 socket.use {
                                     socket.close()
+                                    EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
                                 }
                             }
                         } catch (e: Exception) {
@@ -85,4 +91,5 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
             }
         }
     }
+
 }

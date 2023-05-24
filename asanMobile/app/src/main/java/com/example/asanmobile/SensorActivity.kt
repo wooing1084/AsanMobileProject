@@ -6,18 +6,23 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.asanmobile.sensor.controller.SensorController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
+import kotlinx.android.synthetic.main.item_text.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 
 class SensorActivity() : AppCompatActivity() {
     private lateinit var serviceIntent : Intent
     private lateinit var sensorController: SensorController
 
+    private lateinit var stateLabel: TextView
     private lateinit var btnStart: Button
     private lateinit var btnStop: Button
     private lateinit var btnRename: Button
@@ -49,6 +54,9 @@ class SensorActivity() : AppCompatActivity() {
         }
 
         // 화면
+        stateLabel = findViewById(R.id.stateLabel)
+        stateLabel.setText(SocketState.NONE.toString())
+
         btnStart = findViewById<Button>(R.id.BtnStart)
         btnStart.setOnClickListener(View.OnClickListener {
             serviceStart()
@@ -77,6 +85,16 @@ class SensorActivity() : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
+    }
+
     fun serviceStart() {
         serviceIntent = Intent(this, AcceptService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -84,6 +102,14 @@ class SensorActivity() : AppCompatActivity() {
         }
         else {
             startService(serviceIntent)
+        }
+    }
+
+    @Subscribe
+    fun listenSocketState(event: SocketStateEvent) {
+        val state = event.state.name
+        runOnUiThread {
+            stateLabel.text = state
         }
     }
 
