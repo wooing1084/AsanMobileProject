@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.GlobalScope
@@ -89,6 +90,7 @@ class AcceptService: Service() {
         val timer = Timer()
             val timerTask = object: TimerTask() {
                 override fun run() {
+                    Log.d("Accept Service", "CSV Write method called")
                     GlobalScope.launch {
                         sensorController.writeCsv(this@AcceptService, "HeartRate")
                         sensorController.writeCsv(this@AcceptService, "PpgGreen")

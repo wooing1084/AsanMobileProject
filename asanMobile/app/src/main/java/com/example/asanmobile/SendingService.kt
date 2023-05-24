@@ -24,7 +24,7 @@ class SendingService : Service() {
         private val NOTIFICATION_ID = 1
         private val CHANNEL_ID = "ForegroundServiceChannel"
         val tag = "Sending Sevice"
-        val second = 120
+        val second = 20
     }
 
 
@@ -103,12 +103,16 @@ class SendingService : Service() {
         if (ppgFile != null) {
 //            val token = ppgFileName!!.split('_')
 //            val ppgTime = token[1].split('.')[0]
-
-            //ServerConnection.postFile(ppgFile, DeviceInfo._deviceID, "100", ppgTime)
+//
+//            ServerConnection.postFile(ppgFile, DeviceInfo._uID, "100", ppgTime)
             Log.d(tag, "PPG Green sensor file sending!")
         }
         if(heartFile != null)
         {
+//            val token = hrFileName!!.split('_')
+//            val hrTime = token[1].split('.')[0]
+//
+//            ServerConnection.postFile(heartFile, DeviceInfo._uID, "100", hrTime)
             Log.d(tag, "Heartrate sensor file sending!")
         }
 
