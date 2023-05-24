@@ -20,12 +20,10 @@ import java.io.IOException
 
 
 class SendingService : Service() {
-    companion object {
-        private val NOTIFICATION_ID = 1
-        private val CHANNEL_ID = "ForegroundServiceChannel"
-        val tag = "Sending Sevice"
-        val second = 20
-    }
+    private val NOTIFICATION_ID = 1
+    private val CHANNEL_ID = "ForegroundServiceChannel"
+    val tag = "Sending Sevice"
+    val second = 20
 
 
 
