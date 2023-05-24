@@ -75,9 +75,9 @@ class SensorActivity() : AppCompatActivity() {
             val intent = Intent(this, AcceptService::class.java)
             if(intent != null)
                 stopService(intent)
-            val sendIntent = Intent(this, SendingService::class.java)
-            if(sendIntent != null)
-                stopService(sendIntent)
+//            val sendIntent = Intent(this, SendingService::class.java)
+//            if(sendIntent != null)
+//                stopService(sendIntent)
         })
 
 //        btnCsv = findViewById<Button>(R.id.sameleButton)
@@ -122,8 +122,8 @@ class SensorActivity() : AppCompatActivity() {
             startService(serviceIntent)
         }
 
-        val sendIntent = Intent(this, SendingService::class.java)
-        startService(sendIntent)
+//        val sendIntent = Intent(this, SendingService::class.java)
+//        startService(sendIntent)
     }
 
     @Subscribe
