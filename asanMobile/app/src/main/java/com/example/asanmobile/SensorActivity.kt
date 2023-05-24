@@ -1,9 +1,11 @@
 package com.example.asanmobile
 
 import android.Manifest
+import android.app.ActivityManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -67,15 +69,15 @@ class SensorActivity() : AppCompatActivity() {
         btnStart = findViewById<Button>(R.id.BtnStart)
         btnStart.setOnClickListener(View.OnClickListener {
             serviceStart()
-            val sendIntent = Intent(this, SendingService::class.java)
-            startService(sendIntent)
         })
         btnStop = findViewById<Button>(R.id.BtnStop)
         btnStop.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, AcceptService::class.java)
-            stopService(intent)
+            if(intent != null)
+                stopService(intent)
             val sendIntent = Intent(this, SendingService::class.java)
-            stopService(sendIntent)
+            if(sendIntent != null)
+                stopService(sendIntent)
         })
 
 //        btnCsv = findViewById<Button>(R.id.sameleButton)
@@ -103,6 +105,15 @@ class SensorActivity() : AppCompatActivity() {
     }
 
     fun serviceStart() {
+//        val str = this.packageName + ".AcceptService"
+        val manager = this.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (service.service.className.contains("AcceptService")) {
+                Log.d("SensorActivity", "Service Already Running")
+                return
+            }
+        }
+
         serviceIntent = Intent(this, AcceptService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
@@ -110,6 +121,9 @@ class SensorActivity() : AppCompatActivity() {
         else {
             startService(serviceIntent)
         }
+
+        val sendIntent = Intent(this, SendingService::class.java)
+        startService(sendIntent)
     }
 
     @Subscribe

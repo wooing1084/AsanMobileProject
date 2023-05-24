@@ -39,7 +39,8 @@ class SendingService : Service() {
         startForeground(NOTIFICATION_ID, notification)
 
         Log.d( tag, "start service")
-        val t = timer(period = (second * 1000).toLong()){
+        val t = timer(period = (second * 1000).toLong(),
+            initialDelay = (second * 1000).toLong()){
             Log.d("Sending Service", "Send!")
             sendCSV()
         }

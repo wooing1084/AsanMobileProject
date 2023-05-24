@@ -20,12 +20,12 @@ class MainActivity : AppCompatActivity() {
         //====
 
 //        // 로그인페이지로 전환
-//        intent = Intent(this, LoginActivity::class.java)
-//        startActivity(intent)
+        intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
 
         // 테스트용 바로 센서액티비티
-        val intent = Intent(this, SensorActivity::class.java)
-        startActivity(intent)
+//        val intent = Intent(this, SensorActivity::class.java)
+//        startActivity(intent)
 
     }
 
