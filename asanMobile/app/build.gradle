@@ -68,6 +68,10 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation "org.greenrobot:eventbus:3.3.1"
 
+    // 테스트 코드 작성용 의존성
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:4.1.0'
+
 //    // 디버그용 leakCanary
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
 }

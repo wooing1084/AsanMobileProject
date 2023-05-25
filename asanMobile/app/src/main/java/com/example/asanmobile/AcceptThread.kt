@@ -13,7 +13,8 @@ import org.greenrobot.eventbus.EventBus
 import java.io.IOException
 import java.util.*
 
-import com.example.asanmobile.SocketState
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 
 @SuppressLint("MissingPermission")
@@ -55,19 +56,37 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
             }
 
             socket?.let {
-                val mInputputStream = socket.inputStream
+                val inputStream = it.inputStream
                 val buffer = ByteArray(125000)
-                var bytes: Int
+
+                Log.d(this.toString(), buffer.toString())
                 EventBus.getDefault().post(SocketStateEvent(SocketState.CONNECT))
 
                 while (true) {
                     try {
-                        bytes = mInputputStream.read(buffer)
-                        val msg = String(buffer, 0, bytes, Charsets.UTF_8)
-                        Log.d(this.toString(), msg)
+                        val receivedData = buffer.copyOf(inputStream.read(buffer))
+                        val byteBuffer = ByteBuffer.wrap(receivedData)
+                        byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
+                        val reconstructedData = StringBuilder()
+
+                        while (byteBuffer.hasRemaining()) {
+                            when (byteBuffer.position() % 16) {
+                                // 0 <= ppgGreen이냐 heartRate구분 하는 곳
+                                // byteBuffer1.int <= buffer에서 int만큼 읽겠다 이뜻임
+                                // reconstructedData할 필요없이 여기서 바로 String으로 바꾸고 DB? file에 넣으면 될듯
+                                0 -> reconstructedData.append(byteBuffer.int).append("|")
+                                // 여긴 타임스탬프
+                                4 -> reconstructedData.append(byteBuffer.long).append(":")
+                                // 여긴 값
+                                12 -> reconstructedData.append(byteBuffer.float).append("-")
+                            }
+                        }
+
+                        val str = reconstructedData.toString()
+                        Log.d(this.toString(), str.toString())
 
                         CoroutineScope(Dispatchers.IO).launch {
-                            sensorController.dataAccept(msg)
+                            sensorController.dataAccept(str)
                         }
                         // 오류 발생시 소켓 close
                     } catch (e: IOException) {

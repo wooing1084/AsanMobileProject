@@ -12,7 +12,7 @@ import com.example.asanmobile.sensor.model.Sensor
 import com.example.asanmobile.sensor.repository.HeartRateRepository
 import com.example.asanmobile.sensor.repository.PpgGreenRepository
 import kotlinx.coroutines.*
-import java.util.concurrent.LinkedBlockingQueue
+import java.nio.ByteBuffer
 
 // 전역 객체
 class SensorController(context: Context) {
@@ -36,9 +36,6 @@ class SensorController(context: Context) {
         val bufferSize = 1024 // 버퍼 사이즈 설정
         val bufferTime = 2000L // 버퍼링 주기 설정 (2.0 초)
         val buffer = mutableListOf<String>() // 버퍼 선언
-
-        // 데이터를 전달하는 채널 선언
-//            val channel = Channel<String>(bufferSize)
 
         // 데이터를 받아서 버퍼에 저장하는 코루틴
         launch {
@@ -92,76 +89,79 @@ class SensorController(context: Context) {
         Log.d(this.toString(), buffer.toString())
         writeSensorRepo(buffer)
         buffer.clear() // 버퍼 내용을 비움
-
-//        // 복사한 버퍼 데이터를 처리
-//        println("Processing: $buffer")
     }
 
-    private suspend fun writeSensorRepo(bufferData: List<String>) = coroutineScope {
+    private suspend fun writeSensorRepo(bufferList: List<String>) = coroutineScope {
         // 심장박동수 정규표현식
 //        val heartRegex = "\\d{12,}:\\d{1,4}[.]\\d|\\d{12,}:\\d{1,4}-".toRegex()
-        val heartRegex = "^0\\|\\d{13,}:\\d+(\\.\\d+)?-\$".toRegex()
+        val hrRegex = "^0\\|\\d{13,}:\\d+(\\.\\d+)?-\$".toRegex()
 
         // ppgGreen 정규표현식
         // 처음오는 숫자가 12 이상이 오고, '['로 시작하고 안에는 어떤 문장이 와도 괜찮고, ']'로 끝나야 한다
 //        val ppgGreen = "(\\d{12,}): \\[[^\\]]*\\]".toRegex()
         val pgRegex = "^1\\|\\d{13,}:\\d{7,}-\$".toRegex()
 
-        val valueRegex = "^(?!1\\|.*-.*\$).*[^-]\$".toRegex()
-        for (str in bufferData) {
-            val hrStr = heartRegex.find(str)
-            val pgStr = pgRegex.find(str)
+        val valueRegex = "(^\\d{12,}):-?\\d+(\\.\\d+)?".toRegex()
+
+        for (buffer in bufferList) {
+            Log.d(TAG, "str: $buffer")
+            println("str: $buffer")
+            val hrList = hrRegex.findAll(buffer)
+            Log.d(TAG, "hr: $hrList")
+            val pgList = pgRegex.findAll(buffer)
+            Log.d(TAG, "pg: $pgList")
 
             // 데이터 레포에 넣는 코루틴
             launch {
-                if (hrStr != null) {
-                    try {
-                        do {
-                            // 방어 코드 필요
-                            val hrRes = valueRegex.find(hrStr.toString()).toString().split(":")
-                            val time = hrRes[0].trim()
-                            val data = hrRes[1].trim().toFloat()
+                try {
+                    for (hrPattern in hrList) {
+                        println("hrPatter: $hrPattern")
+                        // 방어 코드 필요
+                        val hrRes = valueRegex.find(hrList.toString()).toString().split(":")
+                        val time = hrRes[0].trim()
+                        val data = hrRes[1].trim().toFloat()
 
-                            // data = 0은 스킵
-                            if (data.toInt() == (0.0).toInt()) {
-                                continue
-                            } else {
-                                heartRateRepository.insert(HeartRate(time, data))
-                            }
-//                        Log.d(TAG, "SAVED: $time, $data")
-                        } while (hrStr.next() != null)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+                        // data = 0은 스킵
+                        if (data.toInt() == (0.0).toInt()) {
+                            continue
+                        } else {
+                            Log.d(TAG, "SAVED: $time, $data")
+                            println("SAVED: $time, $data")
+                            print(1)
+//                            heartRateRepository.insert(HeartRate(time, data))
+                        }
+
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
 
             launch {
-                if (pgStr != null) {
-                    try {
+                try {
 //                        val ppgGreenValue = pgStr.value
 //                        val pgRes = ppgGreenValue.split(":")
 //                        val pgTime = pgRes[0].trim()
 //                        val innerPpg = pgRes[1].trim()
 //                        val innerRex = "^[+-]?\\d*(\\.?\\d*)?$".toRegex()
-                        do {
 //                            val pgStr = innerRex.find(innerPpg)
 //                            val pgValue = pgStr.toString().toFloat()
-                            val pgRes = valueRegex.find(pgStr.toString()).toString().split(":")
-                            val time = pgRes[0].trim()
-                            val data = pgRes[1].trim().toFloat()
+                    for (pgPattern in pgList) {
+                        val pgRes = valueRegex.find(pgPattern.toString()).toString().split(":")
+                        val time = pgRes[0].trim()
+                        val data = pgRes[1].trim().toFloat()
 
-                            if (data.toInt() == (0.0).toInt()) {
-                                continue
-                            } else {
-//                                Log.d(this.toString(), "SAVED: $time, $data")
-                                ppgGreenRepository.insert(PpgGreen(time, data))
-                            }
-                        } while (pgStr.next() != null)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+                        if (data.toInt() == (0.0).toInt()) {
+                            continue
+                        } else {
+                            Log.d(this.toString(), "SAVED: $time, $data")
+                            ppgGreenRepository.insert(PpgGreen(time, data))
+                        }
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
+            }
 
 //                    val res = toString().split(":")
 //                    val time = res[0].trim()
@@ -174,9 +174,9 @@ class SensorController(context: Context) {
 //                            data.replace("]", "")
 //                        }
 //                    }
-            }
         }
     }
+
 
     // 커서랑 개수 정해야 함
     suspend fun writeCsv(context: Context, sensorName: String) = coroutineScope {
