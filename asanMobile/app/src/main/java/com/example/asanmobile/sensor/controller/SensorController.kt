@@ -94,14 +94,14 @@ class SensorController(context: Context) {
     private suspend fun writeSensorRepo(bufferList: List<String>) = coroutineScope {
         // 심장박동수 정규표현식
 //        val heartRegex = "\\d{12,}:\\d{1,4}[.]\\d|\\d{12,}:\\d{1,4}-".toRegex()
-        val hrRegex = "^0\\|\\d{13,}:\\d+(\\.\\d+)?-\$".toRegex()
+        val hrRegex = "0\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
 
         // ppgGreen 정규표현식
-        // 처음오는 숫자가 12 이상이 오고, '['로 시작하고 안에는 어떤 문장이 와도 괜찮고, ']'로 끝나야 한다
 //        val ppgGreen = "(\\d{12,}): \\[[^\\]]*\\]".toRegex()
-        val pgRegex = "^1\\|\\d{13,}:\\d{7,}-\$".toRegex()
+        val pgRegex = "1\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
 
-        val valueRegex = "(^\\d{12,}):-?\\d+(\\.\\d+)?".toRegex()
+        // value 정규표현식
+        val valueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
 
         for (buffer in bufferList) {
             Log.d(TAG, "str: $buffer")
@@ -115,22 +115,22 @@ class SensorController(context: Context) {
             launch {
                 try {
                     for (hrPattern in hrList) {
-                        println("hrPatter: $hrPattern")
-                        // 방어 코드 필요
-                        val hrRes = valueRegex.find(hrList.toString()).toString().split(":")
-                        val time = hrRes[0].trim()
-                        val data = hrRes[1].trim().toFloat()
+                        val hrVal = hrPattern.value
+                        val resRex = valueRegex.find(hrVal)
+                        val res = resRex?.value
+                        if (res != null) {
+                            val str = res.split(":")
+                            val time = str[0]
+                            val data = str[1]
 
-                        // data = 0은 스킵
-                        if (data.toInt() == (0.0).toInt()) {
-                            continue
-                        } else {
-                            Log.d(TAG, "SAVED: $time, $data")
-                            println("SAVED: $time, $data")
-                            print(1)
-//                            heartRateRepository.insert(HeartRate(time, data))
+                            // data = 0은 스킵
+                            if (data.toInt() == (0.0).toInt()) {
+                                continue
+                            } else {
+                                Log.d(TAG, "SAVED: $time, $data")
+                                heartRateRepository.insert(HeartRate(time, data.toFloat()))
+                            }
                         }
-
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -139,23 +139,22 @@ class SensorController(context: Context) {
 
             launch {
                 try {
-//                        val ppgGreenValue = pgStr.value
-//                        val pgRes = ppgGreenValue.split(":")
-//                        val pgTime = pgRes[0].trim()
-//                        val innerPpg = pgRes[1].trim()
-//                        val innerRex = "^[+-]?\\d*(\\.?\\d*)?$".toRegex()
-//                            val pgStr = innerRex.find(innerPpg)
-//                            val pgValue = pgStr.toString().toFloat()
                     for (pgPattern in pgList) {
-                        val pgRes = valueRegex.find(pgPattern.toString()).toString().split(":")
-                        val time = pgRes[0].trim()
-                        val data = pgRes[1].trim().toFloat()
+                        val pgVal = pgPattern.value
+                        val resRex = valueRegex.find(pgVal)
+                        val res = resRex?.value
 
-                        if (data.toInt() == (0.0).toInt()) {
-                            continue
-                        } else {
-                            Log.d(this.toString(), "SAVED: $time, $data")
-                            ppgGreenRepository.insert(PpgGreen(time, data))
+                        if (res != null) {
+                            val str = res.split(":")
+                            val time = str[0]
+                            val data = str[1]
+
+                            if (data.toInt() == (0.0).toInt()) {
+                                continue
+                            } else {
+                                Log.d(this.toString(), "SAVED: $time, $data")
+                                ppgGreenRepository.insert(PpgGreen(time, data.toFloat()))
+                            }
                         }
                     }
                 } catch (e: Exception) {

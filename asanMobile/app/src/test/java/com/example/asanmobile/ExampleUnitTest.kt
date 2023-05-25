@@ -29,26 +29,41 @@ class ExampleUnitTest {
 
     @Test
     fun regex_test() {
-        val trueString: String = "0|1234509093636:0.0-0|1234509093636:1.0-0|1234509093636:2.0-"
-        val falseString: String = "10|123453636:0.0-"
+        val trueString: String = "0|1234509093636:0.01-0|1234509093636:1.0-0|1234509093636:2.0-"
+        val pgString: String = "0|1234509093636:0.0-1|1234509093636:-14232311.02-0|1234509093636:1.0-1|1234509093636:0.0-"
 
         val hrRegex = "0\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
-        val pgRegex = "1\\|\\d{13,}:\\d{7,}-\$".toRegex()
+        val pgRegex = "1\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
         val valueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
 
-        val hrList = hrRegex.find(trueString)
-        val pgList = pgRegex.find(trueString)
+        val hrList = hrRegex.findAll(trueString)
+        val pgList = pgRegex.findAll(pgString)
 
-        println(hrList?.value)
-        do {
-            val hrVal = hrList?.next();
-            println(hrVal?.value)
-            val hrRes = valueRegex.find(hrVal?.value.toString())
-            val res = hrRes?.value.toString().split(":")
-            println(res[0])
-            println(res[1])
+        for (hrPattern in hrList) {
+            val hrVal = hrPattern.value
+            val resRex = valueRegex.find(hrVal)
+            val res = resRex?.value
+            if (res != null) {
+                val str = res.split(":")
+                val time = str[0]
+                val data = str[1]
 
-        } while (hrVal?.next() != null)
+                println("$time, $data")
+            }
+        }
+
+        for (pgPattern in pgList) {
+            val pgVal = pgPattern.value
+            val resRex = valueRegex.find(pgVal)
+            val res = resRex?.value
+
+            if (res != null) {
+                val str = res.split(":")
+                val time = str[0]
+                val data = str[1]
+                println("$time, $data")
+            }
+        }
 
 //            val time = hrRes[0].trim()
 //            val data = hrRes[1].trim().toFloat()
