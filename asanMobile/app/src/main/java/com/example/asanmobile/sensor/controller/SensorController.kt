@@ -12,6 +12,7 @@ import com.example.asanmobile.sensor.model.Sensor
 import com.example.asanmobile.sensor.repository.HeartRateRepository
 import com.example.asanmobile.sensor.repository.PpgGreenRepository
 import kotlinx.coroutines.*
+import java.io.IOException
 import java.nio.ByteBuffer
 
 // 전역 객체
@@ -121,10 +122,10 @@ class SensorController(context: Context) {
                         if (res != null) {
                             val str = res.split(":")
                             val time = str[0]
-                            val data = str[1]
+                            val data = str[1].toFloat()
 
                             // data = 0은 스킵
-                            if (data.toInt() == (0.0).toInt()) {
+                            if (data == (0.0).toFloat()) {
                                 continue
                             } else {
                                 Log.d(TAG, "SAVED: $time, $data")
@@ -147,13 +148,13 @@ class SensorController(context: Context) {
                         if (res != null) {
                             val str = res.split(":")
                             val time = str[0]
-                            val data = str[1]
+                            val data = str[1].toFloat()
 
-                            if (data.toInt() == (0.0).toInt()) {
+                            if (data == (0.0).toFloat()) {
                                 continue
                             } else {
                                 Log.d(this.toString(), "SAVED: $time, $data")
-                                ppgGreenRepository.insert(PpgGreen(time, data.toFloat()))
+                                ppgGreenRepository.insert(PpgGreen(time, data))
                             }
                         }
                     }
@@ -177,7 +178,6 @@ class SensorController(context: Context) {
     }
 
 
-    // 커서랑 개수 정해야 함
     suspend fun writeCsv(context: Context, sensorName: String) = coroutineScope {
         // sensorName 적절하게 들어왔는지, 네임을 적절하게 넣어야 함
         Log.d(this.toString(), "csv 시작")
@@ -186,7 +186,21 @@ class SensorController(context: Context) {
             CsvController.csvFirst(context, sensorName)
         }
         val fileName = CsvController.fileExist(context, sensorName)
-        CsvController.csvSave(context, fileName!!, sensorSet)
+        // 작성시 이름이 없을 때
+        if (fileName == null) {
+            CsvController.csvFirst(context, sensorName)
+        }
+        try {
+            CsvController.csvSave(context, fileName!!, sensorSet)
+        } catch (e: IOException) {
+            // 혹여나 delay로 인해 터질때 대비
+            delay(1000)
+            // 여기서도 이름이 없을까봐
+            CsvController.csvFirst(context, sensorName)
+            CsvController.csvSave(context, fileName!!, sensorSet)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         Log.d(this.toString(), "csv 생성")
     }
 

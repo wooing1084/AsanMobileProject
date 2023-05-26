@@ -21,7 +21,7 @@ import java.nio.ByteOrder
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
     private lateinit var sensorController: SensorController
-//    private val serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
+    //    private val serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
 //    private val handler = Handler(Looper.getMainLooper())
     private val context: Context = context
 
@@ -35,7 +35,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         try {
             Toast.makeText(context, "Start Service", Toast.LENGTH_LONG).show()
             // 서버 소켓
-             serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
+            serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
             sensorController = SensorController.getInstance(context)
         } catch (e: Exception) {
             Log.d(TAG, e.message.toString())
@@ -57,7 +57,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 
             socket?.let {
                 val inputStream = it.inputStream
-                val buffer = ByteArray(125000)
+                var buffer = ByteArray(990)
 
                 Log.d(this.toString(), buffer.toString())
                 EventBus.getDefault().post(SocketStateEvent(SocketState.CONNECT))
@@ -65,8 +65,12 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                 while (true) {
                     try {
                         val receivedData = buffer.copyOf(inputStream.read(buffer))
+//                        val receivedData = buffer.copyOf(inputStream.read(buffer))
+//                        val buffer: ByteArray = inputStream.readNBytes(3200)
+//                        val byteBuffer = ByteBuffer.wrap(receivedData)
                         val byteBuffer = ByteBuffer.wrap(receivedData)
                         byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
+                        Log.i("size", byteBuffer.array().size.toString())
                         val reconstructedData = StringBuilder()
 
                         while (byteBuffer.hasRemaining()) {
@@ -74,7 +78,9 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                                 // 0 <= ppgGreen이냐 heartRate구분 하는 곳
                                 // byteBuffer1.int <= buffer에서 int만큼 읽겠다 이뜻임
                                 // reconstructedData할 필요없이 여기서 바로 String으로 바꾸고 DB? file에 넣으면 될듯
-                                0 -> reconstructedData.append(byteBuffer.int).append("|")
+                                0 ->{
+                                    reconstructedData.append(byteBuffer.int).append("|")
+                                }
                                 // 여긴 타임스탬프
                                 4 -> reconstructedData.append(byteBuffer.long).append(":")
                                 // 여긴 값
