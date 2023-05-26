@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -81,7 +82,7 @@ class AcceptService: Service() {
         acceptThread = AcceptThread(bluetoothAdapter, applicationContext)
         acceptThread.start()
 
-        csvWrite(60000 * 1) // 1분 * n
+        csvWrite(60000 * 5) // 1분 * n
         return START_REDELIVER_INTENT
     }
 
@@ -100,13 +101,15 @@ class AcceptService: Service() {
                     GlobalScope.launch {
                         sensorController.writeCsv(this@AcceptService, "HeartRate")
                         sensorController.writeCsv(this@AcceptService, "PpgGreen")
+
+                        i ++
+                        if (i == 6) {
+                            sendCSV()
+                            i %= 6
+                        }
                     }
 
-                    i ++
-                    if (i == 6) {
-                        sendCSV()
-                        i %= 6
-                    }
+
                 }
             }
         timer.schedule(timerTask, 0, time)
@@ -115,7 +118,7 @@ class AcceptService: Service() {
 
 
     //From Sending Service
-    private fun sendCSV(){
+    suspend fun sendCSV(){
         //HeartRate
         val hrFileName = getExistFileName(this, "HeartRate")
         val hrSrcPath = getExternalPath(this,"sensor") + "/" +hrFileName
@@ -141,18 +144,18 @@ class AcceptService: Service() {
         val ppgFile = getFile(ppgDestPath)
 
         if (ppgFile != null) {
-//            val token = ppgFileName!!.split('_')
-//            val ppgTime = token[1].split('.')[0]
-//
-//            ServerConnection.postFile(ppgFile, DeviceInfo._uID, "100", ppgTime)
+            val token = ppgFileName!!.split('_')
+            val ppgTime = token[1].split('.')[0]
+
+            ServerConnection.postFile(ppgFile, DeviceInfo._uID, "100", ppgTime)
             Log.d(tag, "PPG Green sensor file sending!")
         }
         if(heartFile != null)
         {
-//            val token = hrFileName!!.split('_')
-//            val hrTime = token[1].split('.')[0]
-//
-//            ServerConnection.postFile(heartFile, DeviceInfo._uID, "100", hrTime)
+            val token = hrFileName!!.split('_')
+            val hrTime = token[1].split('.')[0]
+
+            ServerConnection.postFile(heartFile, DeviceInfo._uID, "100", hrTime)
             Log.d(tag, "Heartrate sensor file sending!")
         }
 

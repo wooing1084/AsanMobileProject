@@ -35,8 +35,8 @@ class SensorActivity() : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         //로그인 페이지에서 온 id들 가져오기
-        DeviceInfo.init(intent.getStringExtra("ID").toString(),
-            intent.getStringExtra("DeviceID").toString())
+        DeviceInfo.init(intent.getStringExtra("DeviceID").toString(),
+            intent.getStringExtra("ID").toString())
 
 
         setContentView(R.layout.activity_sensor)
