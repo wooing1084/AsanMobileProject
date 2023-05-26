@@ -197,7 +197,15 @@ class SensorController(context: Context) {
             delay(1000)
             // 여기서도 이름이 없을까봐
             CsvController.csvFirst(context, sensorName)
-            CsvController.csvSave(context, fileName!!, sensorSet)
+            val regenFile = CsvController.fileExist(context, sensorName)
+            CsvController.csvSave(context, regenFile!!, sensorSet)
+        } catch (e: NullPointerException) {
+            // 혹여나 delay로 인해 터질때 대비
+            delay(1000)
+            // 여기서도 이름이 없을까봐
+            CsvController.csvFirst(context, sensorName)
+            val regenFile = CsvController.fileExist(context, sensorName)
+            CsvController.csvSave(context, regenFile!!, sensorSet)
         } catch (e: Exception) {
             e.printStackTrace()
         }
