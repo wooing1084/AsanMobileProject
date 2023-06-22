@@ -22,13 +22,13 @@ abstract class ServerConnection{
         val requestUrl = "http://220.149.46.249:7778/forUser/postCurrentData/"
         val loginURL = "http://220.149.46.249:7778/forUser/registUser/"
         // 서버에 Post로 파일 전송하는 부분
-        fun postFile(file: File, userID: String, battery: String, timestamp: String, url: String = requestUrl) {
+        fun postFile(file: File, userID: String, battery: Int, timestamp: String, url: String = requestUrl) {
             //Post에 붙일 요청 body생성부분
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("csvfile", file.name, RequestBody.create(MediaType.parse("application/octet-stream"), file))
+                .addFormDataPart("csvfile", file.name, RequestBody.create(MediaType.parse("text/csv"), file))
                 .addFormDataPart("userID", userID)
-                .addFormDataPart("battery", battery)
+                .addFormDataPart("battery", battery.toString())
                 .addFormDataPart("timestamp", timestamp)
                 .build()
 

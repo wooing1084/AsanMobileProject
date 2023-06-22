@@ -63,7 +63,7 @@ object CsvController {
     // 현재 날짜 시간을 리턴하는 메소드
     // 형태: "yyyy-MM-dd_HH:mm:ss"
     private fun getTime(): String {
-        return System.currentTimeMillis().toString()
+        return (System.currentTimeMillis() / 1000L).toString()
     }
 
     private fun setFileName(sensorName: String): String {
