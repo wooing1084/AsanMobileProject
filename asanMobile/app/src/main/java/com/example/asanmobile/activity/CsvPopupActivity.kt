@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.asanmobile.R
 import com.example.asanmobile.adapter.TextAdapter
 import com.example.asanmobile.common.CsvController
+import com.example.asanmobile.databinding.ActivityCsvPopupBinding
 import java.io.File
 
 class CsvPopupActivity: AppCompatActivity() {
@@ -16,16 +17,22 @@ class CsvPopupActivity: AppCompatActivity() {
     private lateinit var adapter: TextAdapter
     private lateinit var itemList: MutableList<String>
 
+    private lateinit var binding: ActivityCsvPopupBinding
     private lateinit var closeButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_csv_popup)
-
-        closeButton = findViewById<Button>(R.id.btnClose)
-        closeButton.setOnClickListener {
-            finish() // 액티비티 종료
+//        setContentView(R.layout.activity_csv_popup)
+        binding = ActivityCsvPopupBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.btnClose.setOnClickListener {
+            finish()
         }
+
+//        closeButton = findViewById<Button>(R.id.btnClose)
+//        closeButton.setOnClickListener {
+//            finish() // 액티비티 종료
+//        }
 
         // 리사이클러 뷰 관련 코드
         recyclerView = findViewById(R.id.csv_recyclerView)

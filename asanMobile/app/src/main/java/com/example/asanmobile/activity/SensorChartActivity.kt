@@ -4,10 +4,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.asanmobile.adapter.TextAdapter
+import com.example.asanmobile.databinding.ActivityCsvPopupBinding
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 
 class SensorChartActivity: AppCompatActivity() {
+
+    private lateinit var binding: ActivityCsvPopupBinding
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: TextAdapter
@@ -24,6 +27,8 @@ class SensorChartActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityCsvPopupBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
     // 리사이클러 뷰 관련 코드
 //        recyclerView = findViewById(R.id.recyclerView)

@@ -14,6 +14,7 @@ import com.example.asanmobile.*
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.common.SocketState
 import com.example.asanmobile.common.SocketStateEvent
+import com.example.asanmobile.databinding.ActivitySensorBinding
 import com.example.asanmobile.sensor.controller.SensorController
 import com.example.asanmobile.service.AcceptService
 import org.greenrobot.eventbus.EventBus
@@ -23,6 +24,7 @@ import org.greenrobot.eventbus.Subscribe
 class SensorActivity() : AppCompatActivity() {
     private lateinit var serviceIntent : Intent
     private lateinit var sensorController: SensorController
+    private lateinit var binding: ActivitySensorBinding
 
     private lateinit var stateLabel: TextView
     private lateinit var btnStart: Button
@@ -38,7 +40,9 @@ class SensorActivity() : AppCompatActivity() {
             intent.getStringExtra("ID").toString())
 
 
-        setContentView(R.layout.activity_sensor)
+//        setContentView(R.layout.activity_sensor)
+        binding = ActivitySensorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         sensorController = SensorController.getInstance(this)
 
         // 권한 허가
@@ -62,22 +66,30 @@ class SensorActivity() : AppCompatActivity() {
         }
 
         // 화면
-        stateLabel = findViewById(R.id.stateLabel)
-        stateLabel.setText(SocketState.NONE.toString())
+//        stateLabel = findViewById(R.id.stateLabel)
+//        stateLabel.setText(SocketState.NONE.toString())
+        binding.stateLabel.text = SocketState.NONE.toString()
 
-        btnStart = findViewById<Button>(R.id.BtnStart)
-        btnStart.setOnClickListener(View.OnClickListener {
+//        btnStart = findViewById<Button>(R.id.BtnStart)
+//        btnStart.setOnClickListener(View.OnClickListener {
+//            serviceStart()
+//        })
+        binding.BtnStart.setOnClickListener {
             serviceStart()
-        })
-        btnStop = findViewById<Button>(R.id.BtnStop)
-        btnStop.setOnClickListener(View.OnClickListener {
+        }
+        binding.BtnStop.setOnClickListener {
             val intent = Intent(this, AcceptService::class.java)
-            if(intent != null)
-                stopService(intent)
-//            val sendIntent = Intent(this, SendingService::class.java)
-//            if(sendIntent != null)
-//                stopService(sendIntent)
-        })
+            stopService(intent)
+        }
+//        btnStop = findViewById<Button>(R.id.BtnStop)
+//        btnStop.setOnClickListener(View.OnClickListener {
+//            val intent = Intent(this, AcceptService::class.java)
+//            if(intent != null)
+//                stopService(intent)
+////            val sendIntent = Intent(this, SendingService::class.java)
+////            if(sendIntent != null)
+////                stopService(sendIntent)
+//        })
 
 //        btnCsv = findViewById<Button>(R.id.sameleButton)
 //        btnCsv.setOnClickListener(View.OnClickListener {
@@ -86,8 +98,12 @@ class SensorActivity() : AppCompatActivity() {
 //            }
 //        })
 
-        btnCsvCheck = findViewById<Button>(R.id.BtnCsvCheck)
-        btnCsvCheck.setOnClickListener {
+//        btnCsvCheck = findViewById<Button>(R.id.BtnCsvCheck)
+//        btnCsvCheck.setOnClickListener {
+//            val intent = Intent(this, CsvPopupActivity::class.java)
+//            startActivity(intent)
+//        }
+        binding.BtnCsvCheck.setOnClickListener {
             val intent = Intent(this, CsvPopupActivity::class.java)
             startActivity(intent)
         }
@@ -129,7 +145,8 @@ class SensorActivity() : AppCompatActivity() {
     fun listenSocketState(event: SocketStateEvent) {
         val state = event.state.name
         runOnUiThread {
-            stateLabel.text = state
+            binding.stateLabel.text = state
+//            stateLabel.text = state
         }
     }
 
