@@ -71,6 +71,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         val byteBuffer = ByteBuffer.wrap(receivedData)
                         byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
                         Log.i("size", byteBuffer.array().size.toString())
+                        if (byteBuffer.array().size != 964) continue
                         val reconstructedData = StringBuilder()
 
                         val battery = byteBuffer.int
