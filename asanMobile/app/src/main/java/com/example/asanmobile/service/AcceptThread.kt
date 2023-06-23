@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.service
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -7,6 +7,8 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.example.asanmobile.common.SocketState
+import com.example.asanmobile.common.SocketStateEvent
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus

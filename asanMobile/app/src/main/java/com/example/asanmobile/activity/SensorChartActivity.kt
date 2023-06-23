@@ -1,9 +1,9 @@
-package com.example.asanmobile
+package com.example.asanmobile.activity
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.example.asanmobile.adapter.TextAdapter
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 

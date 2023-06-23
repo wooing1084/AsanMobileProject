@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.common
 
 enum class SocketState(i: Int) {
     CLOSE(0),

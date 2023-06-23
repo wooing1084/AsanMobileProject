@@ -1,19 +1,12 @@
-package com.example.asanmobile
+package com.example.asanmobile.common
 
 import android.content.ContentValues.TAG
 import android.content.Context
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.example.asanmobile.sensor.model.Sensor
 import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import java.io.*
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.*
-import java.util.concurrent.LinkedBlockingQueue
 
 
 object CsvController {

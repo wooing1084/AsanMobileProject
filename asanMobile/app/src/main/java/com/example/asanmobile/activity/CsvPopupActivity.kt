@@ -1,14 +1,13 @@
-package com.example.asanmobile
+package com.example.asanmobile.activity
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.asanmobile.R
+import com.example.asanmobile.adapter.TextAdapter
+import com.example.asanmobile.common.CsvController
 import java.io.File
 
 class CsvPopupActivity: AppCompatActivity() {

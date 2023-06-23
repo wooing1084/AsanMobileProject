@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,6 +11,8 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.asanmobile.ServerConnection
+import com.example.asanmobile.activity.MainActivity
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.GlobalScope

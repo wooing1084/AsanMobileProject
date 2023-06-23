@@ -6,12 +6,12 @@ import android.icu.text.SimpleDateFormat
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import com.example.asanmobile.activity.SensorActivity
 import com.example.asanmobile.common.CacheManager
 import okhttp3.*
 import java.io.*
 import java.util.Date
 import java.util.Locale
-import java.util.logging.Handler
 
 
 abstract class ServerConnection{

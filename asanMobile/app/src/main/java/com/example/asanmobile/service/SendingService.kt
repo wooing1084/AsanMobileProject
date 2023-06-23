@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -6,16 +6,13 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.icu.text.SimpleDateFormat
-import android.icu.util.TimeZone
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import java.io.File
-import java.sql.Date
 import kotlin.concurrent.timer
 import androidx.core.app.NotificationCompat
-import com.example.asanmobile.common.DeviceInfo
+import com.example.asanmobile.R
 import java.io.IOException
 
 

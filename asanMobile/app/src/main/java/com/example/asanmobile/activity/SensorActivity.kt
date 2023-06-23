@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.activity
 
 import android.Manifest
 import android.app.ActivityManager
@@ -10,13 +10,12 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.asanmobile.*
 import com.example.asanmobile.common.DeviceInfo
+import com.example.asanmobile.common.SocketState
+import com.example.asanmobile.common.SocketStateEvent
 import com.example.asanmobile.sensor.controller.SensorController
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.data.Entry
-import kotlinx.android.synthetic.main.item_text.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.example.asanmobile.service.AcceptService
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 

@@ -1,11 +1,11 @@
-package com.example.asanmobile
+package com.example.asanmobile.activity
 
-import android.Manifest
 import android.content.Intent
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import com.example.asanmobile.sensor.AppDatabase
+import com.example.asanmobile.R
 
 class MainActivity : AppCompatActivity() {
     private lateinit var db: AppDatabase

@@ -1,10 +1,10 @@
-package com.example.asanmobile
+package com.example.asanmobile.activity
 
 import android.icu.text.SimpleDateFormat
 import android.icu.util.TimeZone
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
+import com.example.asanmobile.ServerConnection
 import com.opencsv.CSVWriter
 import java.io.File
 import java.io.FileWriter

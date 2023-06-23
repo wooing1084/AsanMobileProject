@@ -1,12 +1,11 @@
-package com.example.asanmobile
+package com.example.asanmobile.activity
 
-import android.content.Intent
-import android.hardware.Sensor
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
+import com.example.asanmobile.R
+import com.example.asanmobile.ServerConnection
 import com.example.asanmobile.common.CacheManager
 
 class LoginActivity : AppCompatActivity() {
