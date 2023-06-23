@@ -73,8 +73,11 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         Log.i("size", byteBuffer.array().size.toString())
                         val reconstructedData = StringBuilder()
 
+                        val battery = byteBuffer.int
+                        Log.i("battery", battery.toString())
+
                         while (byteBuffer.hasRemaining()) {
-                            when (byteBuffer.position() % 16) {
+                            when ((byteBuffer.position() - 4) % 16) {
                                 // 0 <= ppgGreen이냐 heartRate구분 하는 곳
                                 // byteBuffer1.int <= buffer에서 int만큼 읽겠다 이뜻임
                                 // reconstructedData할 필요없이 여기서 바로 String으로 바꾸고 DB? file에 넣으면 될듯
