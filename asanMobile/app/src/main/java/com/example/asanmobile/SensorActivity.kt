@@ -92,6 +92,8 @@ class SensorActivity() : AppCompatActivity() {
             val intent = Intent(this, CsvPopupActivity::class.java)
             startActivity(intent)
         }
+
+
     }
 
     override fun onStart() {

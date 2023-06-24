@@ -28,7 +28,7 @@ class AcceptService: Service() {
     private val context: Context = this
 
     //From Sending Service
-    val tag = "Sending Sevice"
+    val tag = "Sending Service"
 
 //    fun isBluetoothSupport(): Boolean {
 //        return if (bluetoothAdapter == null) {
@@ -83,11 +83,13 @@ class AcceptService: Service() {
         acceptThread.start()
 
         csvWrite(60000 * 5) // 1분 * n
+//        csvWrite(10000) // 1분 * n
         return START_REDELIVER_INTENT
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d("Accept Service", "onDestroy")
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -118,7 +120,7 @@ class AcceptService: Service() {
 
 
     //From Sending Service
-    suspend fun sendCSV(){
+    private fun sendCSV(){
         //HeartRate
         val hrFileName = getExistFileName(this, "HeartRate")
         val hrSrcPath = getExternalPath(this,"sensor") + "/" +hrFileName
@@ -147,7 +149,7 @@ class AcceptService: Service() {
             val token = ppgFileName!!.split('_')
             val ppgTime = token[1].split('.')[0]
 
-            ServerConnection.postFile(ppgFile, DeviceInfo._uID, 100, ppgTime)
+            ServerConnection.postFile(ppgFile, DeviceInfo._uID, DeviceInfo._battery, ppgTime)
             Log.d(tag, "PPG Green sensor file sending!")
         }
         if(heartFile != null)
@@ -155,7 +157,7 @@ class AcceptService: Service() {
             val token = hrFileName!!.split('_')
             val hrTime = token[1].split('.')[0]
 
-            ServerConnection.postFile(heartFile, DeviceInfo._uID, 100, hrTime)
+            ServerConnection.postFile(heartFile, DeviceInfo._uID, DeviceInfo._battery, hrTime)
             Log.d(tag, "Heartrate sensor file sending!")
         }
 

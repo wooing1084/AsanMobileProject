@@ -180,7 +180,7 @@ class SensorController(context: Context) {
 
     suspend fun writeCsv(context: Context, sensorName: String) = coroutineScope {
         // sensorName 적절하게 들어왔는지, 네임을 적절하게 넣어야 함
-        Log.d(this.toString(), "csv 시작")
+        Log.d(this.toString(), sensorName + ".csv 시작")
         val sensorSet = dataExport(sensorName)
         if (CsvController.fileExist(context, sensorName) == null) {
             CsvController.csvFirst(context, sensorName)
@@ -209,7 +209,7 @@ class SensorController(context: Context) {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        Log.d(this.toString(), "csv 생성")
+        Log.d(this.toString(), sensorName+"csv 생성")
     }
 
     // sharedPreference 싱글톤 객체

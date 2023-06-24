@@ -67,7 +67,7 @@ class SendingActivity : AppCompatActivity() {
         val file3 = makeCSV("acc_lastSaveTime.csv", data)
 
         //서버에 Post전송(테스트를 위해 하나만 전송하는 중)
-        ServerConnection.postFile(file1, deviceID, 100, formattedDate.toString())
+        ServerConnection.postFile(file1, deviceID, "100", formattedDate.toString())
 //        con.postFile(file2, deviceID, "100", "2023-04-09")
 //        con.postFile(file3, deviceID, "100", "2023-04-09")
     }

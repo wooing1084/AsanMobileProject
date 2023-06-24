@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
@@ -75,6 +76,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         val reconstructedData = StringBuilder()
 
                         val battery = byteBuffer.int
+                        DeviceInfo.setBattery(battery.toString())
                         Log.i("battery", battery.toString())
 
                         while (byteBuffer.hasRemaining()) {
