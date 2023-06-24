@@ -1,20 +1,19 @@
 package com.example.asanmobile.activity
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.example.asanmobile.R
 import com.example.asanmobile.adapter.TextAdapter
+import com.example.asanmobile.databinding.ActivityChartBinding
 import com.example.asanmobile.databinding.ActivityCsvPopupBinding
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 
 class SensorChartActivity: AppCompatActivity() {
 
-    private lateinit var binding: ActivityCsvPopupBinding
-
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: TextAdapter
-    private lateinit var itemList: MutableList<String>
+    private lateinit var binding: ActivityChartBinding
 
     private lateinit var ppgGreenChart: LineChart
     private lateinit var heartRateChart: LineChart
@@ -27,24 +26,11 @@ class SensorChartActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCsvPopupBinding.inflate(layoutInflater)
+        binding = ActivityChartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-    // 리사이클러 뷰 관련 코드
-//        recyclerView = findViewById(R.id.recyclerView)
-//        recyclerView.layoutManager = LinearLayoutManager(this)
-//        itemList = mutableListOf()
-//
-//        adapter = TextAdapter(itemList)
-//        recyclerView.adapter = adapter
-//        adapter.notifyDataSetChanged()
-
-//        ppgGreenChart = findViewById<LineChart>(R.id.chart_ppgGreen)
-//        heartRateChart = findViewById<LineChart>(R.id.chart_heart)
-
-//        val filter = IntentFilter("my-event")
-//        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter)
-
+        ppgGreenChart = binding.chartPpgGreen
+        heartRateChart = binding.chartHeart
     }
 
     //    val receiver = object : BroadcastReceiver() {
@@ -90,19 +76,6 @@ class SensorChartActivity: AppCompatActivity() {
 //                }
 //            }
 //        }
-//    }
-
-//    fun sendBroadcast(msg: String) {
-//        val intent = Intent("my-event")
-//        intent.putExtra("message", msg)
-//        localBroadcastManager.sendBroadcast(intent)
-//    }
-
-    // 리사이클러 뷰에 데이터 추가
-//    fun addItem(item: String) {
-//        itemList.add(item)
-//        adapter.notifyItemInserted(itemList.size - 1)
-//        recyclerView.scrollToPosition(itemList.size - 1)
 //    }
 }
 
