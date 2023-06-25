@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.example.asanmobile.common.CsvController
+import com.example.asanmobile.common.RegexManager
 import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.PpgGreen
 import com.example.asanmobile.sensor.model.Sensor
@@ -19,6 +20,7 @@ class SensorController(context: Context) {
     private val heartRateRepository: HeartRateRepository = HeartRateRepository.getInstance(context)
     private val ppgGreenRepository: PpgGreenRepository = PpgGreenRepository.getInstance(context)
     private val prefManager: SharePreferenceManager = SharePreferenceManager.getInstance(context)
+    private val regexManager: RegexManager = RegexManager.getInstance(context)
 
     companion object {
         private var INSTANCE: SensorController? = null
@@ -92,23 +94,22 @@ class SensorController(context: Context) {
     }
 
     private suspend fun writeSensorRepo(bufferList: List<String>) = coroutineScope {
-        // 심장박동수 정규표현식
-//        val heartRegex = "\\d{12,}:\\d{1,4}[.]\\d|\\d{12,}:\\d{1,4}-".toRegex()
-        val hrRegex = "0\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
-
-        // ppgGreen 정규표현식
-//        val ppgGreen = "(\\d{12,}): \\[[^\\]]*\\]".toRegex()
-        val pgRegex = "1\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
-
-        // value 정규표현식
-        val valueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
+//        // 심장박동수 정규표현식
+//        val hrRegex = "0\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
+//
+//        // ppgGreen 정규표현식
+//        val pgRegex = "1\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
+//
+//        // value 정규표현식
+//        val valueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
 
         for (buffer in bufferList) {
-            Log.d(TAG, "str: $buffer")
             println("str: $buffer")
-            val hrList = hrRegex.findAll(buffer)
+            Log.d(TAG, "str: $buffer")
+
+            val hrList = regexManager.hrRegex.findAll(buffer)
             Log.d(TAG, "hr: $hrList")
-            val pgList = pgRegex.findAll(buffer)
+            val pgList = regexManager.pgRegex.findAll(buffer)
             Log.d(TAG, "pg: $pgList")
 
             // 데이터 레포에 넣는 코루틴
@@ -116,21 +117,21 @@ class SensorController(context: Context) {
                 try {
                     for (hrPattern in hrList) {
                         val hrVal = hrPattern.value
-                        val resRex = valueRegex.find(hrVal)
+                        val resRex = regexManager.valueRegex.find(hrVal)
                         val res = resRex?.value
-                        if (res != null) {
-                            val str = res.split(":")
-                            val time = str[0]
-                            val data = str[1].toFloat()
 
-                            // data = 0은 스킵
-                            if (data == (0.0).toFloat()) {
-                                continue
-                            } else {
-                                Log.d(TAG, "SAVED: $time, $data")
-                                heartRateRepository.insert(HeartRate(time, data.toFloat()))
-                            }
-                        }
+                        val dataMap = regexManager.dataExtract(res!!)
+                        heartRateRepository.insert(HeartRate(dataMap.time, dataMap.data))
+                        Log.d(TAG, "SAVED: $dataMap.time, $dataMap.data")
+
+//                        if (res != null) {
+//                            val str = res.split(":")
+//                            val time = str[0]
+//                            val data = str[1].toFloat()
+//
+//                            heartRateRepository.insert(HeartRate(time, data.toFloat()))
+//                            Log.d(TAG, "SAVED: $time, $data")
+//                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -141,38 +142,26 @@ class SensorController(context: Context) {
                 try {
                     for (pgPattern in pgList) {
                         val pgVal = pgPattern.value
-                        val resRex = valueRegex.find(pgVal)
+                        val resRex = regexManager.valueRegex.find(pgVal)
                         val res = resRex?.value
 
-                        if (res != null) {
-                            val str = res.split(":")
-                            val time = str[0]
-                            val data = str[1].toFloat()
+                        val dataMap = regexManager.dataExtract(res!!)
+                        ppgGreenRepository.insert(PpgGreen(dataMap.time, dataMap.data))
+                        Log.d(TAG, "SAVED: $dataMap.time, $dataMap.data")
 
-                            if (data == (0.0).toFloat()) {
-                                continue
-                            } else {
-                                Log.d(this.toString(), "SAVED: $time, $data")
-                                ppgGreenRepository.insert(PpgGreen(time, data))
-                            }
-                        }
+//                        if (res != null) {
+//                            val str = res.split(":")
+//                            val time = str[0]
+//                            val data = str[1].toFloat()
+//
+//                            ppgGreenRepository.insert(PpgGreen(time, data))
+//                            Log.d(this.toString(), "SAVED: $time, $data")
+//                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-
-//                    val res = toString().split(":")
-//                    val time = res[0].trim()
-//                    val dataSet = res[1].split(",")
-//
-//                    for (data in dataSet) {
-//                        if (data.contains('[')) {
-//                            data.replace("[", "")
-//                        } else if (data.contains(']')) {
-//                            data.replace("]", "")
-//                        }
-//                    }
         }
     }
 

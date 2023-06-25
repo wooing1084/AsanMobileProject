@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import com.example.asanmobile.common.SocketState
@@ -75,6 +76,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         Log.i("size", byteBuffer.array().size.toString())
                         val reconstructedData = StringBuilder()
 
+                        // 이 배터리도 데이터를 저장할 필요 있어 보임
                         val battery = byteBuffer.int
                         Log.i("battery", battery.toString())
 
@@ -83,7 +85,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                                 // 0 <= ppgGreen이냐 heartRate구분 하는 곳
                                 // byteBuffer1.int <= buffer에서 int만큼 읽겠다 이뜻임
                                 // reconstructedData할 필요없이 여기서 바로 String으로 바꾸고 DB? file에 넣으면 될듯
-                                0 ->{
+                                0 -> {
                                     reconstructedData.append(byteBuffer.int).append("|")
                                 }
                                 // 여긴 타임스탬프
@@ -97,6 +99,9 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         Log.d(this.toString(), str.toString())
 
                         CoroutineScope(Dispatchers.IO).launch {
+                            // 소켓에서 데이터를 받아올 때 전송하는 것으로 작성
+                            val intent = Intent(str)
+                            context.sendBroadcast(intent)
                             sensorController.dataAccept(str)
                         }
                         // 오류 발생시 소켓 close
