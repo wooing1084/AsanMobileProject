@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,10 +7,13 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.asanmobile.ServerConnection
+import com.example.asanmobile.activity.MainActivity
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.GlobalScope
@@ -20,7 +23,7 @@ import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
 
-class AcceptService: Service() {
+class AcceptService : Service() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var acceptThread: AcceptThread
@@ -94,40 +97,38 @@ class AcceptService: Service() {
         stopSelf()
     }
 
-     private fun csvWrite(time: Long) {
-         var i = 0
+    private fun csvWrite(time: Long) {
+        var i = 0
         val timer = Timer()
-            val timerTask = object: TimerTask() {
-                override fun run() {
-                    Log.d("Accept Service", "CSV Write method called")
-                    GlobalScope.launch {
-                        sensorController.writeCsv(this@AcceptService, "HeartRate")
-                        sensorController.writeCsv(this@AcceptService, "PpgGreen")
+        val timerTask = object : TimerTask() {
+            override fun run() {
+                Log.d("Accept Service", "CSV Write method called")
+                GlobalScope.launch {
+                    sensorController.writeCsv(this@AcceptService, "HeartRate")
+                    sensorController.writeCsv(this@AcceptService, "PpgGreen")
+                    i++
 
-                        i ++
-                        if (i == 6) {
-                            sendCSV()
-                            i %= 6
-                        }
+                    if (i == 6) {
+                        sendCSV()
+                        i %= 6
                     }
-
-
                 }
             }
-        timer.schedule(timerTask, 0, time)
+        }
 
+        timer.schedule(timerTask, 0, time)
     }
 
 
     //From Sending Service
-    private fun sendCSV(){
+    private fun sendCSV() {
         //HeartRate
         val hrFileName = getExistFileName(this, "HeartRate")
-        val hrSrcPath = getExternalPath(this,"sensor") + "/" +hrFileName
-        val hrDestPath = getExternalPath(this,"sensor/sended") + "/"+ hrFileName
+        val hrSrcPath = getExternalPath(this, "sensor") + "/" + hrFileName
+        val hrDestPath = getExternalPath(this, "sensor/sended") + "/" + hrFileName
 
         //파일 이동 후 삭제
-        moveFile(hrSrcPath,hrDestPath)
+        moveFile(hrSrcPath, hrDestPath)
         val hrSrcFile = getFile(hrSrcPath)
         hrSrcFile?.delete()
 
@@ -135,11 +136,11 @@ class AcceptService: Service() {
 
         //PpgGreen
         val ppgFileName = getExistFileName(this, "PpgGreen")
-        val ppgSrcPath = getExternalPath(this,"sensor") + "/" +ppgFileName
-        val ppgDestPath = getExternalPath(this,"sensor/sended") + "/"+ ppgFileName
+        val ppgSrcPath = getExternalPath(this, "sensor") + "/" + ppgFileName
+        val ppgDestPath = getExternalPath(this, "sensor/sended") + "/" + ppgFileName
 
         //파일 이동 후 삭제
-        moveFile(ppgSrcPath,ppgDestPath)
+        moveFile(ppgSrcPath, ppgDestPath)
         val ppgSrcFile = getFile(ppgSrcPath)
         ppgSrcFile?.delete()
 
@@ -152,8 +153,7 @@ class AcceptService: Service() {
             ServerConnection.postFile(ppgFile, DeviceInfo._uID, DeviceInfo._battery, ppgTime)
             Log.d(tag, "PPG Green sensor file sending!")
         }
-        if(heartFile != null)
-        {
+        if (heartFile != null) {
             val token = hrFileName!!.split('_')
             val hrTime = token[1].split('.')[0]
 
@@ -163,10 +163,9 @@ class AcceptService: Service() {
 
     }
 
-    private fun getFile(fileName : String): File? {
+    private fun getFile(fileName: String): File? {
         val file = File(fileName)
-        if(!file.exists())
-        {
+        if (!file.exists()) {
             Log.d(tag, fileName + " File does not found")
             return null
         }
@@ -207,7 +206,7 @@ class AcceptService: Service() {
         return null
     }
 
-    public fun getExternalPath(context: Context, dirName : String): String{
+    fun getExternalPath(context: Context, dirName: String): String {
         val dir: File? = context.getExternalFilesDir(null)
         val path = dir?.absolutePath + File.separator + dirName
 
@@ -218,5 +217,4 @@ class AcceptService: Service() {
         }
         return path
     }
-
 }

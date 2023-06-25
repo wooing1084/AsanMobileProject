@@ -1,11 +1,10 @@
 package com.example.asanmobile.sensor.repository
 
 import android.content.Context
-import com.example.asanmobile.AppDatabase
+import com.example.asanmobile.sensor.AppDatabase
 import com.example.asanmobile.sensor.dao.PpgGreenDao
 import com.example.asanmobile.sensor.model.PpgGreen
 import com.example.asanmobile.sensor.model.Sensor
-import java.util.concurrent.LinkedBlockingQueue
 
 class PpgGreenRepository(context: Context) {
 

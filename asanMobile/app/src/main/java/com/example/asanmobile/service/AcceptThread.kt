@@ -1,13 +1,17 @@
-package com.example.asanmobile
+package com.example.asanmobile.service
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import com.example.asanmobile.common.DeviceInfo
+import com.example.asanmobile.activity.SensorChartActivity
+import com.example.asanmobile.common.SocketState
+import com.example.asanmobile.common.SocketStateEvent
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
@@ -16,7 +20,6 @@ import java.util.*
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-
 
 @SuppressLint("MissingPermission")
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
@@ -75,6 +78,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         if (byteBuffer.array().size != 964) continue
                         val reconstructedData = StringBuilder()
 
+                        // 이 배터리도 데이터를 저장할 필요 있어 보임
                         val battery = byteBuffer.int
                         DeviceInfo.setBattery(battery.toString())
                         Log.i("battery", battery.toString())
@@ -84,7 +88,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                                 // 0 <= ppgGreen이냐 heartRate구분 하는 곳
                                 // byteBuffer1.int <= buffer에서 int만큼 읽겠다 이뜻임
                                 // reconstructedData할 필요없이 여기서 바로 String으로 바꾸고 DB? file에 넣으면 될듯
-                                0 ->{
+                                0 -> {
                                     reconstructedData.append(byteBuffer.int).append("|")
                                 }
                                 // 여긴 타임스탬프
@@ -96,8 +100,12 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 
                         val str = reconstructedData.toString()
                         Log.d(this.toString(), str.toString())
+                        val intent = Intent(Intent.ACTION_ATTACH_DATA)
+                        intent.putExtra("data", str)
 
                         CoroutineScope(Dispatchers.IO).launch {
+                            // 소켓에서 데이터를 받아올 때 전송하는 것으로 작성
+                            context.sendBroadcast(intent)
                             sensorController.dataAccept(str)
                         }
                         // 오류 발생시 소켓 close

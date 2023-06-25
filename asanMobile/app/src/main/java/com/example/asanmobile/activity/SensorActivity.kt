@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.activity
 
 import android.Manifest
 import android.app.ActivityManager
@@ -6,17 +6,13 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.asanmobile.common.DeviceInfo
+import com.example.asanmobile.common.SocketState
+import com.example.asanmobile.common.SocketStateEvent
+import com.example.asanmobile.databinding.ActivitySensorBinding
 import com.example.asanmobile.sensor.controller.SensorController
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.data.Entry
-import kotlinx.android.synthetic.main.item_text.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.example.asanmobile.service.AcceptService
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -24,12 +20,7 @@ import org.greenrobot.eventbus.Subscribe
 class SensorActivity() : AppCompatActivity() {
     private lateinit var serviceIntent : Intent
     private lateinit var sensorController: SensorController
-
-    private lateinit var stateLabel: TextView
-    private lateinit var btnStart: Button
-    private lateinit var btnStop: Button
-    private lateinit var btnRename: Button
-    private lateinit var btnCsvCheck: Button
+    private lateinit var binding: ActivitySensorBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +30,9 @@ class SensorActivity() : AppCompatActivity() {
             intent.getStringExtra("ID").toString())
 
 
-        setContentView(R.layout.activity_sensor)
+//        setContentView(R.layout.activity_sensor)
+        binding = ActivitySensorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         sensorController = SensorController.getInstance(this)
 
         // 권한 허가
@@ -63,37 +56,22 @@ class SensorActivity() : AppCompatActivity() {
         }
 
         // 화면
-        stateLabel = findViewById(R.id.stateLabel)
-        stateLabel.setText(SocketState.NONE.toString())
-
-        btnStart = findViewById<Button>(R.id.BtnStart)
-        btnStart.setOnClickListener(View.OnClickListener {
+        binding.stateLabel.text = SocketState.NONE.toString()
+        binding.BtnStart.setOnClickListener {
             serviceStart()
-        })
-        btnStop = findViewById<Button>(R.id.BtnStop)
-        btnStop.setOnClickListener(View.OnClickListener {
+        }
+        binding.BtnStop.setOnClickListener {
             val intent = Intent(this, AcceptService::class.java)
-            if(intent != null)
-                stopService(intent)
-//            val sendIntent = Intent(this, SendingService::class.java)
-//            if(sendIntent != null)
-//                stopService(sendIntent)
-        })
-
-//        btnCsv = findViewById<Button>(R.id.sameleButton)
-//        btnCsv.setOnClickListener(View.OnClickListener {
-//            GlobalScope.launch {
-//                sensorController.writeCsv(this@SensorActivity, "HeartRate")
-//            }
-//        })
-
-        btnCsvCheck = findViewById<Button>(R.id.BtnCsvCheck)
-        btnCsvCheck.setOnClickListener {
+            stopService(intent)
+        }
+        binding.BtnCsvCheck.setOnClickListener {
             val intent = Intent(this, CsvPopupActivity::class.java)
             startActivity(intent)
         }
-
-
+        binding.BtnToChartActivity.setOnClickListener {
+            val intent = Intent(this, SensorChartActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onStart() {
@@ -132,7 +110,8 @@ class SensorActivity() : AppCompatActivity() {
     fun listenSocketState(event: SocketStateEvent) {
         val state = event.state.name
         runOnUiThread {
-            stateLabel.text = state
+            binding.stateLabel.text = state
+//            stateLabel.text = state
         }
     }
 

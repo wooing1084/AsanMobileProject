@@ -35,21 +35,22 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
+        <activity android:name=".activity.SensorChartActivity" />
         <activity
-            android:name=".CsvPopupActivity"
+            android:name=".activity.CsvPopupActivity"
             android:theme="@style/Theme.AppCompat.Dialog"
             android:exported="true" />
         <activity
-            android:name=".SendingActivity"
+            android:name=".activity.SendingActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".activity.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".SensorActivity"
+            android:name=".activity.SensorActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -59,14 +60,14 @@
         </activity>
 
         <service
-            android:name=".AcceptService"
+            android:name=".service.AcceptService"
             android:enabled="true"
             android:exported="true" />
 
         <service
-            android:name=".SendingService"
+            android:name=".service.SendingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.sensor
 
 import android.content.Context
 import androidx.room.Database

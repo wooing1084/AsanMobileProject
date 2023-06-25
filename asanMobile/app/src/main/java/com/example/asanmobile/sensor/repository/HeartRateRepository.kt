@@ -1,13 +1,10 @@
 package com.example.asanmobile.sensor.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import com.example.asanmobile.AppDatabase
+import com.example.asanmobile.sensor.AppDatabase
 import com.example.asanmobile.sensor.dao.HeartRateDao
 import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.Sensor
-import kotlinx.coroutines.flow.Flow
-import java.util.concurrent.LinkedBlockingQueue
 
 class HeartRateRepository(context: Context) {
 
