@@ -26,12 +26,6 @@ class SensorActivity() : AppCompatActivity() {
     private lateinit var sensorController: SensorController
     private lateinit var binding: ActivitySensorBinding
 
-    private lateinit var stateLabel: TextView
-    private lateinit var btnStart: Button
-    private lateinit var btnStop: Button
-    private lateinit var btnRename: Button
-    private lateinit var btnCsvCheck: Button
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -66,14 +60,7 @@ class SensorActivity() : AppCompatActivity() {
         }
 
         // 화면
-//        stateLabel = findViewById(R.id.stateLabel)
-//        stateLabel.setText(SocketState.NONE.toString())
         binding.stateLabel.text = SocketState.NONE.toString()
-
-//        btnStart = findViewById<Button>(R.id.BtnStart)
-//        btnStart.setOnClickListener(View.OnClickListener {
-//            serviceStart()
-//        })
         binding.BtnStart.setOnClickListener {
             serviceStart()
         }
@@ -81,30 +68,12 @@ class SensorActivity() : AppCompatActivity() {
             val intent = Intent(this, AcceptService::class.java)
             stopService(intent)
         }
-//        btnStop = findViewById<Button>(R.id.BtnStop)
-//        btnStop.setOnClickListener(View.OnClickListener {
-//            val intent = Intent(this, AcceptService::class.java)
-//            if(intent != null)
-//                stopService(intent)
-////            val sendIntent = Intent(this, SendingService::class.java)
-////            if(sendIntent != null)
-////                stopService(sendIntent)
-//        })
-
-//        btnCsv = findViewById<Button>(R.id.sameleButton)
-//        btnCsv.setOnClickListener(View.OnClickListener {
-//            GlobalScope.launch {
-//                sensorController.writeCsv(this@SensorActivity, "HeartRate")
-//            }
-//        })
-
-//        btnCsvCheck = findViewById<Button>(R.id.BtnCsvCheck)
-//        btnCsvCheck.setOnClickListener {
-//            val intent = Intent(this, CsvPopupActivity::class.java)
-//            startActivity(intent)
-//        }
         binding.BtnCsvCheck.setOnClickListener {
             val intent = Intent(this, CsvPopupActivity::class.java)
+            startActivity(intent)
+        }
+        binding.BtnToChartActivity.setOnClickListener {
+            val intent = Intent(this, SensorChartActivity::class.java)
             startActivity(intent)
         }
     }

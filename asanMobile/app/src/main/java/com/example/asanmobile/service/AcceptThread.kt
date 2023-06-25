@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import com.example.asanmobile.activity.SensorChartActivity
 import com.example.asanmobile.common.SocketState
 import com.example.asanmobile.common.SocketStateEvent
 import com.example.asanmobile.sensor.controller.SensorController
@@ -74,6 +75,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         val byteBuffer = ByteBuffer.wrap(receivedData)
                         byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
                         Log.i("size", byteBuffer.array().size.toString())
+                        if (byteBuffer.array().size != 964) continue
                         val reconstructedData = StringBuilder()
 
                         // 이 배터리도 데이터를 저장할 필요 있어 보임
@@ -97,10 +99,11 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 
                         val str = reconstructedData.toString()
                         Log.d(this.toString(), str.toString())
+                        val intent = Intent(Intent.ACTION_ATTACH_DATA)
+                        intent.putExtra("data", str)
 
                         CoroutineScope(Dispatchers.IO).launch {
                             // 소켓에서 데이터를 받아올 때 전송하는 것으로 작성
-                            val intent = Intent(str)
                             context.sendBroadcast(intent)
                             sensorController.dataAccept(str)
                         }

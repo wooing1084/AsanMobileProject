@@ -94,14 +94,6 @@ class SensorController(context: Context) {
     }
 
     private suspend fun writeSensorRepo(bufferList: List<String>) = coroutineScope {
-//        // 심장박동수 정규표현식
-//        val hrRegex = "0\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
-//
-//        // ppgGreen 정규표현식
-//        val pgRegex = "1\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
-//
-//        // value 정규표현식
-//        val valueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
 
         for (buffer in bufferList) {
             println("str: $buffer")
@@ -123,15 +115,6 @@ class SensorController(context: Context) {
                         val dataMap = regexManager.dataExtract(res!!)
                         heartRateRepository.insert(HeartRate(dataMap.time, dataMap.data))
                         Log.d(TAG, "SAVED: $dataMap.time, $dataMap.data")
-
-//                        if (res != null) {
-//                            val str = res.split(":")
-//                            val time = str[0]
-//                            val data = str[1].toFloat()
-//
-//                            heartRateRepository.insert(HeartRate(time, data.toFloat()))
-//                            Log.d(TAG, "SAVED: $time, $data")
-//                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -148,15 +131,6 @@ class SensorController(context: Context) {
                         val dataMap = regexManager.dataExtract(res!!)
                         ppgGreenRepository.insert(PpgGreen(dataMap.time, dataMap.data))
                         Log.d(TAG, "SAVED: $dataMap.time, $dataMap.data")
-
-//                        if (res != null) {
-//                            val str = res.split(":")
-//                            val time = str[0]
-//                            val data = str[1].toFloat()
-//
-//                            ppgGreenRepository.insert(PpgGreen(time, data))
-//                            Log.d(this.toString(), "SAVED: $time, $data")
-//                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
