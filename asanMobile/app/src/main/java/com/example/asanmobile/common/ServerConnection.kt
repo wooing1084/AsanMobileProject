@@ -1,4 +1,4 @@
-package com.example.asanmobile
+package com.example.asanmobile.common
 
 import android.app.Activity
 import android.content.Intent
@@ -7,7 +7,6 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import com.example.asanmobile.activity.SensorActivity
-import com.example.asanmobile.common.CacheManager
 import okhttp3.*
 import java.io.*
 import java.util.Date
@@ -86,7 +85,7 @@ abstract class ServerConnection{
                 override fun onResponse(call: Call, response: Response) {
                    Log.d(tag, "Login response code: "+response.code().toString())
                     if(response.code().toString() == "200"){
-                        CacheManager.saveCacheFile(context, authcode, "loggin.txt")
+                        CacheManager.saveCacheFile(context, authcode, "login.txt")
 
                         val intent = Intent(context, SensorActivity::class.java)
                         intent.putExtra("ID", authcode)

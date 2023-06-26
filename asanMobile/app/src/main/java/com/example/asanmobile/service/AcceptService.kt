@@ -7,13 +7,12 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.example.asanmobile.ServerConnection
-import com.example.asanmobile.activity.MainActivity
+import com.example.asanmobile.activity.SensorActivity
+import com.example.asanmobile.common.ServerConnection
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.GlobalScope
@@ -70,7 +69,7 @@ class AcceptService : Service() {
 
 //        if (isBluetoothSupport()) {}
 
-        val notificationIntent = Intent(this, MainActivity::class.java)
+        val notificationIntent = Intent(this, SensorActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
         val notification = NotificationCompat.Builder(this, channelId).apply {
