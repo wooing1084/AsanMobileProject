@@ -41,76 +41,76 @@ class SensorChartActivity : AppCompatActivity() {
 
         ppgGreenChart = binding.chartPpgGreen
         heartRateChart = binding.chartHeart
-        registerReceiver(receiver, IntentFilter())
+//        registerReceiver(receiver, IntentFilter())
     }
 
-    // service와 통신하기 위한 BroadcastReceiver
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (Intent.ACTION_ATTACH_DATA.equals(intent?.action)) {
-                val receivedString = intent?.getStringExtra("data")
-                Log.d(TAG, "received: " + receivedString.toString())
-
-                val hrList = regexManager.hrRegex.findAll(receivedString.toString())
-                val pgList = regexManager.pgRegex.findAll(receivedString.toString())
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        for (hrPattern in hrList) {
-                            val hrVal = hrPattern.value
-                            val resRex = regexManager.valueRegex.find(hrVal)
-                            val res = resRex?.value
-
-                            val dataMap = regexManager.dataExtract(res!!)
-                            heartQueue.add(Entry(dataMap.time.toFloat(), dataMap.data))
-
-                            val heartSet: LineDataSet =
-                                LineDataSet(heartQueue, "Heart") // 데이터 넣기 // LineDataSet 변환
-
-                            val heartData = LineData() // 차트에 담길 데이터
-                            heartData.addDataSet(heartSet)
-
-                            // 차트에 데이터 추가
-                            heartRateChart.data = heartData
-                            heartRateChart.invalidate() // 차트 업데이트
-                            heartRateChart.setTouchEnabled(false) // 차트 터치 disable
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        for (pgPattern in pgList) {
-                            val pgVal = pgPattern.value
-                            val resRex = regexManager.valueRegex.find(pgVal)
-                            val res = resRex?.value
-
-                            val dataMap = regexManager.dataExtract(res!!)
-                            ppgGreenQueue.add(Entry(dataMap.time.toFloat(), dataMap.data))
-
-                            val ppgGreenSet: LineDataSet =
-                                LineDataSet(
-                                    ppgGreenQueue,
-                                    "ppgGreenArr"
-                                ) // 데이터 넣기 // LineDataSet 변환
-
-                            val ppgGreenData = LineData() // 차트에 담길 데이터
-                            ppgGreenData.addDataSet(ppgGreenSet)
-
-                            // 차트에 데이터 추가
-                            ppgGreenChart.data = ppgGreenData
-                            ppgGreenChart.invalidate() // 차트 업데이트
-                            ppgGreenChart.setTouchEnabled(false) // 차트 터치 disable
-
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-        }
-    }
+    //들어오는 즉시 그래프를 그리기 위한 현석이형 코드
+//    // service와 통신하기 위한 BroadcastReceiver
+//    private val receiver = object : BroadcastReceiver() {
+//        override fun onReceive(context: Context?, intent: Intent?) {
+//            if (Intent.ACTION_ATTACH_DATA.equals(intent?.action)) {
+//                val receivedString = intent?.getStringExtra("data")
+//                Log.d(TAG, "received: " + receivedString.toString())
+//
+//                val hrList = regexManager.hrRegex.findAll(receivedString.toString())
+//                val pgList = regexManager.pgRegex.findAll(receivedString.toString())
+//
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    try {
+//                        for (hrPattern in hrList) {
+//                            val hrVal = hrPattern.value
+//                            val resRex = regexManager.valueRegex.find(hrVal)
+//                            val res = resRex?.value
+//
+//                            val dataMap = regexManager.dataExtract(res!!)
+//                            heartQueue.add(Entry(dataMap.time.toFloat(), dataMap.data))
+//
+//                            val heartSet: LineDataSet =
+//                                LineDataSet(heartQueue, "Heart") // 데이터 넣기 // LineDataSet 변환
+//
+//                            val heartData = LineData() // 차트에 담길 데이터
+//                            heartData.addDataSet(heartSet)
+//
+//                            // 차트에 데이터 추가
+//                            heartRateChart.data = heartData
+//                            heartRateChart.setTouchEnabled(false) // 차트 터치 disable
+//                            heartRateChart.invalidate() // 차트 업데이트
+//                        }
+//                    } catch (e: Exception) {
+//                        e.printStackTrace()
+//                    }
+//                }
+//
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    try {
+//                        for (pgPattern in pgList) {
+//                            val pgVal = pgPattern.value
+//                            val resRex = regexManager.valueRegex.find(pgVal)
+//                            val res = resRex?.value
+//
+//                            val dataMap = regexManager.dataExtract(res!!)
+//                            ppgGreenQueue.add(Entry(dataMap.time.toFloat(), dataMap.data))
+//
+//                            val ppgGreenSet = LineDataSet(
+//                                    ppgGreenQueue,
+//                                    "ppgGreenArr"
+//                                ) // 데이터 넣기 // LineDataSet 변환
+//
+//                            val ppgGreenData = LineData() // 차트에 담길 데이터
+//                            ppgGreenData.addDataSet(ppgGreenSet)
+//
+//                            // 차트에 데이터 추가
+//                            ppgGreenChart.data = ppgGreenData
+//                            ppgGreenChart.setTouchEnabled(false) // 차트 터치 disable
+//                            ppgGreenChart.invalidate() // 차트 업데이트
+//
+//                        }
+//                    } catch (e: Exception) {
+//                        e.printStackTrace()
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 

@@ -12,6 +12,10 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.asanmobile.activity.SensorActivity
+import com.example.asanmobile.common.CsvController.getExistFileName
+import com.example.asanmobile.common.CsvController.getExternalPath
+import com.example.asanmobile.common.CsvController.getFile
+import com.example.asanmobile.common.CsvController.moveFile
 import com.example.asanmobile.common.ServerConnection
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
@@ -85,8 +89,8 @@ class AcceptService : Service() {
         acceptThread = AcceptThread(bluetoothAdapter, applicationContext)
         acceptThread.start()
 
-        csvWrite(60000 * 5) // 1분 * n
-//        csvWrite(10000) // 1분 * n
+//        csvWrite(60000 * 5) // 1분 * n
+        csvWrite(10000) // 1분 * n
         return START_REDELIVER_INTENT
     }
 
@@ -172,58 +176,6 @@ class AcceptService : Service() {
 
     }
 
-    private fun getFile(fileName: String): File? {
-        val file = File(fileName)
-        if (!file.exists()) {
-            Log.d(tag, fileName + " File does not found")
-            return null
-        }
 
-        return file
-    }
 
-    //파일 디렉토리 옮기기
-    //soure -> dest로
-    fun moveFile(sourcePath: String, destinationPath: String) {
-        val sourceFile = File(sourcePath)
-        val destinationFile = File(destinationPath)
-
-        try {
-            // 파일을 이동합니다.
-            sourceFile.renameTo(destinationFile)
-            Log.d(tag, "파일 이동 성공")
-        } catch (e: IOException) {
-            println("파일 이동 실패: ${e.message}")
-        }
-    }
-
-    //디바이스의 센서_unixtime.csv파일명 가져오기
-    //unixtime은 알 수 없기 때문에 파일명을 알아내기 위해 사용
-    fun getExistFileName(context: Context, name: String): String? {
-        val path: String = getExternalPath(context, "sensor")
-        val directory: File = File(path)
-
-        if (directory.exists()) {
-            val files: Array<out File>? = directory.listFiles()
-
-            for (file in files!!) {
-                if (file.name.contains(name)) {
-                    return file.name
-                }
-            }
-        }
-        return null
-    }
-
-    fun getExternalPath(context: Context, dirName: String): String {
-        val dir: File? = context.getExternalFilesDir(null)
-        val path = dir?.absolutePath + File.separator + dirName
-
-        // 외부 저장소 경로가 있는지 확인, 없으면 생성
-        val file: File = File(path)
-        if (!file.exists()) {
-            file.mkdir()
-        }
-        return path
-    }
 }

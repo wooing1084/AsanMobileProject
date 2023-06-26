@@ -34,6 +34,18 @@ object CsvController {
         return path
     }
 
+    fun getExternalPath(context: Context, dirName: String): String {
+        val dir: File? = context.getExternalFilesDir(null)
+        val path = dir?.absolutePath + File.separator + dirName
+
+        // 외부 저장소 경로가 있는지 확인, 없으면 생성
+        val file: File = File(path)
+        if (!file.exists()) {
+            file.mkdir()
+        }
+        return path
+    }
+
     // 파일 존재 확인 함수
     // 센서명을 인풋으로 넣는다
     // 존재하면 파일명, 없으면 null 리턴
@@ -61,6 +73,24 @@ object CsvController {
 
     private fun setFileName(sensorName: String): String {
         return sensorName + "_" + getTime() + ".csv"
+    }
+
+    //디바이스의 센서_unixtime.csv파일명 가져오기
+    //unixtime은 알 수 없기 때문에 파일명을 알아내기 위해 사용
+    fun getExistFileName(context: Context, name: String): String? {
+        val path: String = getExternalPath(context, "sensor")
+        val directory: File = File(path)
+
+        if (directory.exists()) {
+            val files: Array<out File>? = directory.listFiles()
+
+            for (file in files!!) {
+                if (file.name.contains(name)) {
+                    return file.name
+                }
+            }
+        }
+        return null
     }
 
     fun csvFirst(context: Context, sensorName: String) {
@@ -125,6 +155,32 @@ object CsvController {
             }
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+
+
+    fun getFile(fileName: String): File? {
+        val file = File(fileName)
+        if (!file.exists()) {
+            Log.d("csv controller", fileName + " File does not found")
+            return null
+        }
+
+        return file
+    }
+
+    //파일 디렉토리 옮기기
+    //soure -> dest로
+    fun moveFile(sourcePath: String, destinationPath: String) {
+        val sourceFile = File(sourcePath)
+        val destinationFile = File(destinationPath)
+
+        try {
+            // 파일을 이동합니다.
+            sourceFile.renameTo(destinationFile)
+            Log.d("csv controller", "파일 이동 성공")
+        } catch (e: IOException) {
+            println("파일 이동 실패: ${e.message}")
         }
     }
 }
