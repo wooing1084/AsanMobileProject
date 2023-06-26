@@ -16,6 +16,7 @@ import com.example.asanmobile.common.CsvController.getExistFileName
 import com.example.asanmobile.common.CsvController.getExternalPath
 import com.example.asanmobile.common.CsvController.getFile
 import com.example.asanmobile.common.CsvController.moveFile
+import com.example.asanmobile.common.CsvStatistics
 import com.example.asanmobile.common.ServerConnection
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
@@ -163,6 +164,7 @@ class AcceptService : Service() {
             val token = ppgFileName!!.split('_')
             val ppgTime = token[1].split('.')[0]
 
+            CsvStatistics.makeMean(this, ppgFile,"send")
             ServerConnection.postFile(ppgFile, DeviceInfo._uID, DeviceInfo._battery, ppgTime)
             Log.d(tag, "PPG Green sensor file sending!")
         }
@@ -170,6 +172,7 @@ class AcceptService : Service() {
             val token = hrFileName!!.split('_')
             val hrTime = token[1].split('.')[0]
 
+            CsvStatistics.makeMean(this, heartFile,"send")
             ServerConnection.postFile(heartFile, DeviceInfo._uID, DeviceInfo._battery, hrTime)
             Log.d(tag, "Heartrate sensor file sending!")
         }

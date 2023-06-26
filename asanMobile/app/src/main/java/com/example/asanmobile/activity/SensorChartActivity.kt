@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.example.asanmobile.common.CsvController
 import com.example.asanmobile.common.RegexManager
 import com.example.asanmobile.databinding.ActivityChartBinding
 import com.example.asanmobile.sensor.model.HeartRate
@@ -13,9 +14,11 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.opencsv.CSVReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.InputStreamReader
 import kotlin.collections.ArrayDeque
 
 
@@ -41,6 +44,44 @@ class SensorChartActivity : AppCompatActivity() {
 
         ppgGreenChart = binding.chartPpgGreen
         heartRateChart = binding.chartHeart
+
+        val ppgFile = CsvController.getFile(CsvController.getExternalPath(this,"sensor") + "/statistics/PpgGreen_mean.csv" )
+        val heartFile = CsvController.getFile(CsvController.getExternalPath(this,"sensor") + "/statistics/HeartRate_mean.csv")
+
+        val ppgReader = CSVReader(InputStreamReader(ppgFile?.inputStream()))
+        val heartReader =CSVReader(InputStreamReader(heartFile?.inputStream()))
+
+        val ppgList = ppgReader.readAll()
+        val heartList = heartReader.readAll()
+
+        var i = 0
+        for (ppg in ppgList) {
+            i++
+//            val time = ppg[0].toFloat()
+            val data = ppg[1].toFloat()
+            ppgGreenQueue.add(Entry(i.toFloat(), data))
+        }
+
+        i = 0
+        for (heart in heartList) {
+            i++
+//            val time = heart[0].toFloat()
+            val data = heart[1].toFloat()
+            heartQueue.add(Entry(i.toFloat(), data))
+        }
+
+        val ppgGreenDataSet = LineDataSet(ppgGreenQueue.toList(), "ppgGreen")
+        val heartDataSet = LineDataSet(heartQueue.toList(), "heartRate")
+
+        val ppgGreenData = LineData(ppgGreenDataSet)
+        val heartData = LineData(heartDataSet)
+
+        ppgGreenChart.data = ppgGreenData
+        heartRateChart.data = heartData
+
+        ppgGreenChart.invalidate()
+        heartRateChart.invalidate()
+
 //        registerReceiver(receiver, IntentFilter())
     }
 
