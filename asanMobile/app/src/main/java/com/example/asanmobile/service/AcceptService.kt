@@ -28,6 +28,7 @@ class AcceptService : Service() {
     private lateinit var acceptThread: AcceptThread
     private val sensorController: SensorController = SensorController.getInstance(this)
     private val context: Context = this
+    var timer: Timer? = null
 
     //From Sending Service
     val tag = "Sending Service"
@@ -92,14 +93,25 @@ class AcceptService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d("Accept Service", "onDestroy")
+        if(timer != null) {
+            timer?.cancel()
+            timer = null
+        }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
     private fun csvWrite(time: Long) {
+        if(timer != null) {
+            Log.d("Accept Service", "timer is already running")
+
+            return
+        }
+
         var i = 0
-        val timer = Timer()
-        val timerTask = object : TimerTask() {
+
+        timer = Timer()
+        timer?.schedule(object : TimerTask() {
             override fun run() {
                 Log.d("Accept Service", "CSV Write method called")
                 GlobalScope.launch {
@@ -113,9 +125,7 @@ class AcceptService : Service() {
                     }
                 }
             }
-        }
-
-        timer.schedule(timerTask, 0, time)
+        }, 0, time)
     }
 
 
