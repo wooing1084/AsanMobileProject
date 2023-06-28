@@ -54,7 +54,6 @@ abstract class ServerConnection{
             val date = Date()
             val strDate: String = dateFormat.format(date)
 
-
             val client = OkHttpClient()
 
             val httpBuilder = HttpUrl.parse(loginURL)?.newBuilder()
@@ -109,6 +108,5 @@ abstract class ServerConnection{
         }
 
     }
-
 
 }

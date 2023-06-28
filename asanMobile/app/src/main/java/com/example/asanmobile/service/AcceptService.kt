@@ -2,6 +2,7 @@ package com.example.asanmobile.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -11,6 +12,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.asanmobile.R
 import com.example.asanmobile.activity.SensorActivity
 import com.example.asanmobile.common.CsvController.getExistFileName
 import com.example.asanmobile.common.CsvController.getExternalPath
@@ -22,8 +24,6 @@ import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
 
@@ -76,10 +76,14 @@ class AcceptService : Service() {
 //        if (isBluetoothSupport()) {}
 
         val notificationIntent = Intent(this, SensorActivity::class.java)
-        notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
         val notification = NotificationCompat.Builder(this, channelId).apply {
+            setContentTitle("Asan Service")
             setContentText("센서 데이터 감지중 입니다")
+            setSmallIcon(R.mipmap.ic_launcher)
+            setContentIntent(pendingIntent)
         }
 
         val notificationID = 12345
@@ -107,9 +111,8 @@ class AcceptService : Service() {
     }
 
     private fun csvWrite(time: Long) {
-        if(timer != null) {
+        if (timer != null) {
             Log.d("Accept Service", "timer is already running")
-
             return
         }
 
@@ -174,11 +177,9 @@ class AcceptService : Service() {
 
             CsvStatistics.makeMean(this, heartFile,"send")
             ServerConnection.postFile(heartFile, DeviceInfo._uID, DeviceInfo._battery, hrTime)
-            Log.d(tag, "Heartrate sensor file sending!")
+            Log.d(tag, "HeartRate sensor file sending!")
         }
 
     }
-
-
 
 }

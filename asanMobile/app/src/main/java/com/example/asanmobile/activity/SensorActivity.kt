@@ -1,12 +1,15 @@
 package com.example.asanmobile.activity
 
 import android.Manifest
-import android.app.ActivityManager
+import android.app.*
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import com.example.asanmobile.R
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.common.SocketState
 import com.example.asanmobile.common.SocketStateEvent
@@ -28,7 +31,6 @@ class SensorActivity() : AppCompatActivity() {
         //로그인 페이지에서 온 id들 가져오기
         DeviceInfo.init(intent.getStringExtra("DeviceID").toString(),
             intent.getStringExtra("ID").toString())
-
 
 //        setContentView(R.layout.activity_sensor)
         binding = ActivitySensorBinding.inflate(layoutInflater)
@@ -63,6 +65,7 @@ class SensorActivity() : AppCompatActivity() {
         binding.BtnStop.setOnClickListener {
             val intent = Intent(this, AcceptService::class.java)
             stopService(intent)
+            EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
         }
         binding.BtnCsvCheck.setOnClickListener {
             val intent = Intent(this, CsvPopupActivity::class.java)
@@ -93,14 +96,9 @@ class SensorActivity() : AppCompatActivity() {
                 return
             }
         }
-
         serviceIntent = Intent(this, AcceptService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        }
-        else {
-            startService(serviceIntent)
-        }
+        startService(serviceIntent)
+        Toast.makeText(this@SensorActivity, "서비스 시작", Toast.LENGTH_SHORT).show()
 
 //        val sendIntent = Intent(this, SendingService::class.java)
 //        startService(sendIntent)
@@ -111,7 +109,6 @@ class SensorActivity() : AppCompatActivity() {
         val state = event.state.name
         runOnUiThread {
             binding.stateLabel.text = state
-//            stateLabel.text = state
         }
     }
 
