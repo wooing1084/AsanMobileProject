@@ -1,7 +1,8 @@
 package com.example.asanmobile.activity
 
 import android.os.Bundle
-import android.widget.Button
+import android.view.Window
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,21 +19,21 @@ class CsvPopupActivity: AppCompatActivity() {
     private lateinit var itemList: MutableList<String>
 
     private lateinit var binding: ActivityCsvPopupBinding
-    private lateinit var closeButton: Button
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // 뒤로가기 클릭 시 종료
+            finish()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_csv_popup)
         binding = ActivityCsvPopupBinding.inflate(layoutInflater)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(binding.root)
         binding.btnClose.setOnClickListener {
             finish()
         }
-
-//        closeButton = findViewById<Button>(R.id.btnClose)
-//        closeButton.setOnClickListener {
-//            finish() // 액티비티 종료
-//        }
 
         // 리사이클러 뷰 관련 코드
         recyclerView = findViewById(R.id.csv_recyclerView)
@@ -59,9 +60,7 @@ class CsvPopupActivity: AppCompatActivity() {
                 adapter.notifyDataSetChanged()
             }
         }
+        this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
-    override fun onBackPressed() {
-        finish() // 뒤로가기 버튼을 누를 때 액티비티 종료
-    }
 }

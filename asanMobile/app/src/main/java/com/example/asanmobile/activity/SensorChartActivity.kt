@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.os.FileObserver
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.example.asanmobile.common.CsvController
 import com.example.asanmobile.common.RegexManager
@@ -27,6 +28,12 @@ import java.io.InputStreamReader
 class SensorChartActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChartBinding
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // 뒤로가기 클릭 시 종료
+            finish()
+        }
+    }
     private val regexManager: RegexManager = RegexManager.getInstance(this)
 
     private lateinit var ppgGreenChart: LineChart
@@ -70,7 +77,7 @@ class SensorChartActivity : AppCompatActivity() {
 
 
 
-
+        this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
     private fun makeBufferChart(){
