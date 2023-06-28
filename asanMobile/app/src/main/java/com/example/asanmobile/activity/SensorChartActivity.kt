@@ -1,25 +1,19 @@
 package com.example.asanmobile.activity
 
-import android.content.*
 import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.os.FileObserver
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.asanmobile.common.CsvController
 import com.example.asanmobile.common.RegexManager
 import com.example.asanmobile.databinding.ActivityChartBinding
-import com.example.asanmobile.sensor.model.HeartRate
-import com.example.asanmobile.sensor.model.PpgGreen
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.opencsv.CSVReader
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.InputStreamReader
-import kotlin.collections.ArrayDeque
 
 
 // 여기에 수신해서 받는 거로 적용해보려 했으나, 수신 안됨
@@ -32,8 +26,6 @@ class SensorChartActivity : AppCompatActivity() {
     private lateinit var heartRateChart: LineChart
 
     // 데이터 담을 리스트
-    private var ppgGreenQueue = ArrayDeque<Entry>()
-    private var heartQueue = ArrayDeque<Entry>()
 //    private var heartIndex: Float = 0F
 //    private var ppgGIndex: Float = 0F
 
@@ -44,6 +36,27 @@ class SensorChartActivity : AppCompatActivity() {
 
         ppgGreenChart = binding.chartPpgGreen
         heartRateChart = binding.chartHeart
+
+       makeStatisticsChart()
+
+        val fileObserver: FileObserver = object : FileObserver(CsvController.getExternalPath(this,"sensor") + "/statistics") {
+            override fun onEvent(event: Int, path: String?) {
+                when (event) {
+                    MODIFY -> {
+                        makeStatisticsChart()
+                    }
+                }
+            }
+        }
+        fileObserver.startWatching()
+
+
+//        registerReceiver(receiver, IntentFilter())
+    }
+
+    private fun makeStatisticsChart(){
+        ppgGreenChart.clear()
+        heartRateChart.clear()
 
         val ppgFile = CsvController.getFile(CsvController.getExternalPath(this,"sensor") + "/statistics/PpgGreen_mean.csv" )
         val heartFile = CsvController.getFile(CsvController.getExternalPath(this,"sensor") + "/statistics/HeartRate_mean.csv")
@@ -58,6 +71,9 @@ class SensorChartActivity : AppCompatActivity() {
 
         val ppgList = ppgReader.readAll()
         val heartList = heartReader.readAll()
+
+        val ppgGreenQueue = ArrayDeque<Entry>()
+        val heartQueue = ArrayDeque<Entry>()
 
         var i = 0
         for (ppg in ppgList) {
@@ -89,8 +105,6 @@ class SensorChartActivity : AppCompatActivity() {
 
         ppgGreenChart.invalidate()
         heartRateChart.invalidate()
-
-//        registerReceiver(receiver, IntentFilter())
     }
 
     //들어오는 즉시 그래프를 그리기 위한 현석이형 코드
