@@ -48,6 +48,11 @@ class SensorChartActivity : AppCompatActivity() {
         val ppgFile = CsvController.getFile(CsvController.getExternalPath(this,"sensor") + "/statistics/PpgGreen_mean.csv" )
         val heartFile = CsvController.getFile(CsvController.getExternalPath(this,"sensor") + "/statistics/HeartRate_mean.csv")
 
+        if(ppgFile == null || heartFile == null) {
+            Log.d(TAG, "No statistics file.")
+            return
+        }
+
         val ppgReader = CSVReader(InputStreamReader(ppgFile?.inputStream()))
         val heartReader =CSVReader(InputStreamReader(heartFile?.inputStream()))
 
@@ -57,17 +62,20 @@ class SensorChartActivity : AppCompatActivity() {
         var i = 0
         for (ppg in ppgList) {
             i++
-//            val time = ppg[0].toFloat()
+            val time = ppg[0].toFloat()
             val data = ppg[1].toFloat()
             ppgGreenQueue.add(Entry(i.toFloat(), data))
+//            ppgGreenQueue.add(Entry(time, data))
+
         }
 
         i = 0
         for (heart in heartList) {
             i++
-//            val time = heart[0].toFloat()
+            val time = heart[0].toFloat()
             val data = heart[1].toFloat()
             heartQueue.add(Entry(i.toFloat(), data))
+//            ppgGreenQueue.add(Entry(time, data))
         }
 
         val ppgGreenDataSet = LineDataSet(ppgGreenQueue.toList(), "ppgGreen")
