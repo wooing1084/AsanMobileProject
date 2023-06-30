@@ -1,3 +1,3 @@
 package com.example.asanmobile.sensor.model
 
-data class SensorData(var time: String, var data: Float)
+data class SensorData(var time: Long, var data: Float)

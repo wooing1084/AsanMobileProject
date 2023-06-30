@@ -1,14 +1,11 @@
 package com.example.asanmobile.sensor.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.Sensor
-import kotlinx.coroutines.flow.Flow
-import java.util.concurrent.LinkedBlockingQueue
 
 @Dao
 interface HeartRateDao {
@@ -29,4 +26,8 @@ interface HeartRateDao {
 
     @Query("DELETE FROM heartRate WHERE id = :id")
     fun delete(id: Long)
+
+//    @Query("SELECT * FROM heartRate WHERE ")
+//    fun getFromNow(now: Long, time: Int): List<HeartRate>
+
 }

@@ -1,4 +1,4 @@
-package com.example.asanmobile.sensor.repository
+package com.example.asanmobile.sensor.service
 
 import android.content.Context
 import com.example.asanmobile.sensor.AppDatabase
@@ -6,7 +6,7 @@ import com.example.asanmobile.sensor.dao.HeartRateDao
 import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.Sensor
 
-class HeartRateRepository(context: Context) {
+class HeartRateService(context: Context) {
 
     private val heartRateDao: HeartRateDao
     private val db: AppDatabase
@@ -20,10 +20,10 @@ class HeartRateRepository(context: Context) {
     companion object {
 
         @Volatile
-        private var INSTANCE: HeartRateRepository? = null
-        fun getInstance(_context: Context): HeartRateRepository {
-            return INSTANCE ?: synchronized(HeartRateRepository::class) {
-                val instance = HeartRateRepository(_context)
+        private var INSTANCE: HeartRateService? = null
+        fun getInstance(_context: Context): HeartRateService {
+            return INSTANCE ?: synchronized(HeartRateService::class) {
+                val instance = HeartRateService(_context)
                 INSTANCE = instance
                 instance
             }
@@ -37,6 +37,11 @@ class HeartRateRepository(context: Context) {
     fun getAll(cursor: Int): List<Sensor> {
         return heartRateDao.getAll(cursor)
     }
+
+//    fun getFromNow(time: Int): List<Sensor> {
+//        val now = System.currentTimeMillis()
+//        return heartRateDao.getFromNow(now, time)
+//    }
 
     fun delete(id: Long) {
         heartRateDao.delete(id)

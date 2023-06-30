@@ -1,14 +1,11 @@
 package com.example.asanmobile.sensor.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.asanmobile.sensor.model.PpgGreen
 import com.example.asanmobile.sensor.model.Sensor
-import kotlinx.coroutines.flow.Flow
-import java.util.concurrent.LinkedBlockingQueue
 
 @Dao
 interface PpgGreenDao {
@@ -27,4 +24,7 @@ interface PpgGreenDao {
 
     @Query("DELETE FROM ppgGreen WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+//    @Query("")
+//    fun getFromNow(time: Int): List<PpgGreen>
 }

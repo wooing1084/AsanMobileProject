@@ -10,15 +10,15 @@ import com.example.asanmobile.common.RegexManager
 import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.PpgGreen
 import com.example.asanmobile.sensor.model.Sensor
-import com.example.asanmobile.sensor.repository.HeartRateRepository
-import com.example.asanmobile.sensor.repository.PpgGreenRepository
+import com.example.asanmobile.sensor.service.HeartRateService
+import com.example.asanmobile.sensor.service.PpgGreenService
 import kotlinx.coroutines.*
 import java.io.IOException
 
 // 전역 객체
 class SensorController(context: Context) {
-    private val heartRateRepository: HeartRateRepository = HeartRateRepository.getInstance(context)
-    private val ppgGreenRepository: PpgGreenRepository = PpgGreenRepository.getInstance(context)
+    private val heartRateService: HeartRateService = HeartRateService.getInstance(context)
+    private val ppgGreenService: PpgGreenService = PpgGreenService.getInstance(context)
     private val prefManager: SharePreferenceManager = SharePreferenceManager.getInstance(context)
     private val regexManager: RegexManager = RegexManager.getInstance(context)
 
@@ -66,7 +66,7 @@ class SensorController(context: Context) {
             "HeartRate" -> {
                 val heartCursor = prefManager.getCursor("HeartRate")
                 Log.d(TAG, "Start cursor: $heartCursor")
-                val heartRateSet = heartRateRepository.getAll(heartCursor)
+                val heartRateSet = heartRateService.getAll(heartCursor)
                 val heartRateSize = heartRateSet.size
                 prefManager.putCursor("HeartRate", heartCursor + heartRateSize)
                 heartRateSet
@@ -74,7 +74,7 @@ class SensorController(context: Context) {
 
             "PpgGreen" -> {
                 val ppgGreenCursor = prefManager.getCursor("PpgGreen")
-                val ppgGreenSet = ppgGreenRepository.getAll(ppgGreenCursor)
+                val ppgGreenSet = ppgGreenService.getAll(ppgGreenCursor)
                 val ppgGreenSize = ppgGreenSet.size
                 prefManager.putCursor("PpgGreen", ppgGreenCursor + ppgGreenSize)
                 ppgGreenSet
@@ -113,7 +113,7 @@ class SensorController(context: Context) {
                         val res = resRex?.value
 
                         val dataMap = regexManager.dataExtract(res!!)
-                        heartRateRepository.insert(HeartRate(dataMap.time, dataMap.data))
+                        heartRateService.insert(HeartRate(dataMap.time, dataMap.data))
                         Log.d(TAG, "SAVED: $dataMap.time, $dataMap.data")
                     }
                 } catch (e: Exception) {
@@ -129,7 +129,7 @@ class SensorController(context: Context) {
                         val res = resRex?.value
 
                         val dataMap = regexManager.dataExtract(res!!)
-                        ppgGreenRepository.insert(PpgGreen(dataMap.time, dataMap.data))
+                        ppgGreenService.insert(PpgGreen(dataMap.time, dataMap.data))
                         Log.d(TAG, "SAVED: $dataMap.time, $dataMap.data")
                     }
                 } catch (e: Exception) {
@@ -173,6 +173,31 @@ class SensorController(context: Context) {
         }
         Log.d(this.toString(), sensorName+"csv 생성")
     }
+
+    suspend fun getDataFromNow(context: Context, sensorName: String, time: Int): List<Sensor> = withContext(Dispatchers.IO) {
+        val sensorSet: List<Sensor> = when (sensorName) {
+            "HeartRate" -> {
+                val heartCursor = prefManager.getCursor("HeartRate")
+                Log.d(TAG, "Start cursor: $heartCursor")
+                val heartRateSet = heartRateService.getAll(heartCursor)
+                val heartRateSize = heartRateSet.size
+                prefManager.putCursor("HeartRate", heartCursor + heartRateSize)
+                heartRateSet
+            }
+
+            "PpgGreen" -> {
+                val ppgGreenCursor = prefManager.getCursor("PpgGreen")
+                val ppgGreenSet = ppgGreenService.getAll(ppgGreenCursor)
+                val ppgGreenSize = ppgGreenSet.size
+                prefManager.putCursor("PpgGreen", ppgGreenCursor + ppgGreenSize)
+                ppgGreenSet
+            }
+
+            else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
+        }
+        return@withContext sensorSet
+    }
+
 
     // sharedPreference 싱글톤 객체
     class SharePreferenceManager private constructor(private val context: Context) {

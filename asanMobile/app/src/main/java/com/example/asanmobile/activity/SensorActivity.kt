@@ -28,6 +28,7 @@ class SensorActivity() : AppCompatActivity() {
     private val callback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             // 뒤로가기 클릭 시 종료
+            Toast.makeText(this@SensorActivity, "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
             finish()
         }
     }
@@ -82,6 +83,8 @@ class SensorActivity() : AppCompatActivity() {
             val intent = Intent(this, SensorChartActivity::class.java)
             startActivity(intent)
         }
+
+        this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
     override fun onStart() {
@@ -95,7 +98,6 @@ class SensorActivity() : AppCompatActivity() {
     }
 
     fun serviceStart() {
-//        val str = this.packageName + ".AcceptService"
         val manager = this.getSystemService(ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
             if (service.service.className.contains("AcceptService")) {
@@ -106,9 +108,6 @@ class SensorActivity() : AppCompatActivity() {
         serviceIntent = Intent(this, AcceptService::class.java)
         startService(serviceIntent)
         Toast.makeText(this@SensorActivity, "서비스 시작", Toast.LENGTH_SHORT).show()
-
-//        val sendIntent = Intent(this, SendingService::class.java)
-//        startService(sendIntent)
     }
 
     @Subscribe
@@ -119,8 +118,4 @@ class SensorActivity() : AppCompatActivity() {
         }
     }
 
-    // 뒤로가기 버튼을 누를 때 액티비티 종료
-    override fun onBackPressed() {
-        finish()
-    }
 }

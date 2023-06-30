@@ -168,16 +168,16 @@ class AcceptService : Service() {
             val ppgTime = token[1].split('.')[0]
 
             CsvStatistics.makeMean(this, ppgFile,"send")
-            ServerConnection.postFile(ppgFile, DeviceInfo._uID, DeviceInfo._battery, ppgTime)
-            Log.d(tag, "PPG Green sensor file sending!")
+//            ServerConnection.postFile(ppgFile, DeviceInfo._uID, DeviceInfo._battery, ppgTime)
+//            Log.d(tag, "PPG Green sensor file sending!")
         }
         if (heartFile != null) {
             val token = hrFileName!!.split('_')
             val hrTime = token[1].split('.')[0]
 
             CsvStatistics.makeMean(this, heartFile,"send")
-            ServerConnection.postFile(heartFile, DeviceInfo._uID, DeviceInfo._battery, hrTime)
-            Log.d(tag, "HeartRate sensor file sending!")
+//            ServerConnection.postFile(heartFile, DeviceInfo._uID, DeviceInfo._battery, hrTime)
+//            Log.d(tag, "HeartRate sensor file sending!")
         }
 
     }

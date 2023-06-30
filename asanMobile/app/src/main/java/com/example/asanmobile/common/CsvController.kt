@@ -133,7 +133,7 @@ object CsvController {
     }
 
     private fun convertSensorToStringArray(sensor: Sensor): Array<String> {
-        val time = sensor.time
+        val time = sensor.time.toString()
         val value = sensor.value.toString()
         return arrayOf(time, value)
     }

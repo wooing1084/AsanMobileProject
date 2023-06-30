@@ -1,4 +1,4 @@
-package com.example.asanmobile.sensor.repository
+package com.example.asanmobile.sensor.service
 
 import android.content.Context
 import com.example.asanmobile.sensor.AppDatabase
@@ -6,7 +6,7 @@ import com.example.asanmobile.sensor.dao.PpgGreenDao
 import com.example.asanmobile.sensor.model.PpgGreen
 import com.example.asanmobile.sensor.model.Sensor
 
-class PpgGreenRepository(context: Context) {
+class PpgGreenService(context: Context) {
 
     private val ppgGreenDao: PpgGreenDao
     private val db: AppDatabase
@@ -20,10 +20,10 @@ class PpgGreenRepository(context: Context) {
     companion object {
 
         @Volatile
-        private var INSTANCE: PpgGreenRepository? = null
-        fun getInstance(_context: Context): PpgGreenRepository {
-            return INSTANCE ?: synchronized(PpgGreenRepository::class) {
-                val instance = PpgGreenRepository(_context)
+        private var INSTANCE: PpgGreenService? = null
+        fun getInstance(_context: Context): PpgGreenService {
+            return INSTANCE ?: synchronized(PpgGreenService::class) {
+                val instance = PpgGreenService(_context)
                 INSTANCE = instance
                 instance
             }

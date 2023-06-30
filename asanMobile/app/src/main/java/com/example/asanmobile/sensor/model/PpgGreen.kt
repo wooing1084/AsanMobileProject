@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "ppgGreen")
 data class PpgGreen(
-    @ColumnInfo(name = "time") override val time: String,
+    @ColumnInfo(name = "time") override val time: Long,
     @ColumnInfo(name = "value") override val value: Float
 ): Sensor() {
     // AutoIncrement 구현

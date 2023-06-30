@@ -28,7 +28,7 @@ class RegexManager private constructor(context: Context) {
 
     fun dataExtract(res: String): SensorData {
         val str = res.split(":")
-        val time = str[0]
+        val time = str[0].toLong()
         val data = str[1].toFloat()
 
         return SensorData(time, data)

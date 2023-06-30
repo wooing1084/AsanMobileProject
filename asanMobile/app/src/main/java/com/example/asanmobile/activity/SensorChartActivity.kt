@@ -74,9 +74,6 @@ class SensorChartActivity : AppCompatActivity() {
 
         makeBufferChart()
 
-
-
-
         this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
