@@ -38,6 +38,11 @@ class PpgGreenService(context: Context) {
         return ppgGreenDao.getAll(cursor)
     }
 
+    fun getFromNow(period: Long): List<Sensor> {
+        val now = System.currentTimeMillis()
+        return ppgGreenDao.getFromNow(now, period)
+    }
+
 //    fun delete(id: Long) {
 //        ppgGreenDao.delete(id)
 //    }

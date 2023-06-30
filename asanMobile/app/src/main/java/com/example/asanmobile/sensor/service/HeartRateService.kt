@@ -38,10 +38,10 @@ class HeartRateService(context: Context) {
         return heartRateDao.getAll(cursor)
     }
 
-//    fun getFromNow(time: Int): List<Sensor> {
-//        val now = System.currentTimeMillis()
-//        return heartRateDao.getFromNow(now, time)
-//    }
+    fun getFromNow(period: Long): List<Sensor> {
+        val now = System.currentTimeMillis()
+        return heartRateDao.getFromNow(now, period)
+    }
 
     fun delete(id: Long) {
         heartRateDao.delete(id)

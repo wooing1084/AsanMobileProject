@@ -27,7 +27,7 @@ interface HeartRateDao {
     @Query("DELETE FROM heartRate WHERE id = :id")
     fun delete(id: Long)
 
-//    @Query("SELECT * FROM heartRate WHERE ")
-//    fun getFromNow(now: Long, time: Int): List<HeartRate>
+    @Query("SELECT * FROM heartRate WHERE time BETWEEN time - :period AND :now")
+    fun getFromNow(now: Long, period: Long): List<HeartRate>
 
 }

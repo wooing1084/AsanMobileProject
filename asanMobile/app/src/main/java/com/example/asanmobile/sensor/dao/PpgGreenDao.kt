@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.PpgGreen
 import com.example.asanmobile.sensor.model.Sensor
 
@@ -25,6 +26,6 @@ interface PpgGreenDao {
     @Query("DELETE FROM ppgGreen WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-//    @Query("")
-//    fun getFromNow(time: Int): List<PpgGreen>
+    @Query("SELECT * FROM ppgGreen WHERE time BETWEEN time - :period AND :now")
+    fun getFromNow(now: Long, period: Long): List<PpgGreen>
 }

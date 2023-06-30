@@ -174,25 +174,25 @@ class SensorController(context: Context) {
         Log.d(this.toString(), sensorName+"csv 생성")
     }
 
-    suspend fun getDataFromNow(context: Context, sensorName: String, time: Int): List<Sensor> = withContext(Dispatchers.IO) {
+    /**
+     * 지금으로부터 원하는 시간만큼 데이터를 추출하는 메소드. 코루틴 메소드
+     * parameter
+     * sensorName: "HeartRate" or "PpgGreen" 이건 나중에 Enum으로 교체 예정
+     * time: unixtime 기준
+     * 아직 예외처리는 미완
+     */
+
+    suspend fun getDataFromNow(sensorName: String, time: Long): List<Sensor> = withContext(Dispatchers.IO) {
         val sensorSet: List<Sensor> = when (sensorName) {
             "HeartRate" -> {
-                val heartCursor = prefManager.getCursor("HeartRate")
-                Log.d(TAG, "Start cursor: $heartCursor")
-                val heartRateSet = heartRateService.getAll(heartCursor)
-                val heartRateSize = heartRateSet.size
-                prefManager.putCursor("HeartRate", heartCursor + heartRateSize)
+                val heartRateSet = heartRateService.getFromNow(time)
                 heartRateSet
             }
 
             "PpgGreen" -> {
-                val ppgGreenCursor = prefManager.getCursor("PpgGreen")
-                val ppgGreenSet = ppgGreenService.getAll(ppgGreenCursor)
-                val ppgGreenSize = ppgGreenSet.size
-                prefManager.putCursor("PpgGreen", ppgGreenCursor + ppgGreenSize)
+                val ppgGreenSet = ppgGreenService.getFromNow(time)
                 ppgGreenSet
             }
-
             else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
         }
         return@withContext sensorSet

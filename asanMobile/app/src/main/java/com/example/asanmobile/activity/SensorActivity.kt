@@ -17,6 +17,7 @@ import com.example.asanmobile.common.SocketStateEvent
 import com.example.asanmobile.databinding.ActivitySensorBinding
 import com.example.asanmobile.sensor.controller.SensorController
 import com.example.asanmobile.service.AcceptService
+import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -82,6 +83,13 @@ class SensorActivity() : AppCompatActivity() {
         binding.BtnToChartActivity.setOnClickListener {
             val intent = Intent(this, SensorChartActivity::class.java)
             startActivity(intent)
+        }
+
+        // 원하는 시간만큼 roomDB에서 데이터 추출 메소드 사용 예시
+        binding.BtnTest.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                sensorController.getDataFromNow("HeartRate", 600)
+            }
         }
 
         this.onBackPressedDispatcher.addCallback(this, callback)
