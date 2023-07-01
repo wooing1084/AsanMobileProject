@@ -1,12 +1,9 @@
 package com.example.asanmobile.sensor.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.PpgGreen
-import com.example.asanmobile.sensor.model.Sensor
 
 @Dao
 interface PpgGreenDao {

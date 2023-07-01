@@ -3,7 +3,7 @@ package com.example.asanmobile.common
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
-import com.example.asanmobile.sensor.model.Sensor
+import com.example.asanmobile.sensor.model.AbstractSensor
 import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import java.io.*
@@ -112,7 +112,7 @@ object CsvController {
         Log.d(this.toString(), "csv 생성")
     }
 
-    fun csvSave(context: Context, sensorName: String, sensorSet: List<Sensor>) {
+    fun csvSave(context: Context, sensorName: String, abstractSensorSet: List<AbstractSensor>) {
         val path: String = getExternalPath(context)
         val name = fileExist(context, sensorName)
 
@@ -121,7 +121,7 @@ object CsvController {
         val csvWriter = getCsvWriter(path, name!!)
         try {
             csvWriter.writeNext(headerData)
-            for (sensor in sensorSet) {
+            for (sensor in abstractSensorSet) {
                 val data: Array<String> = convertSensorToStringArray(sensor)
                 csvWriter.writeNext(data)
             }
@@ -132,9 +132,9 @@ object CsvController {
         }
     }
 
-    private fun convertSensorToStringArray(sensor: Sensor): Array<String> {
-        val time = sensor.time.toString()
-        val value = sensor.value.toString()
+    private fun convertSensorToStringArray(abstractSensor: AbstractSensor): Array<String> {
+        val time = abstractSensor.time.toString()
+        val value = abstractSensor.value.toString()
         return arrayOf(time, value)
     }
 

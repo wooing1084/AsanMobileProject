@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class PpgGreen(
     @ColumnInfo(name = "time") override val time: Long,
     @ColumnInfo(name = "value") override val value: Float
-): Sensor() {
+): AbstractSensor() {
     // AutoIncrement 구현
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo

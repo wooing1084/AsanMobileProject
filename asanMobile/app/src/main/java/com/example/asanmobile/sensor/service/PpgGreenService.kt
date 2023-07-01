@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.asanmobile.sensor.AppDatabase
 import com.example.asanmobile.sensor.dao.PpgGreenDao
 import com.example.asanmobile.sensor.model.PpgGreen
-import com.example.asanmobile.sensor.model.Sensor
+import com.example.asanmobile.sensor.model.AbstractSensor
 
 class PpgGreenService(context: Context) {
 
@@ -34,11 +34,11 @@ class PpgGreenService(context: Context) {
         ppgGreenDao.insertAll(ppgGreen)
     }
 
-    fun getAll(cursor: Int): List<Sensor> {
+    fun getAll(cursor: Int): List<AbstractSensor> {
         return ppgGreenDao.getAll(cursor)
     }
 
-    fun getFromNow(period: Long): List<Sensor> {
+    fun getFromNow(period: Long): List<AbstractSensor> {
         val now = System.currentTimeMillis()
         return ppgGreenDao.getFromNow(now, period)
     }

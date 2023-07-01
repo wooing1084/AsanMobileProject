@@ -9,7 +9,8 @@ import com.example.asanmobile.common.CsvController
 import com.example.asanmobile.common.RegexManager
 import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.PpgGreen
-import com.example.asanmobile.sensor.model.Sensor
+import com.example.asanmobile.sensor.model.AbstractSensor
+import com.example.asanmobile.sensor.model.SensorEnum
 import com.example.asanmobile.sensor.service.HeartRateService
 import com.example.asanmobile.sensor.service.PpgGreenService
 import kotlinx.coroutines.*
@@ -58,12 +59,12 @@ class SensorController(context: Context) {
         }
     }
 
-    private suspend fun dataExport(sensorName: String): List<Sensor> = withContext(Dispatchers.IO) {
+    private suspend fun dataExport(sensorName: String): List<AbstractSensor> = withContext(Dispatchers.IO) {
 
         // 센서의 값을 불러온 후, 그 리스트의 사이즈 값을 커서로 저장
         // 다음 호출시 그 커서부터 다시 데이터 호출
-        val sensorSet: List<Sensor> = when (sensorName) {
-            "HeartRate" -> {
+        val abstractSensorSet: List<AbstractSensor> = when (sensorName) {
+            SensorEnum.HEART_RATE.value -> {
                 val heartCursor = prefManager.getCursor("HeartRate")
                 Log.d(TAG, "Start cursor: $heartCursor")
                 val heartRateSet = heartRateService.getAll(heartCursor)
@@ -72,7 +73,7 @@ class SensorController(context: Context) {
                 heartRateSet
             }
 
-            "PpgGreen" -> {
+            SensorEnum.PPG_GREEN.value -> {
                 val ppgGreenCursor = prefManager.getCursor("PpgGreen")
                 val ppgGreenSet = ppgGreenService.getAll(ppgGreenCursor)
                 val ppgGreenSize = ppgGreenSet.size
@@ -82,7 +83,7 @@ class SensorController(context: Context) {
 
             else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
         }
-        return@withContext sensorSet
+        return@withContext abstractSensorSet
     }
 
     // 버퍼 내용을 처리하는 함수
@@ -177,25 +178,24 @@ class SensorController(context: Context) {
     /**
      * 지금으로부터 원하는 시간만큼 데이터를 추출하는 메소드. 코루틴 메소드
      * parameter
-     * sensorName: "HeartRate" or "PpgGreen" 이건 나중에 Enum으로 교체 예정
+     * sensorName: "HeartRate" or "PpgGreen" ENUM 적용
      * time: unixtime 기준
-     * 아직 예외처리는 미완
      */
 
-    suspend fun getDataFromNow(sensorName: String, time: Long): List<Sensor> = withContext(Dispatchers.IO) {
-        val sensorSet: List<Sensor> = when (sensorName) {
-            "HeartRate" -> {
+    suspend fun getDataFromNow(sensorName: String, time: Long): List<AbstractSensor> = withContext(Dispatchers.IO) {
+        val abstractSensorSet: List<AbstractSensor> = when (sensorName) {
+            SensorEnum.HEART_RATE.value -> {
                 val heartRateSet = heartRateService.getFromNow(time)
                 heartRateSet
             }
 
-            "PpgGreen" -> {
+            SensorEnum.PPG_GREEN.value -> {
                 val ppgGreenSet = ppgGreenService.getFromNow(time)
                 ppgGreenSet
             }
             else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
         }
-        return@withContext sensorSet
+        return@withContext abstractSensorSet
     }
 
 

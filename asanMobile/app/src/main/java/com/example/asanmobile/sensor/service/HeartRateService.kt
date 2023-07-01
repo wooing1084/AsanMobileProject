@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.asanmobile.sensor.AppDatabase
 import com.example.asanmobile.sensor.dao.HeartRateDao
 import com.example.asanmobile.sensor.model.HeartRate
-import com.example.asanmobile.sensor.model.Sensor
+import com.example.asanmobile.sensor.model.AbstractSensor
 
 class HeartRateService(context: Context) {
 
@@ -34,11 +34,11 @@ class HeartRateService(context: Context) {
         heartRateDao.insertAll(heartRate)
     }
 
-    fun getAll(cursor: Int): List<Sensor> {
+    fun getAll(cursor: Int): List<AbstractSensor> {
         return heartRateDao.getAll(cursor)
     }
 
-    fun getFromNow(period: Long): List<Sensor> {
+    fun getFromNow(period: Long): List<AbstractSensor> {
         val now = System.currentTimeMillis()
         return heartRateDao.getFromNow(now, period)
     }

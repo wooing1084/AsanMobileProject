@@ -22,6 +22,7 @@ import com.example.asanmobile.common.CsvStatistics
 import com.example.asanmobile.common.ServerConnection
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.sensor.controller.SensorController
+import com.example.asanmobile.sensor.model.SensorEnum
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.Timer
@@ -123,8 +124,8 @@ class AcceptService : Service() {
             override fun run() {
                 Log.d("Accept Service", "CSV Write method called")
                 GlobalScope.launch {
-                    sensorController.writeCsv(this@AcceptService, "HeartRate")
-                    sensorController.writeCsv(this@AcceptService, "PpgGreen")
+                    sensorController.writeCsv(this@AcceptService, SensorEnum.HEART_RATE.value)
+                    sensorController.writeCsv(this@AcceptService, SensorEnum.PPG_GREEN.value)
                     i++
 
                     if (i == 6) {
