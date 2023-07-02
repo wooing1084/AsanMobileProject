@@ -8,10 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.activity.SensorChartActivity
-import com.example.asanmobile.common.SocketState
-import com.example.asanmobile.common.SocketStateEvent
+import com.example.asanmobile.common.*
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
@@ -42,7 +40,8 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
             serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
             sensorController = SensorController.getInstance(context)
         } catch (e: Exception) {
-            Log.d(TAG, e.message.toString())
+            Log.e(TAG, e.printStackTrace().toString())
+            EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
         }
     }
 
@@ -56,7 +55,9 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                 Log.d("success", socket.toString())
                 sleep(300)
             } catch (e: IOException) {
-                Log.d(TAG, e.message.toString())
+                Log.e(TAG, e.printStackTrace().toString())
+                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+                return
             }
 
             socket?.let {
@@ -78,16 +79,15 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         if (byteBuffer.array().size != 964) continue
                         val reconstructedData = StringBuilder()
 
-                        // 이 배터리도 데이터를 저장할 필요 있어 보임
                         val battery = byteBuffer.int
                         DeviceInfo.setBattery(battery.toString())
                         Log.i("battery", battery.toString())
 
                         while (byteBuffer.hasRemaining()) {
                             when ((byteBuffer.position() - 4) % 16) {
-                                // 0 <= ppgGreen이냐 heartRate구분 하는 곳
-                                // byteBuffer1.int <= buffer에서 int만큼 읽겠다 이뜻임
-                                // reconstructedData할 필요없이 여기서 바로 String으로 바꾸고 DB? file에 넣으면 될듯
+                                // 0 <= ppgGreen OR heartRate 구분하는 곳
+                                // byteBuffer1.int <= buffer에서 int만큼 읽겠다는 뜻
+                                // reconstructedData할 필요없이 여기서 바로 String으로 바꾸고 DB에 넣으면 됨
                                 0 -> {
                                     reconstructedData.append(byteBuffer.int).append("|")
                                 }

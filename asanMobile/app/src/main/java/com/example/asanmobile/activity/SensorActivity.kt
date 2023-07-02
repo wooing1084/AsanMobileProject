@@ -14,6 +14,8 @@ import com.example.asanmobile.R
 import com.example.asanmobile.common.DeviceInfo
 import com.example.asanmobile.common.SocketState
 import com.example.asanmobile.common.SocketStateEvent
+import com.example.asanmobile.common.ThreadState
+import com.example.asanmobile.common.ThreadStateEvent
 import com.example.asanmobile.databinding.ActivitySensorBinding
 import com.example.asanmobile.sensor.controller.SensorController
 import com.example.asanmobile.service.AcceptService
@@ -31,7 +33,7 @@ class SensorActivity() : AppCompatActivity() {
         override fun handleOnBackPressed() {
             if (System.currentTimeMillis() - backPressedTime >= 2000) {
                 backPressedTime = System.currentTimeMillis()
-                Toast.makeText(this@SensorActivity, "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SensorActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
             } else {
                 finish()
             }
@@ -119,7 +121,6 @@ class SensorActivity() : AppCompatActivity() {
         }
         serviceIntent = Intent(this, AcceptService::class.java)
         startService(serviceIntent)
-//        Toast.makeText(this@SensorActivity, "서비스 시작", Toast.LENGTH_SHORT).show()
     }
 
     @Subscribe
@@ -127,6 +128,16 @@ class SensorActivity() : AppCompatActivity() {
         val state = event.state.name
         runOnUiThread {
             binding.stateLabel.text = state
+        }
+    }
+
+    @Subscribe
+    fun listenThreadState(event: ThreadStateEvent) {
+        if (ThreadState.STOP == event.state) {
+            Log.d("스레드 상태 감지", "서비스 종료")
+            val intent = Intent(this, AcceptService::class.java)
+            stopService(intent)
+            EventBus.getDefault().post(SocketStateEvent(SocketState.NONE))
         }
     }
 
