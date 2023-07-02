@@ -6,11 +6,15 @@ import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.app.NotificationCompat
 import com.example.asanmobile.R
 import com.example.asanmobile.activity.SensorActivity
@@ -34,19 +38,19 @@ class AcceptService : Service() {
     private lateinit var acceptThread: AcceptThread
     private val sensorController: SensorController = SensorController.getInstance(this)
     private val context: Context = this
-    var timer: Timer? = null
+    private var timer: Timer? = null
+    private val REQUEST_ENABLE_BT = 1
+    private var enableBluetoothReceiver: BroadcastReceiver? = null
 
     //From Sending Service
-    val tag = "Sending Service"
+    private val tag = "Sending Service"
 
-//    fun isBluetoothSupport(): Boolean {
-//        return if (bluetoothAdapter == null) {
-//            Toast.makeText(this, "Bluetooth 지원을 하지 않는 기기입니다.", Toast.LENGTH_SHORT).show()
-//            false
-//        } else {
-//            true
-//        }
-//    }
+    fun isBluetoothSupport(bluetoothAdapter: BluetoothAdapter): Boolean {
+        return if (bluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth 지원을 하지 않는 기기입니다.", Toast.LENGTH_SHORT).show()
+            false
+        } else true
+    }
 //    fun isBluetoothEnabled(): Boolean {
 //        return if (!bluetoothAdapter.isEnabled) {
 //            // 블루투스를 지원하지만 비활성 상태인 경우
@@ -74,8 +78,6 @@ class AcceptService : Service() {
             manager.createNotificationChannel(channel)
         }
 
-//        if (isBluetoothSupport()) {}
-
         val notificationIntent = Intent(this, SensorActivity::class.java)
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
@@ -91,6 +93,46 @@ class AcceptService : Service() {
         startForeground(notificationID, notification.build())
         bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
+
+        // 블루투스를 지원하지 않는 경우
+        if (isBluetoothSupport(bluetoothAdapter)) {
+            onDestroy()
+        }
+
+        // Bluetooth 비활성화 상태인 경우
+        if (bluetoothAdapter?.isEnabled == false) {
+            // Bluetooth 활성화를 위한 PendingIntent 생성
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            val pendingIntent = PendingIntent.getActivity(
+                this, REQUEST_ENABLE_BT, enableBtIntent, PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            // BroadcastReceiver 등록하여 Bluetooth 활성화 결과 수신
+            enableBluetoothReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    val action = intent?.action
+                    if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+                        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+                        if (state == BluetoothAdapter.STATE_ON) {
+                            // Bluetooth가 성공적으로 활성화된 경우
+
+                            // BroadcastReceiver 등록 해제
+                            unregisterReceiver(this)
+                        } else if (state == BluetoothAdapter.STATE_OFF) {
+                            Toast.makeText(this@AcceptService, "블루투스를 활성화 해주세요", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            registerReceiver(enableBluetoothReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+
+            // PendingIntent 실행
+            try {
+                pendingIntent.send()
+            } catch (e: PendingIntent.CanceledException) {
+                e.printStackTrace()
+            }
+        }
 
         acceptThread = AcceptThread(bluetoothAdapter, applicationContext)
         acceptThread.start()
@@ -108,6 +150,12 @@ class AcceptService : Service() {
             timer = null
         }
         stopForeground(STOP_FOREGROUND_REMOVE)
+
+        // BroadcastReceiver 등록 해제
+        enableBluetoothReceiver?.let {
+            unregisterReceiver(it)
+            enableBluetoothReceiver = null
+        }
         stopSelf()
     }
 
