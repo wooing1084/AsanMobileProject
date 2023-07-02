@@ -1,20 +1,22 @@
 package com.example.asanmobile.service
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.example.asanmobile.R
 import com.example.asanmobile.activity.SensorActivity
@@ -23,14 +25,15 @@ import com.example.asanmobile.common.CsvController.getExternalPath
 import com.example.asanmobile.common.CsvController.getFile
 import com.example.asanmobile.common.CsvController.moveFile
 import com.example.asanmobile.common.CsvStatistics
-import com.example.asanmobile.common.ServerConnection
 import com.example.asanmobile.common.DeviceInfo
+import com.example.asanmobile.common.ServerConnection
 import com.example.asanmobile.sensor.controller.SensorController
 import com.example.asanmobile.sensor.model.SensorEnum
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.Timer
-import java.util.TimerTask
+import java.lang.reflect.Method
+import java.util.*
+
 
 class AcceptService : Service() {
     private lateinit var bluetoothManager: BluetoothManager
@@ -39,28 +42,10 @@ class AcceptService : Service() {
     private val sensorController: SensorController = SensorController.getInstance(this)
     private val context: Context = this
     private var timer: Timer? = null
-    private val REQUEST_ENABLE_BT = 1
     private var enableBluetoothReceiver: BroadcastReceiver? = null
 
     //From Sending Service
     private val tag = "Sending Service"
-
-    fun isBluetoothSupport(bluetoothAdapter: BluetoothAdapter): Boolean {
-        return if (bluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth 지원을 하지 않는 기기입니다.", Toast.LENGTH_SHORT).show()
-            false
-        } else true
-    }
-//    fun isBluetoothEnabled(): Boolean {
-//        return if (!bluetoothAdapter.isEnabled) {
-//            // 블루투스를 지원하지만 비활성 상태인 경우
-//            // 블루투스를 활성 상태로 바꾸기 위해 사용자 동의 요청
-//            Toast.makeText(this, "Bluetooth를 활성화 해 주세요.", Toast.LENGTH_SHORT).show()
-//            false
-//        } else {
-//            true
-//        }
-//    }
 
     override fun onBind(p0: Intent?): IBinder? {
         TODO("Not yet implemented")
@@ -95,50 +80,30 @@ class AcceptService : Service() {
         bluetoothAdapter = bluetoothManager.adapter
 
         // 블루투스를 지원하지 않는 경우
-        if (isBluetoothSupport(bluetoothAdapter)) {
+        if (!isBluetoothSupport(bluetoothAdapter)) {
             onDestroy()
         }
 
         // Bluetooth 비활성화 상태인 경우
-        if (bluetoothAdapter?.isEnabled == false) {
-            // Bluetooth 활성화를 위한 PendingIntent 생성
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            val pendingIntent = PendingIntent.getActivity(
-                this, REQUEST_ENABLE_BT, enableBtIntent, PendingIntent.FLAG_UPDATE_CURRENT
-            )
-
-            // BroadcastReceiver 등록하여 Bluetooth 활성화 결과 수신
-            enableBluetoothReceiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context?, intent: Intent?) {
-                    val action = intent?.action
-                    if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
-                        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
-                        if (state == BluetoothAdapter.STATE_ON) {
-                            // Bluetooth가 성공적으로 활성화된 경우
-
-                            // BroadcastReceiver 등록 해제
-                            unregisterReceiver(this)
-                        } else if (state == BluetoothAdapter.STATE_OFF) {
-                            Toast.makeText(this@AcceptService, "블루투스를 활성화 해주세요", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            if (!bluetoothAdapter.isEnabled) {
+                Toast.makeText(this@AcceptService, "블루투스를 활성화해주세요", Toast.LENGTH_SHORT).show()
+                onDestroy()
+                return START_NOT_STICKY
             }
-            registerReceiver(enableBluetoothReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+            if (!pairingBluetoothConnected()) {
+                Toast.makeText(this@AcceptService, "기기를 연결해주세요", Toast.LENGTH_SHORT).show()
+                onDestroy()
+                return START_NOT_STICKY
+            } else {
+                acceptThread = AcceptThread(bluetoothAdapter, this)
+                acceptThread.start()
 
-            // PendingIntent 실행
-            try {
-                pendingIntent.send()
-            } catch (e: PendingIntent.CanceledException) {
-                e.printStackTrace()
+//        csvWrite(60000 * 5) // 1분 * n
+                csvWrite(10000) // 1분 * n
             }
         }
 
-        acceptThread = AcceptThread(bluetoothAdapter, applicationContext)
-        acceptThread.start()
-
-//        csvWrite(60000 * 5) // 1분 * n
-        csvWrite(10000) // 1분 * n
         return START_REDELIVER_INTENT
     }
 
@@ -157,6 +122,41 @@ class AcceptService : Service() {
             enableBluetoothReceiver = null
         }
         stopSelf()
+    }
+
+    private fun isBluetoothSupport(bluetoothAdapter: BluetoothAdapter): Boolean {
+        return if (bluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth 지원을 하지 않는 기기입니다.", Toast.LENGTH_SHORT).show()
+            false
+        } else true
+    }
+
+    private fun isConnected(device: BluetoothDevice): Boolean {
+        return try {
+            val method: Method = device.javaClass.getMethod("isConnected")
+            val connected: Boolean = method.invoke(device) as Boolean
+            connected
+        } catch (e: Exception) {
+            throw IllegalStateException(e)
+        }
+    }
+
+    private fun pairingBluetoothConnected(): Boolean {
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                val bluetoothDevices: Set<BluetoothDevice> =
+                    bluetoothAdapter.bondedDevices
+                for (bluetoothDevice in bluetoothDevices) {
+                    if (isConnected(bluetoothDevice)) {
+                        // 연결 중이 아닌 상태
+                        return true
+                    }
+                }
+            }
+        } catch (e: NullPointerException) {
+            // 블루투스 서비스 사용 불가인 경우 처리
+        }
+        return false
     }
 
     private fun csvWrite(time: Long) {

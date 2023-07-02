@@ -115,7 +115,7 @@ class SensorActivity() : AppCompatActivity() {
         }
         serviceIntent = Intent(this, AcceptService::class.java)
         startService(serviceIntent)
-        Toast.makeText(this@SensorActivity, "서비스 시작", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this@SensorActivity, "서비스 시작", Toast.LENGTH_SHORT).show()
     }
 
     @Subscribe
