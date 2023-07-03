@@ -94,7 +94,9 @@ class SensorActivity() : AppCompatActivity() {
         // 원하는 시간만큼 roomDB에서 데이터 추출 메소드 사용 예시
         binding.BtnTest.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
-                sensorController.getDataFromNow("HeartRate", 600)
+                // 10분
+                val time: Long = 10 * 60 * 1000
+                sensorController.getDataFromNow("HeartRate", time)
             }
         }
 

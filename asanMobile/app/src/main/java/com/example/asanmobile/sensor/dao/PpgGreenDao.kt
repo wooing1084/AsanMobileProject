@@ -23,6 +23,6 @@ interface PpgGreenDao {
     @Query("DELETE FROM ppgGreen WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("SELECT * FROM ppgGreen WHERE time BETWEEN time - :period AND :now")
+    @Query("SELECT * FROM ppgGreen WHERE time BETWEEN :now - :period AND :now")
     fun getFromNow(now: Long, period: Long): List<PpgGreen>
 }

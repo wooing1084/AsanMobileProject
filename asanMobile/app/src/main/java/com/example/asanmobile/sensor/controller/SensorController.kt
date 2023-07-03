@@ -195,6 +195,7 @@ class SensorController(context: Context) {
             }
             else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
         }
+        Log.d("GET DATA FROM NOW", abstractSensorSet.size.toString())
         return@withContext abstractSensorSet
     }
 
