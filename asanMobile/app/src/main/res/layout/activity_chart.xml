@@ -25,24 +25,5 @@
         app:layout_constraintVertical_bias="0.081"
         tools:ignore="MissingConstraints" />
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart_now_heart"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.621"
-        tools:ignore="MissingConstraints" />
-
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart_now_ppgGreen"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chart_heart"
-        app:layout_constraintVertical_bias="0.79"
-        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
