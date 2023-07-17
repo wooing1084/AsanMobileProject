@@ -7,17 +7,9 @@ import com.example.asanmobile.sensor.model.HeartRate
 
 @Dao
 interface HeartRateDao {
-//    @Query("SELECT * FROM heartRate LIMIT :limit")
-//    fun getAll(limit: Int): LinkedBlockingQueue<HeartRate>
 
     @Query("SELECT * FROM heartRate WHERE id > :cursor ORDER BY id ASC")
     fun getAll(cursor: Int): List<HeartRate>
-
-//    @Query("SELECT * FROM heartRate where id = id")
-//    suspend fun get(id: Long): List<HeartRate>
-
-//    @Query("SELECT * FROM heartRate WHERE id IN (:sensorIds)")
-//    fun loadAllByIds(sensorIds: IntArray): Flow<LinkedBlockingQueue<Sensor>>
 
     @Insert
     fun insertAll(vararg sensor: HeartRate)

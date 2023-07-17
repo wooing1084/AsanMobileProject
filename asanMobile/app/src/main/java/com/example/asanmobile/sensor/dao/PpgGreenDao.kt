@@ -11,12 +11,6 @@ interface PpgGreenDao {
     @Query("SELECT * FROM ppgGreen WHERE id > :cursor ORDER BY id ASC")
     fun getAll(cursor: Int): List<PpgGreen>
 
-//    @Query("SELECT * FROM ppgGreen where id = id")
-//    suspend fun get(id: Long): PpgGreen
-
-//    @Query("SELECT * FROM ppgGreen WHERE id IN (:userIds)")
-//    fun loadAllByIds(userIds: IntArray): Flow<LinkedBlockingQueue<Sensor>>
-
     @Insert
     suspend fun insertAll(vararg users: PpgGreen)
 

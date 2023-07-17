@@ -66,7 +66,7 @@ class SensorController(context: Context) {
         val abstractSensorSet: List<AbstractSensor> = when (sensorName) {
             SensorEnum.HEART_RATE.value -> {
                 val heartCursor = prefManager.getCursor("HeartRate")
-                Log.d(TAG, "Start cursor: $heartCursor")
+                Log.d(TAG, "Start heartRate cursor: $heartCursor")
                 val heartRateSet = heartRateService.getAll(heartCursor)
                 val heartRateSize = heartRateSet.size
                 prefManager.putCursor("HeartRate", heartCursor + heartRateSize)
@@ -75,6 +75,7 @@ class SensorController(context: Context) {
 
             SensorEnum.PPG_GREEN.value -> {
                 val ppgGreenCursor = prefManager.getCursor("PpgGreen")
+                Log.d(TAG, "Start ppgGreen cursor: $ppgGreenCursor")
                 val ppgGreenSet = ppgGreenService.getAll(ppgGreenCursor)
                 val ppgGreenSize = ppgGreenSet.size
                 prefManager.putCursor("PpgGreen", ppgGreenCursor + ppgGreenSize)
@@ -95,7 +96,6 @@ class SensorController(context: Context) {
     }
 
     private suspend fun writeSensorRepo(bufferList: List<String>) = coroutineScope {
-
         for (buffer in bufferList) {
             println("str: $buffer")
             Log.d(TAG, "str: $buffer")

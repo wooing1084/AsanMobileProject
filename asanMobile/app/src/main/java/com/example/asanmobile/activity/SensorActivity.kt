@@ -28,6 +28,7 @@ class SensorActivity() : AppCompatActivity() {
     private lateinit var serviceIntent : Intent
     private lateinit var sensorController: SensorController
     private lateinit var binding: ActivitySensorBinding
+
     private val callback = object : OnBackPressedCallback(true) {
         var backPressedTime: Long = 0
         override fun handleOnBackPressed() {
@@ -54,22 +55,14 @@ class SensorActivity() : AppCompatActivity() {
 
         // 권한 허가
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestPermissions(
-                arrayOf(
+            requestPermissions(arrayOf(
                     Manifest.permission.BLUETOOTH,
                     Manifest.permission.BLUETOOTH_SCAN,
                     Manifest.permission.BLUETOOTH_ADVERTISE,
                     Manifest.permission.BLUETOOTH_CONNECT
-                ),
-                1
-            )
+                ), 1)
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.BLUETOOTH
-                ),
-                1
-            )
+            requestPermissions(arrayOf(Manifest.permission.BLUETOOTH), 1)
         }
 
         // 화면
@@ -91,15 +84,6 @@ class SensorActivity() : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // 원하는 시간만큼 roomDB에서 데이터 추출 메소드 사용 예시
-        binding.BtnTest.setOnClickListener {
-            CoroutineScope(Dispatchers.Main).launch {
-                // 10분
-                val time: Long = 10 * 60 * 1000
-                sensorController.getDataFromNow("HeartRate", time)
-            }
-        }
-
         this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
@@ -113,14 +97,7 @@ class SensorActivity() : AppCompatActivity() {
         if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
     }
 
-    fun serviceStart() {
-        val manager = this.getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (service.service.className.contains("AcceptService")) {
-                Log.d("SensorActivity", "Service Already Running")
-                return
-            }
-        }
+    private fun serviceStart() {
         serviceIntent = Intent(this, AcceptService::class.java)
         startService(serviceIntent)
     }

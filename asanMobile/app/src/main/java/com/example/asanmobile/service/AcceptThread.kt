@@ -23,8 +23,6 @@ import java.nio.ByteOrder
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
     private lateinit var sensorController: SensorController
-    //    private val serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
-//    private val handler = Handler(Looper.getMainLooper())
     private val context: Context = context
 
     companion object {
@@ -55,6 +53,10 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                 Log.d("success", socket.toString())
                 sleep(300)
             } catch (e: IOException) {
+                Log.e(TAG, e.printStackTrace().toString())
+                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+                return
+            } catch (e: Exception) {
                 Log.e(TAG, e.printStackTrace().toString())
                 EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
                 return
@@ -113,6 +115,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         Log.e(TAG, "unable to read message form socket", e)
                         socket.close()
                         EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
+                        EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
                         break
                     } finally {
                         try {
@@ -120,6 +123,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                                 socket.use {
                                     socket.close()
                                     EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
+                                    EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
                                 }
                             }
                         } catch (e: Exception) {

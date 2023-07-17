@@ -42,7 +42,6 @@ class AcceptService : Service() {
     private val sensorController: SensorController = SensorController.getInstance(this)
     private val context: Context = this
     private var timer: Timer? = null
-    private var enableBluetoothReceiver: BroadcastReceiver? = null
 
     //From Sending Service
     private val tag = "Sending Service"
@@ -85,7 +84,11 @@ class AcceptService : Service() {
         }
 
         // Bluetooth 비활성화 상태인 경우
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             if (!bluetoothAdapter.isEnabled) {
                 Toast.makeText(this@AcceptService, "블루투스를 활성화해주세요", Toast.LENGTH_SHORT).show()
                 onDestroy()
@@ -95,13 +98,13 @@ class AcceptService : Service() {
                 Toast.makeText(this@AcceptService, "기기를 연결해주세요", Toast.LENGTH_SHORT).show()
                 onDestroy()
                 return START_NOT_STICKY
-            } else {
-                acceptThread = AcceptThread(bluetoothAdapter, this)
-                acceptThread.start()
-
-        csvWrite(60000 * 5) // 1분 * n
-//                csvWrite(10000) // 1분 * n
             }
+
+            acceptThread = AcceptThread(bluetoothAdapter, this)
+            acceptThread.start()
+
+//            csvWrite(60000 * 5) // 1분 * n
+                csvWrite(10000) // 1분 * n
         }
 
         return START_REDELIVER_INTENT
@@ -115,12 +118,7 @@ class AcceptService : Service() {
             timer = null
         }
         stopForeground(STOP_FOREGROUND_REMOVE)
-
-        // BroadcastReceiver 등록 해제
-        enableBluetoothReceiver?.let {
-            unregisterReceiver(it)
-            enableBluetoothReceiver = null
-        }
+        acceptThread.interrupt()
         stopSelf()
     }
 
@@ -160,13 +158,11 @@ class AcceptService : Service() {
     }
 
     private fun csvWrite(time: Long) {
+        var i = 0
         if (timer != null) {
             Log.d("Accept Service", "timer is already running")
             return
         }
-
-        var i = 0
-
         timer = Timer()
         timer?.schedule(object : TimerTask() {
             override fun run() {
@@ -211,7 +207,6 @@ class AcceptService : Service() {
         ppgSrcFile?.delete()
 
         val ppgFile = getFile(ppgDestPath)
-
         if (ppgFile != null) {
             val token = ppgFileName!!.split('_')
             val ppgTime = token[1].split('.')[0]
