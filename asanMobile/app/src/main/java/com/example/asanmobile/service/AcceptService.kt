@@ -108,8 +108,8 @@ class AcceptService : Service() {
                 onDestroy()
             }
 
-//            csvWrite(60000 * 5) // 1분 * n
-                csvWrite(10000) // 1분 * n
+            csvWrite(60000 * 5) // 1분 * n
+//                csvWrite(10000) // 1분 * n
         }
 
         return START_REDELIVER_INTENT
@@ -123,7 +123,6 @@ class AcceptService : Service() {
             timer = null
         }
         stopForeground(STOP_FOREGROUND_REMOVE)
-        acceptThread.interrupt()
         stopSelf()
     }
 

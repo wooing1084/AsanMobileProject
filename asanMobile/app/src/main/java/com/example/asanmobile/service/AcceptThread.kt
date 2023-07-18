@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import com.example.asanmobile.activity.SensorChartActivity
 import com.example.asanmobile.common.*
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.*
@@ -18,7 +17,6 @@ import java.util.*
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlin.jvm.Throws
 
 @SuppressLint("MissingPermission")
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
@@ -41,33 +39,24 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         } catch (e: Exception) {
             Log.e(TAG, e.printStackTrace().toString())
             EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+            e.printStackTrace()
         }
     }
 
-    @Throws(Exception::class)
     override fun run() {
         var socket: BluetoothSocket? = null
-
         while (true) {
-//            try {
-//                // 클라이언트 소켓
-//                socket = serverSocket?.accept()
-//                Log.d("success", socket.toString())
-//                sleep(300)
-//            } catch (e: IOException) {
-//                Log.e(TAG, e.printStackTrace().toString())
-//                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
-//                return
-//            } catch (e: Exception) {
-//                Log.e(TAG, e.printStackTrace().toString())
-//                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
-//                return
-//            }
-
-            // 클라이언트 소켓
-            socket = serverSocket?.accept()
-            Log.d("success", socket.toString())
-            sleep(300)
+            try {
+                // 클라이언트 소켓
+                socket = serverSocket?.accept()
+                Log.d("success", socket.toString())
+                sleep(300)
+            } catch (e: Exception) {
+                Log.e(TAG, e.printStackTrace().toString())
+                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+                e.printStackTrace()
+                break
+            }
 
             socket?.let {
                 val inputStream = it.inputStream
@@ -121,19 +110,24 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to read message form socket", e)
                         socket.close()
+                        serverSocket.close()
                         EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
                         EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+                        e.printStackTrace()
                         break
                     } finally {
                         try {
                             if (!socket.isConnected) {
                                 socket.use {
                                     socket.close()
+                                    serverSocket.close()
                                     EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
                                     EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
                                 }
                             }
                         } catch (e: Exception) {
+                            socket.close()
+                            serverSocket.close()
                             e.printStackTrace()
                         }
                     }
