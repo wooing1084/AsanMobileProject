@@ -18,6 +18,7 @@ import java.util.*
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.jvm.Throws
 
 @SuppressLint("MissingPermission")
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
@@ -43,24 +44,30 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         }
     }
 
+    @Throws(Exception::class)
     override fun run() {
         var socket: BluetoothSocket? = null
 
         while (true) {
-            try {
-                // 클라이언트 소켓
-                socket = serverSocket?.accept()
-                Log.d("success", socket.toString())
-                sleep(300)
-            } catch (e: IOException) {
-                Log.e(TAG, e.printStackTrace().toString())
-                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
-                return
-            } catch (e: Exception) {
-                Log.e(TAG, e.printStackTrace().toString())
-                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
-                return
-            }
+//            try {
+//                // 클라이언트 소켓
+//                socket = serverSocket?.accept()
+//                Log.d("success", socket.toString())
+//                sleep(300)
+//            } catch (e: IOException) {
+//                Log.e(TAG, e.printStackTrace().toString())
+//                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+//                return
+//            } catch (e: Exception) {
+//                Log.e(TAG, e.printStackTrace().toString())
+//                EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+//                return
+//            }
+
+            // 클라이언트 소켓
+            socket = serverSocket?.accept()
+            Log.d("success", socket.toString())
+            sleep(300)
 
             socket?.let {
                 val inputStream = it.inputStream

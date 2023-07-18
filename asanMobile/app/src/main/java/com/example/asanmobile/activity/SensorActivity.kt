@@ -110,14 +110,14 @@ class SensorActivity() : AppCompatActivity() {
         }
     }
 
-    @Subscribe
-    fun listenThreadState(event: ThreadStateEvent) {
-        if (ThreadState.STOP == event.state) {
-            Log.d("스레드 상태 감지", "서비스 종료")
-            val intent = Intent(this, AcceptService::class.java)
-            stopService(intent)
-            EventBus.getDefault().post(SocketStateEvent(SocketState.NONE))
-        }
-    }
+//    @Subscribe
+//    fun listenThreadState(event: ThreadStateEvent) {
+//        if (ThreadState.STOP == event.state) {
+//            Log.d("스레드 상태 감지", "서비스 종료")
+//            val intent = Intent(this, AcceptService::class.java)
+//            stopService(intent)
+//            EventBus.getDefault().post(SocketStateEvent(SocketState.NONE))
+//        }
+//    }
 
 }

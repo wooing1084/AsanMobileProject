@@ -100,8 +100,13 @@ class AcceptService : Service() {
                 return START_NOT_STICKY
             }
 
-            acceptThread = AcceptThread(bluetoothAdapter, this)
-            acceptThread.start()
+            try {
+                acceptThread = AcceptThread(bluetoothAdapter, this)
+                acceptThread.start()
+            } catch (e: Exception) {
+                Log.e(this.tag, e.printStackTrace().toString())
+                onDestroy()
+            }
 
 //            csvWrite(60000 * 5) // 1분 * n
                 csvWrite(10000) // 1분 * n
@@ -113,7 +118,7 @@ class AcceptService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d("Accept Service", "onDestroy")
-        if(timer != null) {
+        if (timer != null) {
             timer?.cancel()
             timer = null
         }
