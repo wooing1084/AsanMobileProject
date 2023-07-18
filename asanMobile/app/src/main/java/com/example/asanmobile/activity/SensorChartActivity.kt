@@ -28,14 +28,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 //TODO
-//값이 없는부분은 0으로 지정해야한다.
-
-//현재는 숫자로 나오지만, 시간으로 나오게 해야함
-//처음에 시간을 fix해놓고 해당 시간에 값을 넣는다.
-
 //선택이나 줌 안되게 막아야함
-
-// 여기에 수신해서 받는 거로 적용해보려 했으나, 수신 안됨
 class SensorChartActivity : AppCompatActivity() {
     private var timer: Timer? = null
 

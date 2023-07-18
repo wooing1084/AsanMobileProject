@@ -64,7 +64,12 @@ class AcceptService : Service() {
 
         val notificationIntent = Intent(this, SensorActivity::class.java)
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val notification = NotificationCompat.Builder(this, channelId).apply {
             setContentTitle("Asan Service")
