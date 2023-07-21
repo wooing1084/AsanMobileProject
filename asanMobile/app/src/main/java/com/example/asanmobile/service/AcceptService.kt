@@ -8,7 +8,6 @@ import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -167,7 +166,7 @@ class AcceptService : Service() {
     }
 
     private fun csvWrite(time: Long) {
-        var i = 0
+        var count = 0
         if (timer != null) {
             Log.d("Accept Service", "timer is already running")
             return
@@ -179,11 +178,11 @@ class AcceptService : Service() {
                 GlobalScope.launch {
                     sensorController.writeCsv(this@AcceptService, SensorEnum.HEART_RATE.value)
                     sensorController.writeCsv(this@AcceptService, SensorEnum.PPG_GREEN.value)
-                    i++
+                    count++
 
-                    if (i == 6) {
+                    if (count == 6) {
                         sendCSV()
-                        i %= 6
+                        count %= 6
                     }
                 }
             }

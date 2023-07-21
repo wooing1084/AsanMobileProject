@@ -1,13 +1,16 @@
 package com.example.asanmobile.service
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.example.asanmobile.common.*
 import com.example.asanmobile.sensor.controller.SensorController
 import kotlinx.coroutines.*
@@ -18,7 +21,6 @@ import java.util.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-@SuppressLint("MissingPermission")
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
     private lateinit var sensorController: SensorController
@@ -34,7 +36,15 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         try {
             Toast.makeText(context, "Start Service", Toast.LENGTH_LONG).show()
             // 서버 소켓
-            serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                serverSocket =
+                    bluetoothAdapter.listenUsingRfcommWithServiceRecord(SOCKET_NAME, MY_UUID)
+            }
+
             sensorController = SensorController.getInstance(context)
         } catch (e: Exception) {
             Log.e(TAG, e.printStackTrace().toString())
@@ -60,7 +70,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 
             socket?.let {
                 val inputStream = it.inputStream
-                var buffer = ByteArray(990)
+                val buffer: ByteArray = ByteArray(990)
 
                 Log.d(this.toString(), buffer.toString())
                 EventBus.getDefault().post(SocketStateEvent(SocketState.CONNECT))
