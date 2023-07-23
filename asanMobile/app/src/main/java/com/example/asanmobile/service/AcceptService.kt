@@ -33,13 +33,16 @@ import kotlinx.coroutines.launch
 import java.lang.reflect.Method
 import java.util.*
 
-
+/**
+ * 포그라운드 서비스
+ * 웨어러블을 통해 수집된 데이터를 폰을 통해 수집
+ * 백그라운드에서 수집 + csv 생성 + 서버로 csv 전송
+ * */
 class AcceptService : Service() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var acceptThread: AcceptThread
     private val sensorController: SensorController = SensorController.getInstance(this)
-    private val context: Context = this
     private var timer: Timer? = null
 
     //From Sending Service
@@ -115,7 +118,6 @@ class AcceptService : Service() {
             csvWrite(60000 * 5) // 1분 * n
 //                csvWrite(10000) // 1분 * n
         }
-
         return START_REDELIVER_INTENT
     }
 
@@ -130,12 +132,19 @@ class AcceptService : Service() {
         stopSelf()
     }
 
+    /**
+     * 블루투스 지원 여부 판별 메소드
+     * */
     private fun isBluetoothSupport(bluetoothAdapter: BluetoothAdapter): Boolean {
         return if (bluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth 지원을 하지 않는 기기입니다.", Toast.LENGTH_SHORT).show()
             false
         } else true
     }
+
+    /**
+     * 블루투스 연결 여부 판별 메소드
+     * */
 
     private fun isConnected(device: BluetoothDevice): Boolean {
         return try {
@@ -147,6 +156,9 @@ class AcceptService : Service() {
         }
     }
 
+    /**
+     * 페어링 된 기기와 연결 확인 메소드
+     * */
     private fun pairingBluetoothConnected(): Boolean {
         try {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
@@ -164,6 +176,15 @@ class AcceptService : Service() {
         }
         return false
     }
+
+    /**
+     * csv를 작성하는 메소드
+     * 타이머가 있어 입력받은 시간마다 동작
+     * count는 주기를 의미
+     * 주기마다 csv를 서버로 전송하는 메소드인 sendCSV 호출 
+     * input: 시간(단위: unixTime)
+     * ex) csvWrite(60000) -> 1분마다 동작
+     * */
 
     private fun csvWrite(time: Long) {
         var count = 0
@@ -191,6 +212,9 @@ class AcceptService : Service() {
 
 
     //From Sending Service
+    /**
+     * CSV를 서버로 전송하는 메소드
+     * */
     private fun sendCSV() {
         //HeartRate
         val hrFileName = getExistFileName(this, "HeartRate")
