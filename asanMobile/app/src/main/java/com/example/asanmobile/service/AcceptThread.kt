@@ -1,12 +1,10 @@
 package com.example.asanmobile.service
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
@@ -21,10 +19,12 @@ import java.util.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/**
+ * 서비스에서 소켓 연결을 담당하는 클래스
+ * */
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
     private lateinit var sensorController: SensorController
-    private val context: Context = context
 
     companion object {
         private const val TAG = "ACCEPT_THREAD"
@@ -63,6 +63,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                 sleep(300)
             } catch (e: Exception) {
                 Log.e(TAG, e.printStackTrace().toString())
+                // 소켓 오류 시 EventBus를 통해 Thread Stop 전송
                 EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
                 e.printStackTrace()
                 break
@@ -73,6 +74,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                 val buffer: ByteArray = ByteArray(990)
 
                 Log.d(this.toString(), buffer.toString())
+                // 소켓 연결시 EventBus를 통해 Connect 전송
                 EventBus.getDefault().post(SocketStateEvent(SocketState.CONNECT))
 
                 while (true) {
@@ -108,15 +110,15 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 
                         val str = reconstructedData.toString()
                         Log.d(this.toString(), str.toString())
-                        val intent = Intent(Intent.ACTION_ATTACH_DATA)
-                        intent.putExtra("data", str)
-
                         CoroutineScope(Dispatchers.IO).launch {
-                            // 소켓에서 데이터를 받아올 때 전송하는 것으로 작성
-                            context.sendBroadcast(intent)
                             sensorController.dataAccept(str)
                         }
-                        // 오류 발생시 소켓 close
+                        /**
+                         * 오류 발생 시
+                         * 소켓 close
+                         * eventBus를 통해 socketState Close 전송
+                         * eventBus를 통해 ThreadState Stop 전송
+                         * */
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to read message form socket", e)
                         socket.close()
