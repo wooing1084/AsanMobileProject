@@ -13,14 +13,25 @@ import java.util.Date
 import java.util.Locale
 
 
+/** 서버와의 통신을 위한 싱글톤 클래스
+ postFile, Login기능을 제공한다.
+ [postFile] : 서버에 csv파일을 전송한다.
+ [Login] : 서버에 로그인 요청을 보내고, 성공시 sensorActivity로 이동한다.*/
 abstract class ServerConnection{
     companion object{
-        val tag = "Server Connection"
-        //val urlText = "http://172.16.226.109:8000/csv"
-        //val urlText = "http://10.0.2.2:8000/csv"
-        val requestUrl = "http://220.149.46.249:7778/forUser/postCurrentData/"
-        val loginURL = "http://220.149.46.249:7778/forUser/registUser/"
-        // 서버에 Post로 파일 전송하는 부분
+        // Private 변수 선언
+        private val tag = "Server Connection"
+        private val requestUrl = "http://220.149.46.249:7778/forUser/postCurrentData/"
+        private val loginURL = "http://220.149.46.249:7778/forUser/registUser/"
+
+         /**
+         [postFile]
+         서버에 csv파일을 전송한다.
+         file: 전송할 csv파일
+         userID: 로그인되어있는 유저ID
+         battery: 현재 워치 배터리 잔량
+         timestamp: 현재 시간(파일명에 들어간 시간과 동일)
+         url: 서버 주소(default값이 지정되어있으므로, 다른 경로에 전송할때만 사용)*/
         fun postFile(file: File, userID: String, battery: String, timestamp: String, url: String = requestUrl) {
             //Post에 붙일 요청 body생성부분
             val requestBody = MultipartBody.Builder()
@@ -44,11 +55,18 @@ abstract class ServerConnection{
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    Log.e(tag, "File Send response code: " + response.body()?.string().toString())
+                    Log.d(tag, "File Send response code: " + response.body()?.string().toString())
                 }
             })
         }
 
+
+      /**   [login]
+         서버에 로그인 요청을 보내고, 성공시 sensorActivity로 이동한다.
+         authcode: 로그인할 유저의 ID
+         deviceID: 현재 디바이스의 ID
+         regID: 현재 디바이스의 regID
+         context: 현재 액티비티*/
         fun login(authcode : String, deviceID : String = "123456", regID: String = "1234567", context: Activity) {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val date = Date()
