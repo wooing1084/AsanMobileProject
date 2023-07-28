@@ -61,7 +61,8 @@ abstract class ServerConnection{
         }
 
 
-      /**   [login]
+      /**
+       * [login]
          서버에 로그인 요청을 보내고, 성공시 sensorActivity로 이동한다.
          authcode: 로그인할 유저의 ID
          deviceID: 현재 디바이스의 ID
