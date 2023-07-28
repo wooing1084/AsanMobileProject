@@ -21,8 +21,8 @@ abstract class ServerConnection{
     companion object{
         // Private 변수 선언
         private val tag = "Server Connection"
-        private val requestUrl = "http://220.149.46.249:7778/forUser/postCurrentData/"
-        private val loginURL = "http://220.149.46.249:7778/forUser/registUser/"
+        private val requestUrl = "http://10.11.71.92:7778/forUser/postCurrentData/"
+        private val loginURL = "http://10.11.71.92:7778/forUser/registUser/"
 
          /**
          [postFile]
