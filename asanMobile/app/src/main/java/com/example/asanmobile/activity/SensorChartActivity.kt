@@ -41,8 +41,6 @@ class SensorChartActivity : AppCompatActivity() {
             finish()
         }
     }
-    private val regexManager: RegexManager = RegexManager.getInstance(this)
-
     private lateinit var ppgGreenChart: LineChart
     private lateinit var heartRateChart: LineChart
 

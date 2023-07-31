@@ -8,10 +8,12 @@ import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import java.io.*
 
-
+/**
+ * csv 관련 처리 객체
+ * */
 object CsvController {
 
-    // csv Writer, Reader 이름을 주입시켜야 하는 과정 필요
+    // csv Writer, Reader 이름을 입력해야 함
     fun getCSVReader(path: String, fileName: String): CSVReader{
         return CSVReader(FileReader("$path/$fileName"))
     }
@@ -22,7 +24,7 @@ object CsvController {
 
     // 파일이 저장될 외부 저장소 path 불러오는 함수
     // 파일이 저장될 path 리턴
-    public fun getExternalPath(context: Context): String{
+    fun getExternalPath(context: Context): String{
         val dir: File? = context.getExternalFilesDir(null)
         val path = dir?.absolutePath + File.separator + "sensor"
 
@@ -93,13 +95,14 @@ object CsvController {
         return null
     }
 
+    /**
+     * csv 파일이 존재하지 않는다면 실행되는 메소드
+     * 입력받은 sensorName을 활용하여 파일명 작성
+     * */
     fun csvFirst(context: Context, sensorName: String) {
         val path: String = getExternalPath(context)
         val name = setFileName(sensorName)
         val file: File = File(path, name)
-//        val csvWriter = getCsvWriter(path, name)
-        
-//        val headerData = "time,value"
         val bw = BufferedWriter(FileWriter(file))
         try {
             bw.write("")
@@ -112,6 +115,11 @@ object CsvController {
         Log.d(this.toString(), "csv 생성")
     }
 
+    /**
+     * csv 파일이 존재한 경우, 파일에 csv 데이터를 작성하는 메소드
+     * sensorName: 해당하는 센서 이름
+     * abstractSensorSet: 센서 List
+     * */
     fun csvSave(context: Context, sensorName: String, abstractSensorSet: List<AbstractSensor>) {
         val path: String = getExternalPath(context)
         val name = fileExist(context, sensorName)

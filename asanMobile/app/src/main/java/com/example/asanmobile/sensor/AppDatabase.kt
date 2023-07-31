@@ -4,13 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.asanmobile.sensor.dao.HeartRateDao
 import com.example.asanmobile.sensor.dao.PpgGreenDao
 import com.example.asanmobile.sensor.model.HeartRate
 import com.example.asanmobile.sensor.model.PpgGreen
 
+/**
+ * 앱 내 센서 데이터 저장용 로컬 DB 접근용 추상 클래스
+ * */
 @Database(entities = [HeartRate::class, PpgGreen::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
 

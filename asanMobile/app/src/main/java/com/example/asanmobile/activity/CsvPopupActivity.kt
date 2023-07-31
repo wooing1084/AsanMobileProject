@@ -57,7 +57,6 @@ class CsvPopupActivity: AppCompatActivity() {
                     val fileName = "${file.name}   (${fileSize} bytes)" // 파일명과 크기 조합하여 표시
                     fileName
                 })
-                adapter.notifyDataSetChanged()
             }
         }
         this.onBackPressedDispatcher.addCallback(this, callback)

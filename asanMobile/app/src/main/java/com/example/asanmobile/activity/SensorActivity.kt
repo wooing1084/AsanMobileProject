@@ -29,6 +29,9 @@ class SensorActivity() : AppCompatActivity() {
     private lateinit var sensorController: SensorController
     private lateinit var binding: ActivitySensorBinding
 
+    /**
+     * 뒤로가기 연속으로 누르면 앱 종료
+     **/
     private val callback = object : OnBackPressedCallback(true) {
         var backPressedTime: Long = 0
         override fun handleOnBackPressed() {

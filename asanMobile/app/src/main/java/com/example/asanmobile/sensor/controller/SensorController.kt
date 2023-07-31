@@ -16,7 +16,9 @@ import com.example.asanmobile.sensor.service.PpgGreenService
 import kotlinx.coroutines.*
 import java.io.IOException
 
-// 전역 객체
+/**
+ * 센서데이터 관리하는 클래스
+ * */
 class SensorController(context: Context) {
     private val heartRateService: HeartRateService = HeartRateService.getInstance(context)
     private val ppgGreenService: PpgGreenService = PpgGreenService.getInstance(context)
@@ -35,6 +37,10 @@ class SensorController(context: Context) {
         }
     }
 
+    /**
+     * 소켓으로부터 수신받은 데이터를 버퍼에 저장하고 플러시하는 메소드
+     * data: 소켓으로부터 받은 String 데이터
+     * */
     suspend fun dataAccept(data: String) = coroutineScope {
         val bufferSize = 1024 // 버퍼 사이즈 설정
         val bufferTime = 2000L // 버퍼링 주기 설정 (2.0 초)
@@ -59,6 +65,11 @@ class SensorController(context: Context) {
         }
     }
 
+    /**
+     * 호출 시 로컬 DB에 저장된 센서 데이터를 가져온다
+     * sensorName: PpgGreen,HeartRate (현재 코드에선 SensorEnum 사용)
+     * List<AbstractSensor>: 센서데이터 리스트
+     * */
     private suspend fun dataExport(sensorName: String): List<AbstractSensor> = withContext(Dispatchers.IO) {
 
         // 센서의 값을 불러온 후, 그 리스트의 사이즈 값을 커서로 저장
@@ -87,7 +98,9 @@ class SensorController(context: Context) {
         return@withContext abstractSensorSet
     }
 
-    // 버퍼 내용을 처리하는 함수
+    /**
+     * 버퍼 내용을 처리하는 메서드
+     */
     private suspend fun flushBuffer(buffer: MutableList<String>) {
         // bufferData를 SensorRepository에 작성
         Log.d(this.toString(), buffer.toString())
@@ -95,24 +108,28 @@ class SensorController(context: Context) {
         buffer.clear() // 버퍼 내용을 비움
     }
 
+    /**
+     * 버퍼의 데이터를 알맞은 센서 테이블에 저장하는 메소드
+     * */
     private suspend fun writeSensorRepo(bufferList: List<String>) = coroutineScope {
         for (buffer in bufferList) {
             println("str: $buffer")
             Log.d(TAG, "str: $buffer")
-
             val hrList = regexManager.hrRegex.findAll(buffer)
             Log.d(TAG, "hr: $hrList")
             val pgList = regexManager.pgRegex.findAll(buffer)
             Log.d(TAG, "pg: $pgList")
 
-            // 데이터 레포에 넣는 코루틴
+            /**
+             * HeartRate 저장하는 구간
+             * HeartRate 정규표현식의 맞는 경우 데이터 저장
+             * */
             launch {
                 try {
                     for (hrPattern in hrList) {
                         val hrVal = hrPattern.value
                         val resRex = regexManager.valueRegex.find(hrVal)
                         val res = resRex?.value
-
                         val dataMap = regexManager.dataExtract(res!!)
                         heartRateService.insert(HeartRate(dataMap.time, dataMap.data))
                         Log.d(TAG, "SAVED: $dataMap.time, $dataMap.data")
@@ -122,13 +139,16 @@ class SensorController(context: Context) {
                 }
             }
 
+            /**
+             * PpgGreen 저장하는 구간
+             * ppgGreen 정규표현식의 맞는 경우 데이터 저장
+             * */
             launch {
                 try {
                     for (pgPattern in pgList) {
                         val pgVal = pgPattern.value
                         val resRex = regexManager.valueRegex.find(pgVal)
                         val res = resRex?.value
-
                         val dataMap = regexManager.dataExtract(res!!)
                         ppgGreenService.insert(PpgGreen(dataMap.time, dataMap.data))
                         Log.d(TAG, "SAVED: $dataMap.time, $dataMap.data")
@@ -140,7 +160,10 @@ class SensorController(context: Context) {
         }
     }
 
-
+    /**
+     * 로컬 DB에서 가져온 센서 데이터를 csv에 저장하는 메소드
+     * sensorName: PpgGreen,HeartRate (현재 코드에선 SensorEnum 사용)
+     * */
     suspend fun writeCsv(context: Context, sensorName: String) = coroutineScope {
         // sensorName 적절하게 들어왔는지, 네임을 적절하게 넣어야 함
         Log.d(this.toString(), sensorName + ".csv 시작")
@@ -177,11 +200,9 @@ class SensorController(context: Context) {
 
     /**
      * 지금으로부터 원하는 시간만큼 데이터를 추출하는 메소드. 코루틴 메소드
-     * parameter
-     * sensorName: "HeartRate" or "PpgGreen" ENUM 적용
+     * sensorName: PpgGreen,HeartRate (현재 코드에선 SensorEnum 사용)
      * time: unixtime 기준
      */
-
     suspend fun getDataFromNow(sensorName: String, time: Long): List<AbstractSensor> = withContext(Dispatchers.IO) {
         val abstractSensorSet: List<AbstractSensor> = when (sensorName) {
             SensorEnum.HEART_RATE.value -> {
@@ -200,7 +221,10 @@ class SensorController(context: Context) {
     }
 
 
-    // sharedPreference 싱글톤 객체
+    /**
+     * sharedPreference 싱글톤 객체
+     * 데이터 조회 및 수집시(페이징 활용) 필요한 키 값 저장을 위해 사용
+     */ 
     class SharePreferenceManager private constructor(private val context: Context) {
         companion object {
             private lateinit var pref: SharedPreferences
@@ -221,10 +245,16 @@ class SensorController(context: Context) {
             }
         }
 
+        /**
+         * 페이지네이션에 사용되는 키값 가져오는 메소드
+         * */
         fun getCursor(sensorName: String): Int {
             return pref.getInt(sensorName + "Cursor", 0);
         }
 
+        /**
+         * 페이지네이션에 사용되는 키값 저장하는 메소드
+         * */
         fun putCursor(sensorName: String, lastCursor: Int) {
             editor.putInt(sensorName + "Cursor", lastCursor)
             editor.apply()

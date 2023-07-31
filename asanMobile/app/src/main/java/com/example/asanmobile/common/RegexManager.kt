@@ -3,6 +3,10 @@ package com.example.asanmobile.common
 import android.content.Context
 import com.example.asanmobile.sensor.model.SensorData
 
+/**
+ * 정규표현식 클래스
+ * 소켓을 통해 수신한 데이터 수집을 위해 사용 
+ * */
 class RegexManager private constructor(context: Context) {
 
     // 싱글톤 구현
@@ -26,6 +30,9 @@ class RegexManager private constructor(context: Context) {
     val valueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
 
 
+    /**
+     * 데이터 추출 시 사용 메소드
+     * */
     fun dataExtract(res: String): SensorData {
         val str = res.split(":")
         val time = str[0].toLong()
