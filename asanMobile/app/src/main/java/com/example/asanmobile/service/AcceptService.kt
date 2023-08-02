@@ -70,7 +70,7 @@ class AcceptService : Service() {
             this,
             0,
             notificationIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_MUTABLE
         )
 
         val notification = NotificationCompat.Builder(this, channelId).apply {
@@ -115,8 +115,8 @@ class AcceptService : Service() {
                 onDestroy()
             }
 
-            csvWrite(60000 * 5) // 1분 * n
-//                csvWrite(10000) // 1분 * n
+//            csvWrite(60000 * 5) // 1분 * n
+                csvWrite(10000) // 1분 * n
         }
         return START_REDELIVER_INTENT
     }
