@@ -1,1 +1,149 @@
-# AsanMobileProject
+# AsanUserMobileProject
+아산병원 사용자 어플리케이션 프로젝트
+
+## 사용된 라이브러리들
+- 1sda
+- 213
+- 123
+
+**라이브러리의 종속성 추가는 build.gradle파일에 정리되어 있다.**
+
+## Activities
+
+- LoginActivity
+- SensorActivity
+- SensorChartActivity
+- CsvPopupActivity
+
+<details>
+  <summary>기능 설명</summary>
+  
+  ## LoginActivity
+  
+  로그인 액티비티, 사용자의 아이디를 입력받아 서버에 로그인 요청을 보낸다.
+  응답이 성공적일시 유저 정보를 저장하고 SensorActivty로 이동한다.
+  한번 로그인 시 cache를 통해 바로 서버에 로그인 요청하여 로그인 과정을 넘어간다.
+
+  ## SensorActivity
+
+  주요 기능이 이루어지는 메인 액티비티이다. 워치와 소켓 연결을 하고, 워치와의 통신 및 서버에 데이터 전송하는
+  백그라운드 서비스를 실행시킨다.
+
+  **주요기능**
+  - Start버튼 : 페어링된 워치와 블루투스 소켓 연결을 한다.
+  - Stop버튼 : 소켓 연결을 끊고 서비스를 종료한다.
+  - Chart버튼 : 사용자의 센서 정보를 출력하는 SensorChartActivity로 이동한다.
+ 
+  ## SensorChartActivity
+
+  사용자의 센서 정보를 출력하는 액티비티이다. 10초마다 차트를 갱신하며, 과거 10분동안의 데이터를 1분간격으로
+  요약하여 보여준다. MPChart라이브러리를 사용하였다.
+
+  ## CsvPopupActivity
+
+  csv파일이 내부 저장소에 저장되는지 확인하기 위한 액티비티로, 테스트용 액티비티이다.
+
+  </details>
+  
+---
+
+## Common
+- CacheManager
+- CsvController
+- CsvStatistics
+- DeviceInfo
+- RegexManager
+- ServerConnection
+- SocketState
+- SocketStateEvent
+- ThreadState
+- ThreadStateEvent
+
+<details>
+  <summary>기능 설명</summary>
+  
+  ## CacheManager
+  캐시 파일을 저장하고 로드하는 클래스이다. 현재는 로그인기능에만 사용중이다.
+
+  ## CsvController
+  CSV 관련 처리 객체, 싱글톤 구조로 구현되어있다.
+  
+  **주요 기능**
+  - getExternalPath : 파일이 저장된 저장소 경로 반환 (대부분의 파일이 이 경로를 통해 저장된다.)
+  - fileExist : 파일이 존재하는지 확인하는 함수
+  - getExistFileName : 센서명을 통해 존재하는 파일을 가져온다. (파일명에 존재하는 unixtime을 알 수 없기때문에 사용한다.)
+  - csvFirst : 센서파일이 존재하지 않을때 사용한다. 센서파일 초기 설정 및 저장기능
+  - csvSave : 센서파일이 존재하는 경우 사용한다. 이어쓰기 기능
+  - getFile : 파일 읽어오기
+  - moveFile : 파일 경로 변경기능. 서버에 센서파일 전송 후에 전송된 파일 목록으로 이동시키기 위해 사용한다.
+
+  ## CsvStatistics
+  저장된 Csv파일을 요약하는 클래스이다. 현재는 사용하지 않는다.
+
+  ## DeviceInfo
+  디바이스 정보를 저장하는 싱글톤 클래스이다. 디바이스 ID, 유저 ID, 배터리 잔량을 저장한다.
+
+  ## RegexManager
+  정규표현식 클래스이다. 워치의 센서 정보를 읽는데 사용한다.
+
+  ## ServerConnection
+  서버와의 통신을 담당하는 싱글톤 클래스이다.
+
+  **주요기능**
+  - Login : 서버에 로그인 요청을 보내고, 성공시 sensorActivity로 이동시킨다.
+  - postFile : 서버에 csv파일을 전송한다.
+ 
+  ## SoecketState & socketStateEvent 
+  블루투스 상태 확인하는 클래스
+
+  ## ThreadState & ThreadStateEvent
+  스레드 상태 확인하는 클래스
+
+</details>
+
+---
+## Sensor
+- SensorController
+- Dao
+- model
+- service
+- AppDatabase
+
+<details>
+  <summary>기능 설명</summary>
+
+  ## SensorController
+
+  ## Dao
+  RoomDB쿼리를 담당하는 클래스
+
+  ## service
+
+  ##
+  
+
+  
+</details>
+
+---
+## Service
+- AcceptService
+- AcceptThread
+
+<details>
+  <summary>기능 설명</summary>
+
+  ## AcceptService
+  서버와 블루투스 연결 여부 확인 및 연결을 담당하고, 워치를 통해 수집된 데이터를 csv파일로 저장하하며, 서버에 주기적으로 csv파일을 전송하는 포그라운드 서비스이다.
+
+  **주요 기능 요약**
+  - onStartCommand : 포그라운드 시작을 위해 서비스 실행 알림을 띄운다. 블루투스 소켓을 연결하고, 서버 파일 전송 타이머를 실행시킨다.
+  - csvWrite : csv를 작성 하는 메소드이다. 타이머를 통해 서비스가 살아있는동안 주기적으로 실행되며 일정 횟수마다(6번) sendCSV메소드를 실행하여 서버에 파일을 전송한다.
+  - sendCSV : CSV파일을 서버로 전송하는 메소드이다. 전송할 파일을 전송된 파일 목록으로 이동시키고, 서버에 POST방식으로 전송한다.
+
+  ## AcceptThread
+  서비스에서 워치와의 블루투스 소켓 연결을 담당하는 스레드 클래스이다.
+  연결된 소켓을 통해 워치로부터 센서 데이터를 받아오며, 해석하여 RoomDB에 저장한다.
+  
+  
+</details>
