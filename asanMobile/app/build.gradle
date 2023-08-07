@@ -54,7 +54,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
 
     implementation 'com.opencsv:opencsv:5.7.1'
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -64,9 +64,13 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation "org.greenrobot:eventbus:3.3.1"
+
+    // okhttp3 라이브러리. 서버와 HTTP통신에 사용
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    // MPAndroidChart 라이브러리. SensorCahrtActivity에서 사용
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
 
     // 안드로이드 12 오류 대비
     implementation'androidx.work:work-runtime-ktx:2.7.0'
