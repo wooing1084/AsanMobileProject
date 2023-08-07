@@ -111,18 +111,21 @@
 
 <details>
   <summary>기능 설명</summary>
+  
+  Controller <-> Service <-> Dao <-> RoomDB의 구조를 띄고 있다.
 
   ## SensorController
-
+  입력 받은 센서를 핸들링하며 핸들링한 데이터를 서비스레이어로 전달하거나<br>
+  서비스로부터 받은 데이터를 애플리케이션 레이어로 전달하는 클래스
+  
   ## Dao
   RoomDB쿼리를 담당하는 클래스
 
   ## service
-
+  입력 받은 센서를 저장하기 위해 사용하는 클래스
+  여기서 알맞은 동작을 입력받아 DAO를 호출해 데이터를 관리한다
   ##
-  
 
-  
 </details>
 
 ---
