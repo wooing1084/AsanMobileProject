@@ -1,14 +1,21 @@
 # AsanUserMobileProject
 아산병원 사용자 어플리케이션 프로젝트
 
+![](https://github.com/wooing1084/AsanMobileProject/blob/main/images/app%20architecture.png)
+
 ## 사용된 라이브러리들
-- 1sda
-- 213
-- 123
+- okhttp3
+- MPAndroidChart
+- RoomDB
+- openCSV
+- greenbot
+- coroutines
 
 **라이브러리의 종속성 추가는 build.gradle파일에 정리되어 있다.**
 
 ## Activities
+
+![](https://github.com/wooing1084/AsanMobileProject/blob/main/images/activity%20architecture.png)
 
 - LoginActivity
 - SensorActivity
@@ -103,6 +110,9 @@
 
 ---
 ## Sensor
+
+![](https://github.com/wooing1084/AsanMobileProject/blob/main/images/sensor%20architecture.png)
+
 - SensorController
 - Dao
 - model
