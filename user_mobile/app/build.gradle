@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.user_mobile'
+    namespace 'com.hci.user_mobile'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.user_mobile"
+        applicationId "com.hci.user_mobile"
         minSdk 24
         targetSdk 33
         versionCode 1
