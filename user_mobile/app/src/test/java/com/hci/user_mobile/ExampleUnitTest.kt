@@ -1,4 +1,4 @@
-package com.hci.user_mobile
+package com.gachon_HCI_Lab.user_mobile
 
 import android.content.Context
 import org.junit.Test
