@@ -3,6 +3,24 @@
 
 ![](https://github.com/wooing1084/AsanMobileProject/blob/main/images/app%20architecture.png)
 
+## OS Dependency
+Android OS환경에서만 사용 가능하다.
+
+**사용가능 버전**
+- 최소: Android 7(Nougat)
+- 최대: Android 11
+  
+*(이후 버전은 현재 수정중에 있다.)*
+
+### Android OS버전에 따른 갤럭시 기기
+
+![](https://github.com/wooing1084/AsanMobileProject/blob/main/images/galaxy_os_version.png)
+
+
+**검증완료 기기**
+- 삼성 갤럭시 Note9/ Android 10(Quince Tart)
+- 삼성 갤럭시 S8+/ Android 8(Oreo)
+
 ## 사용된 라이브러리들
 - okhttp3
 - MPAndroidChart
