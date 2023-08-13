@@ -20,6 +20,7 @@ Android OS환경에서만 사용 가능하다.
 **검증완료 기기**
 - 삼성 갤럭시 Note9/ Android 10(Quince Tart)
 - 삼성 갤럭시 S8+/ Android 8(Oreo)
+- LG Q6 / Android 8(Oreo)
 
 ## 사용된 라이브러리들
 - okhttp3
