@@ -74,6 +74,7 @@ Android OS환경에서만 사용 가능하다.
 ---
 
 ## Common
+- BTManager
 - CacheManager
 - CsvController
 - CsvStatistics
@@ -87,6 +88,10 @@ Android OS환경에서만 사용 가능하다.
 
 <details>
   <summary>기능 설명</summary>
+
+  ## BTManager
+  블루투스 기능을 담당하는 싱글톤 클래스이다. 블루투스 permission check가 필요한 기능을 모아두었으며,
+  주로 블루투스 연결된 워치 정보를 가져오는 기능을 한다.
   
   ## CacheManager
   캐시 파일을 저장하고 로드하는 클래스이다. 현재는 로그인기능에만 사용중이다.
