@@ -2,6 +2,8 @@ package com.gachon_HCI_Lab.user_mobile.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import com.gachon_HCI_Lab.user_mobile.common.BTManager
 import com.gachon_HCI_Lab.user_mobile.common.ServerConnection
 import com.gachon_HCI_Lab.user_mobile.common.CacheManager
 import com.gachon_HCI_Lab.user_mobile.sensor.AppDatabase
@@ -20,14 +22,17 @@ class LoginActivity : AppCompatActivity() {
         db = AppDatabase.getInstance(applicationContext)!!
         //====
 
+        val deviceID = BTManager.getUUID(this, BTManager.getConnectedDevice(this, BTManager.connectedDevices(this)))
+
+        Log.d("LoginActivity", "deviceID: $deviceID")
 
         val cache = CacheManager.loadCacheFile(this, "login.txt")
         if (cache != null) {
-            ServerConnection.login(cache, context = this)
+            ServerConnection.login(cache,deviceID = deviceID, context = this)
         }
         else {
             binding.loginBtn.setOnClickListener {
-                ServerConnection.login(binding.id.text.toString(), context = this)
+                ServerConnection.login(binding.id.text.toString(),deviceID = deviceID, context = this)
             }
         }
     }

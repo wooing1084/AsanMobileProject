@@ -1,12 +1,18 @@
 package com.gachon_HCI_Lab.user_mobile.common
 
+import android.Manifest
 import android.app.Activity
+import android.bluetooth.BluetoothManager
+import android.content.Context.BLUETOOTH_SERVICE
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.gachon_HCI_Lab.user_mobile.activity.SensorActivity
+import com.gachon_HCI_Lab.user_mobile.common.ServerConnection.Companion.postFile
 import okhttp3.*
 import java.io.*
 import java.util.Date
@@ -59,8 +65,7 @@ abstract class ServerConnection{
                 }
             })
         }
-
-
+        
       /**
        * [login]
          서버에 로그인 요청을 보내고, 성공시 sensorActivity로 이동한다.
