@@ -20,6 +20,8 @@ class BTManager {
     companion object{
         private val tag = "BluetoothManager"
 
+        val uuidFixed = arrayOf("00001101", "0000", "1000", "8000", "00805F9B34FB")
+
         /**
          * [connectedDevices]
          * 블루투스 페어링 되어있는 모든 기기를 가져오는 메소드
@@ -78,7 +80,25 @@ class BTManager {
                 )
             }
 
-           return device.uuids[0].uuid.toString()
+            var dUuid = ""
+
+            for (uuid in device.uuids) {
+                val splitted = uuid.toString().split("-")
+
+                if(splitted[1].compareTo(uuidFixed[1]) == 0)
+                    continue
+                if(splitted[2].compareTo(uuidFixed[2]) == 0)
+                    continue
+                if(splitted[3].compareTo(uuidFixed[3]) == 0)
+                    continue
+                if(splitted[4].compareTo(uuidFixed[4]) == 0)
+                    continue
+
+                dUuid = uuid.toString()
+                break;
+            }
+
+           return dUuid
         }
 
         /**
