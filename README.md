@@ -3,6 +3,18 @@
 
 ![](https://github.com/wooing1084/AsanMobileProject/blob/main/images/app%20architecture.png)
 
+## 앱 사용 방법
+<details>
+  <summary>사용 메뉴얼</summary>
+앱 시작 전, 워치와 휴대폰이 페어링 되어야 하고, 블루투스 연결되어야 한다.
+
+1. 아이디, 비밀번호를 입력해 로그인을 한다.
+2. 먼저, 휴대폰 앱의 메인화면에서 start 버튼을 누른다.
+3. 그 후, 워치 앱에서 추출할 센서를 선택한 후, start를 눌러 동작시킨다
+4. 그러면 워치와 휴대폰은 블루투스로 연결되어 센서가 전송이 된다.
+
+</details>
+
 ## OS Dependency
 Android OS환경에서만 사용 가능하다.
 
@@ -31,18 +43,6 @@ Android OS환경에서만 사용 가능하다.
 - coroutines
 
 **라이브러리의 종속성 추가는 build.gradle파일에 정리되어 있다.**
-
-## 앱 사용 설명서
-<details>
-  <summary>사용 메뉴얼</summary>
-앱 시작 전, 워치와 휴대폰이 페어링 되어야 하고, 블루투스 연결되어야 한다.
-
-1. 아이디, 비밀번호를 입력해 로그인을 한다.
-2. 먼저, 휴대폰 앱의 메인화면에서 start 버튼을 누른다.
-3. 그 후, 워치 앱에서 추출할 센서를 선택한 후, start를 눌러 동작시킨다
-4. 그러면 워치와 휴대폰은 블루투스로 연결되어 센서가 전송이 된다.
-
-</details>
 
 
 ## Activities
