@@ -13,6 +13,8 @@ import com.gachon_HCI_Lab.user_mobile.common.SocketStateEvent
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
 import com.gachon_HCI_Lab.user_mobile.service.AcceptService
 import com.gachon_HCI_Lab.user_mobile.databinding.ActivitySensorBinding
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -59,6 +61,30 @@ class SensorActivity() : AppCompatActivity() {
                 ), 1)
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(arrayOf(Manifest.permission.BLUETOOTH), 1)
+        }
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            TedPermission.create()
+                .setPermissionListener(object : PermissionListener {
+                    override fun onPermissionGranted() {
+//                        Toast.makeText(
+//                            this@SensorActivity,
+//                            "권한 허가",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+                    }
+
+                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                        Toast.makeText(
+                            this@SensorActivity,
+                            "권한 없음",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                })
+                .setDeniedMessage("권한이 없으면 사용할 수 없습니다")
+                .setPermissions(Manifest.permission.POST_NOTIFICATIONS)
+                .check()
         }
 
         // 화면

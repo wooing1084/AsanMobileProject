@@ -55,6 +55,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
+    // 권한 허용 라이브러리
+    implementation 'io.github.ParkSangGwon:tedpermission-normal:3.3.0'
 
     // okhttp3 라이브러리. 서버와 HTTP통신에 사용
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
