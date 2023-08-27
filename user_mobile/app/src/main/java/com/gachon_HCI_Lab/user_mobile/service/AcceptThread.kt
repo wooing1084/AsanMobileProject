@@ -88,7 +88,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
                         Log.i("size", byteBuffer.array().size.toString())
 
-                        // if (byteBuffer.array().size != 964) continue
+                        if (byteBuffer.array().size != 964) continue
                         val reconstructedOneAxisData = StringBuilder()
                         val reconstructedTreeAxisData = StringBuilder()
 
