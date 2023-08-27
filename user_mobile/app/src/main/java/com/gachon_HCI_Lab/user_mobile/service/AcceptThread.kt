@@ -9,15 +9,16 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
 import com.gachon_HCI_Lab.user_mobile.common.*
-import kotlinx.coroutines.*
+import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import java.io.IOException
-import java.util.*
-
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.*
 
 /**
  * 서비스에서 소켓 연결을 담당하는 클래스
@@ -86,33 +87,45 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         val byteBuffer = ByteBuffer.wrap(receivedData)
                         byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
                         Log.i("size", byteBuffer.array().size.toString())
+
                         if (byteBuffer.array().size != 964) continue
-                        val reconstructedData = StringBuilder()
+                        val reconstructedOneAxisData = StringBuilder()
+                        val reconstructedTreeAxisData = StringBuilder()
 
                         val battery = byteBuffer.int
                         DeviceInfo.setBattery(battery.toString())
                         Log.i("battery", battery.toString())
 
                         while (byteBuffer.hasRemaining()) {
-                            when ((byteBuffer.position() - 4) % 16) {
-                                // 0 <= ppgGreen OR heartRate 구분하는 곳
-                                // byteBuffer1.int <= buffer에서 int만큼 읽겠다는 뜻
-                                // reconstructedData할 필요없이 여기서 바로 String으로 바꾸고 DB에 넣으면 됨
-                                0 -> {
-                                    reconstructedData.append(byteBuffer.int).append("|")
-                                }
-                                // 여긴 타임스탬프
-                                4 -> reconstructedData.append(byteBuffer.long).append(":")
-                                // 여긴 값
-                                12 -> reconstructedData.append(byteBuffer.float).append("-")
+                            val dataType = byteBuffer.int
+                            val timestamp = byteBuffer.long
+                            if (dataType == 5 || dataType == 18 || dataType == 21) {
+                                val data = byteBuffer.float
+                                addOneAxisData(reconstructedOneAxisData, dataType, timestamp, data)
+                            } else {
+                                val xAxisData = byteBuffer.float
+                                val yAxisData = byteBuffer.float
+                                val zAxisData = byteBuffer.float
+                                addThreeAxisData(reconstructedTreeAxisData, dataType, timestamp, xAxisData, yAxisData, zAxisData)
                             }
                         }
 
-                        val str = reconstructedData.toString()
-                        Log.d(this.toString(), str.toString())
-                        CoroutineScope(Dispatchers.IO).launch {
-                            sensorController.dataAccept(str)
-                        }
+                        val oneAxisData = reconstructedOneAxisData.toString()
+                        val threeAxisData = reconstructedTreeAxisData.toString()
+                        /**
+                         * 1축 데이터 - 5(light), 18(step count), 21(heart rate), 30(ppg)
+                         * 데이터번호|timestamp|value -> ex) 5|timestamp|value
+                         *
+                         * 3축 데이터 - 1(accelerometer), 4(gyroscope), 9(gravity)
+                         * 데이터번호|timestamp|x축value|y축value|z축value
+                         */
+
+//                        CoroutineScope(Dispatchers.IO).launch {
+//                            sensorController.dataAccept(oneAxisData)
+//                        }
+//                        CoroutineScope(Dispatchers.IO).launch {
+//                            sensorController.dataAccept(threeAxisData)
+//                        }
                         /**
                          * 오류 발생 시
                          * 소켓 close
@@ -146,6 +159,34 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                 }
             }
         }
+    }
+
+
+
+    private fun addOneAxisData(
+        reconstructedOneAxisData: StringBuilder,
+        dataType: Int,
+        timestamp: Long,
+        data: Float
+    ) {
+        reconstructedOneAxisData.append(dataType).append("|")
+        reconstructedOneAxisData.append(timestamp).append("|")
+        reconstructedOneAxisData.append(data).append("-")
+    }
+
+    private fun addThreeAxisData(
+        reconstructedTreeAxisData: StringBuilder,
+        dataType: Int,
+        timestamp: Long,
+        xAxisData: Float,
+        yAxisData: Float,
+        zAxisData: Float
+    ){
+        reconstructedTreeAxisData.append(dataType).append("|")
+        reconstructedTreeAxisData.append(timestamp).append("|")
+        reconstructedTreeAxisData.append(xAxisData).append("|")
+        reconstructedTreeAxisData.append(yAxisData).append("|")
+        reconstructedTreeAxisData.append(zAxisData).append("-")
     }
 
 }
