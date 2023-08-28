@@ -93,21 +93,14 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                         saveOneAxisDataToCsv()
                         saveThreeDataToCsv()
                     } catch (e: IOException) {
-                        Log.e(TAG, "unable to read message form socket", e)
-                        socket.close()
-                        serverSocket.close()
-                        EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
-                        EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+                        handleSocketError(socket)
                         e.printStackTrace()
                         break
                     } finally {
                         try {
                             if (!socket.isConnected) {
                                 socket.use {
-                                    socket.close()
-                                    serverSocket.close()
-                                    EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
-                                    EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
+                                    handleSocketError(socket)
                                 }
                             }
                         } catch (e: Exception) {
@@ -145,6 +138,12 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         return true
     }
 
+    private fun validateSensorDataType(dataType: Int): Boolean {
+        if (dataType == 0)
+            return false
+        return true
+    }
+
     private fun getByteBufferFrom(receivedData: ByteArray): ByteBuffer {
         val byteBuffer = ByteBuffer.wrap(receivedData)
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
@@ -161,6 +160,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 
     private fun saveEachSensorDataToString(byteBuffer: ByteBuffer) {
         val dataType = byteBuffer.int
+        if(!validateSensorDataType(dataType)) return
         val timestamp = byteBuffer.long
         addOneAxisData(byteBuffer, dataType, timestamp)
         addThreeAxisData(byteBuffer, dataType, timestamp)
@@ -239,6 +239,13 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         reconstructedTreeAxisData.append(xAxisData).append("|")
         reconstructedTreeAxisData.append(yAxisData).append("|")
         reconstructedTreeAxisData.append(zAxisData).append(":")
+    }
+
+    private fun handleSocketError(socket: BluetoothSocket){
+        socket.close()
+        serverSocket.close()
+        EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
+        EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
     }
 
 }
