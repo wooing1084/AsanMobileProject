@@ -68,52 +68,39 @@ class SensorController(context: Context) {
      * sensorName: PpgGreen,HeartRate (현재 코드에선 SensorEnum 사용)
      * List<AbstractSensor>: 센서데이터 리스트
      * */
-    private suspend fun dataExport(sensorName: String): List<AbstractSensor> =
+    private suspend fun dataExport(axisType: String): List<AbstractSensor> =
         withContext(Dispatchers.IO) {
 
             // 센서의 값을 불러온 후, 그 리스트의 사이즈 값을 커서로 저장
             // 다음 호출시 그 커서부터 다시 데이터 호출
-            val abstractSensorSet: List<AbstractSensor> = when (sensorName) {
-                SensorEnum.HEART_RATE.value -> {
-                    val heartCursor = prefManager.getCursor("HeartRate")
-                    Log.d(TAG, "Start heartRate cursor: $heartCursor")
-                    val heartRateSet = oneAxisDataService.getAll(heartCursor)
-                    val heartRateSize = heartRateSet.size
-                    prefManager.putCursor("HeartRate", heartCursor + heartRateSize)
-                    heartRateSet
+            val abstractSensorSet: List<AbstractSensor> = when (axisType) {
+                "OneAxis" -> {
+                    oneAxisDataExport()
                 }
-
-                SensorEnum.PPG_GREEN.value -> {
-                    val ppgGreenCursor = prefManager.getCursor("PpgGreen")
-                    Log.d(TAG, "Start ppgGreen cursor: $ppgGreenCursor")
-                    val ppgGreenSet = threeAxisDataService.getAll(ppgGreenCursor)
-                    val ppgGreenSize = ppgGreenSet.size
-                    prefManager.putCursor("PpgGreen", ppgGreenCursor + ppgGreenSize)
-                    ppgGreenSet
+                "ThreeAxis" -> {
+                    threeAxisDataExport()
                 }
-
-                else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
+                else -> throw IllegalArgumentException("Invalid sensor name: $axisType")
             }
             return@withContext abstractSensorSet
         }
 
-    private suspend fun oneAxisDataExport(): List<AbstractSensor> {
+    private fun oneAxisDataExport(): List<AbstractSensor> {
         val oneAxisCursor = prefManager.getCursor("oneAxis")
         Log.d(TAG, "Start One_Axis cursor: $oneAxisCursor")
         val oneAxisSet = oneAxisDataService.getAll(oneAxisCursor)
         val oneAxisSetSize = oneAxisSet.size
         prefManager.putCursor("oneAxis", oneAxisCursor + oneAxisSetSize)
-        // 여기서 oneAxisSet 컬렉션 스트림 돌며 각각 데이터 큐에 저장
-
+        return oneAxisSet
     }
 
-    private suspend fun threeAxisDataExport(): List<AbstractSensor> {
+    private fun threeAxisDataExport(): List<AbstractSensor> {
         val threeAxisCursor = prefManager.getCursor("threeAxis")
         Log.d(TAG, "Start Three_Axis cursor: $threeAxisCursor")
         val threeAxisSet = oneAxisDataService.getAll(threeAxisCursor)
         val threeAxisSetSize = threeAxisSet.size
         prefManager.putCursor("threeAxis", threeAxisCursor + threeAxisSetSize)
-        // 여기서 threeAxisSet 컬렉션 스트림 돌며 각각 데이터 큐에 저장
+        return threeAxisSet
     }
 
     /**
@@ -209,38 +196,44 @@ class SensorController(context: Context) {
      * 로컬 DB에서 가져온 센서 데이터를 csv에 저장하는 메소드
      * sensorName: PpgGreen,HeartRate (현재 코드에선 SensorEnum 사용)
      * */
-    suspend fun writeCsv(context: Context, sensorName: String) = coroutineScope {
+    suspend fun writeCsv(context: Context, type: String) = coroutineScope {
         // sensorName 적절하게 들어왔는지, 네임을 적절하게 넣어야 함
-        Log.d(this.toString(), sensorName + ".csv 시작")
-        val sensorSet = dataExport(sensorName)
-        if (CsvController.fileExist(context, sensorName) == null) {
-            CsvController.csvFirst(context, sensorName)
+        val sensorSet = dataExport(type)
+        val sensorArr: Array<SensorEnum> = SensorEnum.values()
+
+
+        for (enum in sensorArr) {
+            val sensorName = enum.value
+            if (CsvController.fileExist(context, sensorName) == null) {
+                CsvController.csvFirst(context, sensorName)
+            }
+            val fileName = CsvController.fileExist(context, sensorName)
+            // 작성시 이름이 없을 때
+            if (fileName == null) {
+                CsvController.csvFirst(context, sensorName)
+            }
+            try {
+                CsvController.csvSave(context, fileName!!, sensorSet)
+            } catch (e: IOException) {
+                // 혹여나 delay로 인해 터질때 대비
+                delay(1000)
+                // 여기서도 이름이 없을까봐
+                CsvController.csvFirst(context, sensorName)
+                val regenFile = CsvController.fileExist(context, sensorName)
+                CsvController.csvSave(context, regenFile!!, sensorSet)
+            } catch (e: NullPointerException) {
+                // 혹여나 delay로 인해 터질때 대비
+                delay(1000)
+                // 여기서도 이름이 없을까봐
+                CsvController.csvFirst(context, sensorName)
+                val regenFile = CsvController.fileExist(context, sensorName)
+                CsvController.csvSave(context, regenFile!!, sensorSet)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            Log.d(this.toString(), sensorName + "csv 생성")
         }
-        val fileName = CsvController.fileExist(context, sensorName)
-        // 작성시 이름이 없을 때
-        if (fileName == null) {
-            CsvController.csvFirst(context, sensorName)
-        }
-        try {
-            CsvController.csvSave(context, fileName!!, sensorSet)
-        } catch (e: IOException) {
-            // 혹여나 delay로 인해 터질때 대비
-            delay(1000)
-            // 여기서도 이름이 없을까봐
-            CsvController.csvFirst(context, sensorName)
-            val regenFile = CsvController.fileExist(context, sensorName)
-            CsvController.csvSave(context, regenFile!!, sensorSet)
-        } catch (e: NullPointerException) {
-            // 혹여나 delay로 인해 터질때 대비
-            delay(1000)
-            // 여기서도 이름이 없을까봐
-            CsvController.csvFirst(context, sensorName)
-            val regenFile = CsvController.fileExist(context, sensorName)
-            CsvController.csvSave(context, regenFile!!, sensorSet)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        Log.d(this.toString(), sensorName + "csv 생성")
+
     }
 
     /**
@@ -251,14 +244,13 @@ class SensorController(context: Context) {
     suspend fun getDataFromNow(sensorName: String, time: Long): List<AbstractSensor> =
         withContext(Dispatchers.IO) {
             val abstractSensorSet: List<AbstractSensor> = when (sensorName) {
-                SensorEnum.HEART_RATE.value -> {
-                    val heartRateSet = oneAxisDataService.getFromNow(time)
-                    heartRateSet
+                "OneAxis" -> {
+                    val oneAxisDataSet = oneAxisDataService.getFromNow(time)
+                    oneAxisDataSet
                 }
-
-                SensorEnum.PPG_GREEN.value -> {
-                    val ppgGreenSet = threeAxisDataService.getFromNow(time)
-                    ppgGreenSet
+                "ThreeAxis" -> {
+                    val threeAxisDataSet = threeAxisDataService.getFromNow(time)
+                    threeAxisDataSet
                 }
                 else -> throw IllegalArgumentException("Invalid sensor name: $sensorName")
             }

@@ -4,6 +4,8 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import com.gachon_HCI_Lab.user_mobile.sensor.model.AbstractSensor
+import com.gachon_HCI_Lab.user_mobile.sensor.model.OneAxisData
+import com.gachon_HCI_Lab.user_mobile.sensor.model.ThreeAxisData
 import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import java.io.*
@@ -142,8 +144,17 @@ object CsvController {
 
     private fun convertSensorToStringArray(abstractSensor: AbstractSensor): Array<String> {
         val time = abstractSensor.time.toString()
-        val value = abstractSensor.value.toString()
-        return arrayOf(time, value)
+        if (abstractSensor is OneAxisData) {
+            val value = abstractSensor.value.toString()
+            return arrayOf(time, value)
+        } else if (abstractSensor is ThreeAxisData) {
+            val xValue = abstractSensor.xValue.toString()
+            val yValue = abstractSensor.yValue.toString()
+            val zValue = abstractSensor.zValue.toString()
+            return arrayOf(time, xValue, yValue, zValue)
+        } else {
+            return emptyArray();
+        }
     }
 
     fun fileRename(path:String, origin: String, change: String) {

@@ -206,8 +206,8 @@ class AcceptService : Service() {
             override fun run() {
                 Log.d("Accept Service", "CSV Write method called")
                 GlobalScope.launch {
-                    sensorController.writeCsv(this@AcceptService, SensorEnum.HEART_RATE.value)
-                    sensorController.writeCsv(this@AcceptService, SensorEnum.PPG_GREEN.value)
+                    sensorController.writeCsv(this@AcceptService, "OneAxis")
+                    sensorController.writeCsv(this@AcceptService, "ThreeAxis")
                     count++
 
                     if (count == 6) {
