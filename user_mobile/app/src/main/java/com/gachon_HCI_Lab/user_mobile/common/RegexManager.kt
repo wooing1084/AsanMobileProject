@@ -1,7 +1,9 @@
 package com.gachon_HCI_Lab.user_mobile.common
 
 import android.content.Context
-import com.gachon_HCI_Lab.user_mobile.sensor.model.SensorData
+import com.gachon_HCI_Lab.user_mobile.sensor.model.OneAxisSensorData
+import com.gachon_HCI_Lab.user_mobile.sensor.model.SensorEnum
+import com.gachon_HCI_Lab.user_mobile.sensor.model.ThreeAxisSensorData
 
 /**
  * 정규표현식 클래스
@@ -20,25 +22,41 @@ class RegexManager private constructor(context: Context) {
         }
     }
 
-    // 심장박동수 정규표현식
-    val hrRegex = "0\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
+    // 타입 추출 정규표현식
+    val typeRegex = "^(\\d+)".toRegex()
 
-    // ppgGreen 정규표현식
-    val pgRegex = "1\\|\\d{12,}:(-?\\d+(\\.\\d+)?)-".toRegex()
+    // 1축 데이터 정규표현식
+    val oneAxisRegex = "\\d+\\|\\d{12,}\\|(-?\\d+(\\.\\d+)?):".toRegex()
 
-    // value 정규표현식
-    val valueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
+    // 3축 데이터 정규표현식
+    val threeAxisRegex = "\\d+\\|\\d{12,}\\|(-?\\d+(\\.\\d+)?)\\|(-?\\d+(\\.\\d+)?)\\|(-?\\d+(\\.\\d+)?):".toRegex()
+
+    // 1축 데이터 value 정규표현식
+    val oneAxisValueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
+
+    // 3축 데이터 value 정규표현식
+    val threeAxisValueRegex = "\\d{12,}\\|(-?\\d+(\\.\\d+)?)\\|(-?\\d+(\\.\\d+)?)\\|(-?\\d+(\\.\\d+)?)".toRegex()
 
 
     /**
      * 데이터 추출 시 사용 메소드
      * */
-    fun dataExtract(res: String): SensorData {
-        val str = res.split(":")
+    fun oneAxisDataExtract(type: String, res: String): OneAxisSensorData {
+        val str = res.split("|")
         val time = str[0].toLong()
-        val data = str[1].toFloat()
+        val data = str[1].toDouble()
 
-        return SensorData(time, data)
+        return OneAxisSensorData(type, time, data)
+    }
+
+    fun threeAxisDataExtract(type: String, res: String): ThreeAxisSensorData {
+        val str = res.split("|")
+        val time = str[0].toLong()
+        val xData = str[1].toDouble()
+        val yData = str[2].toDouble()
+        val zData = str[3].toDouble()
+
+        return ThreeAxisSensorData(type, time, xData, yData, zData)
     }
 
 }
