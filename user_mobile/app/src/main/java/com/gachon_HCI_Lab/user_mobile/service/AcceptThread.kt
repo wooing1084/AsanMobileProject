@@ -11,9 +11,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.gachon_HCI_Lab.user_mobile.common.*
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -26,6 +23,8 @@ import java.util.*
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Context) : Thread() {
     private lateinit var serverSocket: BluetoothServerSocket
     private lateinit var sensorController: SensorController
+    private var reconstructedOneAxisData = StringBuilder()
+    private var reconstructedTreeAxisData = StringBuilder()
 
     companion object {
         private const val TAG = "ACCEPT_THREAD"
@@ -54,6 +53,12 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         }
     }
 
+    /**
+     * 오류 발생 시
+     * 소켓 close
+     * eventBus를 통해 socketState Close 전송
+     * eventBus를 통해 ThreadState Stop 전송
+     * */
     override fun run() {
         var socket: BluetoothSocket? = null
         while (true) {
@@ -72,7 +77,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
 
             socket?.let {
                 val inputStream = it.inputStream
-                val buffer: ByteArray = ByteArray(990)
+                val buffer: ByteArray = ByteArray(964)
 
                 Log.d(this.toString(), buffer.toString())
                 // 소켓 연결시 EventBus를 통해 Connect 전송
@@ -81,57 +86,12 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
                 while (true) {
                     try {
                         val receivedData = buffer.copyOf(inputStream.read(buffer))
-//                        val receivedData = buffer.copyOf(inputStream.read(buffer))
-//                        val buffer: ByteArray = inputStream.readNBytes(3200)
-//                        val byteBuffer = ByteBuffer.wrap(receivedData)
-                        val byteBuffer = ByteBuffer.wrap(receivedData)
-                        byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
-                        Log.i("size", byteBuffer.array().size.toString())
-
-                        if (byteBuffer.array().size != 964) continue
-                        val reconstructedOneAxisData = StringBuilder()
-                        val reconstructedTreeAxisData = StringBuilder()
-
-                        val battery = byteBuffer.int
-                        DeviceInfo.setBattery(battery.toString())
-                        Log.i("battery", battery.toString())
-
-                        while (byteBuffer.hasRemaining()) {
-                            val dataType = byteBuffer.int
-                            val timestamp = byteBuffer.long
-                            if (dataType == 5 || dataType == 18 || dataType == 21) {
-                                val data = byteBuffer.float
-                                addOneAxisData(reconstructedOneAxisData, dataType, timestamp, data)
-                            } else {
-                                val xAxisData = byteBuffer.float
-                                val yAxisData = byteBuffer.float
-                                val zAxisData = byteBuffer.float
-                                addThreeAxisData(reconstructedTreeAxisData, dataType, timestamp, xAxisData, yAxisData, zAxisData)
-                            }
-                        }
-
-                        val oneAxisData = reconstructedOneAxisData.toString()
-                        val threeAxisData = reconstructedTreeAxisData.toString()
-                        /**
-                         * 1축 데이터 - 5(light), 18(step count), 21(heart rate), 30(ppg)
-                         * 데이터번호|timestamp|value -> ex) 5|timestamp|value
-                         *
-                         * 3축 데이터 - 1(accelerometer), 4(gyroscope), 9(gravity)
-                         * 데이터번호|timestamp|x축value|y축value|z축value
-                         */
-
-//                        CoroutineScope(Dispatchers.IO).launch {
-//                            sensorController.dataAccept(oneAxisData)
-//                        }
-//                        CoroutineScope(Dispatchers.IO).launch {
-//                            sensorController.dataAccept(threeAxisData)
-//                        }
-                        /**
-                         * 오류 발생 시
-                         * 소켓 close
-                         * eventBus를 통해 socketState Close 전송
-                         * eventBus를 통해 ThreadState Stop 전송
-                         * */
+                        val byteBuffer = getByteBufferFrom(receivedData)
+                        updateStringBuffer()
+                        saveBatteryDataFrom(byteBuffer)
+                        saveSensorDataToString(byteBuffer)
+                        saveOneAxisDataToCsv()
+                        saveThreeDataToCsv()
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to read message form socket", e)
                         socket.close()
@@ -161,32 +121,124 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, context: Cont
         }
     }
 
+    private fun validateOneAxisDataType(dataType: Int): Boolean {
+        if (dataType == 5 || dataType == 18 || dataType == 21 || dataType == 30)
+            return true
+        return false
+    }
 
+    private fun validateBufferSize(byteBuffer: ByteBuffer): Boolean {
+        if ((byteBuffer.limit() - byteBuffer.position()) < 16)
+            return false
+        return true
+    }
 
-    private fun addOneAxisData(
-        reconstructedOneAxisData: StringBuilder,
+    private fun validateBufferSizeForOneAxisSensor(byteBuffer: ByteBuffer): Boolean {
+        if ((byteBuffer.limit() - byteBuffer.position()) < 4)
+            return false
+        return true
+    }
+
+    private fun validateBufferSizeForThreeAxisSensor(byteBuffer: ByteBuffer): Boolean {
+        if ((byteBuffer.limit() - byteBuffer.position()) < 12)
+            return false
+        return true
+    }
+
+    private fun getByteBufferFrom(receivedData: ByteArray): ByteBuffer {
+        val byteBuffer = ByteBuffer.wrap(receivedData)
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
+        return byteBuffer
+    }
+
+    private fun saveSensorDataToString(byteBuffer: ByteBuffer){
+        while (byteBuffer.position() < byteBuffer.limit()) {
+            if (!validateBufferSize(byteBuffer))
+                break
+            saveEachSensorDataToString(byteBuffer)
+        }
+    }
+
+    private fun saveEachSensorDataToString(byteBuffer: ByteBuffer) {
+        val dataType = byteBuffer.int
+        val timestamp = byteBuffer.long
+        addOneAxisData(byteBuffer, dataType, timestamp)
+        addThreeAxisData(byteBuffer, dataType, timestamp)
+    }
+
+    private fun saveBatteryDataFrom(byteBuffer: ByteBuffer) {
+        val battery = byteBuffer.int
+        DeviceInfo.setBattery(battery.toString())
+        Log.i("battery", battery.toString())
+    }
+
+    /**
+     * 1축 데이터 - 5(light), 18(step count), 21(heart rate), 30(ppg)
+     * 데이터번호|timestamp|value -> ex) 5|timestamp|value
+     */
+    private fun saveOneAxisDataToCsv() {
+        val oneAxisData = reconstructedOneAxisData.toString()
+        Log.d("OneAxisData", oneAxisData)
+//        CoroutineScope(Dispatchers.IO).launch {
+//            sensorController.dataAccept(oneAxisData)
+//        }
+    }
+
+    /**
+     * 3축 데이터 - 1(accelerometer), 4(gyroscope), 9(gravity)
+     * 데이터번호|timestamp|x축value|y축value|z축value
+     */
+    private fun saveThreeDataToCsv() {
+        val threeAxisData = reconstructedTreeAxisData.toString()
+        Log.d("ThreeAxisData", threeAxisData)
+//        CoroutineScope(Dispatchers.IO).launch {
+//            sensorController.dataAccept(threeAxisData)
+//        }
+    }
+
+    private fun updateStringBuffer() {
+        reconstructedOneAxisData = StringBuilder()
+        reconstructedTreeAxisData = StringBuilder()
+    }
+
+    private fun addOneAxisData(byteBuffer: ByteBuffer, dataType: Int, timestamp: Long) {
+        if (!validateOneAxisDataType(dataType)) return
+        if (!validateBufferSizeForOneAxisSensor(byteBuffer)) return
+        val data = byteBuffer.float
+        addOneAxisDataToString(dataType, timestamp, data)
+    }
+
+    private fun addThreeAxisData(byteBuffer: ByteBuffer, dataType: Int, timestamp: Long) {
+        if (validateOneAxisDataType(dataType)) return
+        if (!validateBufferSizeForThreeAxisSensor(byteBuffer)) return
+        val xAxisData = byteBuffer.float
+        val yAxisData = byteBuffer.float
+        val zAxisData = byteBuffer.float
+        addThreeAxisDataToString(dataType, timestamp, xAxisData, yAxisData, zAxisData)
+    }
+
+    private fun addOneAxisDataToString(
         dataType: Int,
         timestamp: Long,
         data: Float
     ) {
         reconstructedOneAxisData.append(dataType).append("|")
         reconstructedOneAxisData.append(timestamp).append("|")
-        reconstructedOneAxisData.append(data).append("-")
+        reconstructedOneAxisData.append(data).append(":")
     }
 
-    private fun addThreeAxisData(
-        reconstructedTreeAxisData: StringBuilder,
+    private fun addThreeAxisDataToString(
         dataType: Int,
         timestamp: Long,
         xAxisData: Float,
         yAxisData: Float,
         zAxisData: Float
-    ){
+    ) {
         reconstructedTreeAxisData.append(dataType).append("|")
         reconstructedTreeAxisData.append(timestamp).append("|")
         reconstructedTreeAxisData.append(xAxisData).append("|")
         reconstructedTreeAxisData.append(yAxisData).append("|")
-        reconstructedTreeAxisData.append(zAxisData).append("-")
+        reconstructedTreeAxisData.append(zAxisData).append(":")
     }
 
 }
