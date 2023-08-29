@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import com.gachon_HCI_Lab.user_mobile.common.CacheManager
+import com.gachon_HCI_Lab.user_mobile.common.CsvController
 import com.gachon_HCI_Lab.user_mobile.common.DeviceInfo
 import com.gachon_HCI_Lab.user_mobile.common.SocketState
 import com.gachon_HCI_Lab.user_mobile.common.SocketStateEvent
@@ -80,6 +82,22 @@ class SensorActivity() : AppCompatActivity() {
         binding.BtnToChartActivity.setOnClickListener {
             val intent = Intent(this, SensorChartActivity::class.java)
             startActivity(intent)
+        }
+
+        //로그아웃 버튼
+        binding.BtnLogout.setOnClickListener{
+            CacheManager.deleteCacheFile(this,"login.txt")
+
+            // RoomDB초기화 하는 코드 추가해야함
+            // 로그아웃한 경우는 이용자가 변경된 경우이므로 내부 정보를 모두 초기화 해야함
+            
+            //RoomDB 전체 삭제 오류가 있음
+            //SensorController.getInstance(this).deleteAll()
+            CsvController.deleteFilesInDirectory(CsvController.getExternalPath(this))
+
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
         this.onBackPressedDispatcher.addCallback(this, callback)

@@ -43,6 +43,10 @@ class PpgGreenService(context: Context) {
         return ppgGreenDao.getFromNow(now, period)
     }
 
+    fun deleteAll() {
+        ppgGreenDao.deleteAll()
+    }
+
 //    fun delete(id: Long) {
 //        ppgGreenDao.delete(id)
 //    }

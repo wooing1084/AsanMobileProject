@@ -1,6 +1,7 @@
 package com.gachon_HCI_Lab.user_mobile.common
 
 import android.content.Context
+import android.util.Log
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -56,6 +57,23 @@ class CacheManager {
             fis.close()
 
             return data
+        }
+
+        /**
+         * 캐시 파일을 삭제하는 함수
+         * fileName : 삭제할 파일 이름
+         */
+        fun deleteCacheFile(context: Context, fileName: String) {
+            val cacheDir = File(context.cacheDir, CACHE_DIRECTORY)
+
+            val cacheFile = File(cacheDir, fileName)
+            if (!cacheFile.exists()) {
+                Log.d("CacheManager", "deleteCacheFile: file not exists")
+                return
+            }
+
+            cacheFile.delete()
+            Log.d("CacheManager", "deleteCacheFile: delete complete")
         }
 
 

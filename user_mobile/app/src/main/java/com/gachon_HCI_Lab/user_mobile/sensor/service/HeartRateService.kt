@@ -46,4 +46,8 @@ class HeartRateService(context: Context) {
     fun delete(id: Long) {
         heartRateDao.delete(id)
     }
+
+    fun deleteAll() {
+        heartRateDao.deleteAll()
+    }
 }

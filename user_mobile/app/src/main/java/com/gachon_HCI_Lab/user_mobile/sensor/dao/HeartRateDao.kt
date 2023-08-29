@@ -26,6 +26,9 @@ interface HeartRateDao {
     @Query("DELETE FROM heartRate WHERE id = :id")
     fun delete(id: Long)
 
+    @Query("DELETE FROM heartRate")
+    fun deleteAll()
+
     /**
      * 현재 시간(now)에서 기준(period) 만큼의 수집된 데이터를 조회하는 메소드
      * */

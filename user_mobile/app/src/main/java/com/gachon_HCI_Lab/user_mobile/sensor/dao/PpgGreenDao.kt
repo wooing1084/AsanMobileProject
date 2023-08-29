@@ -26,6 +26,9 @@ interface PpgGreenDao {
     @Query("DELETE FROM ppgGreen WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("DELETE FROM ppgGreen")
+    fun deleteAll()
+
     /**
      * 현재 시간(now)에서 기준(period) 만큼의 수집된 데이터를 조회하는 메소드
      * */
