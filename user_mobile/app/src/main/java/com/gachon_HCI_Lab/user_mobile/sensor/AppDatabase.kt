@@ -29,7 +29,8 @@ abstract class AppDatabase : RoomDatabase() {
                         context,
                         AppDatabase::class.java,
                         "sensor"
-                    ).build()
+                    ).fallbackToDestructiveMigration()
+                        .build()
                 }
             }
             INSTANCE!!.openHelper.readableDatabase

@@ -92,7 +92,7 @@ class SensorActivity() : AppCompatActivity() {
             // 로그아웃한 경우는 이용자가 변경된 경우이므로 내부 정보를 모두 초기화 해야함
             
             //RoomDB 전체 삭제 오류가 있음
-            //SensorController.getInstance(this).deleteAll()
+            SensorController.getInstance(this).deleteAll()
             CsvController.deleteFilesInDirectory(CsvController.getExternalPath(this))
 
             val intent = Intent(this, LoginActivity::class.java)

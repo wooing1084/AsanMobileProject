@@ -12,6 +12,7 @@ import com.gachon_HCI_Lab.user_mobile.sensor.service.OneAxisDataService
 import com.gachon_HCI_Lab.user_mobile.sensor.service.ThreeAxisDataService
 import kotlinx.coroutines.*
 import java.io.IOException
+import kotlin.concurrent.thread
 
 /**
  * 센서데이터 관리하는 클래스
@@ -274,8 +275,10 @@ class SensorController(context: Context) {
      * RoomDB에 저장된 센서 데이터 모두 삭제
      */
     fun deleteAll(){
-        oneAxisDataService.deleteAll()
-        threeAxisDataService.deleteAll()
+        val thread = thread(start = true) {
+            oneAxisDataService.deleteAll()
+            threeAxisDataService.deleteAll()
+        }
     }
 
 
