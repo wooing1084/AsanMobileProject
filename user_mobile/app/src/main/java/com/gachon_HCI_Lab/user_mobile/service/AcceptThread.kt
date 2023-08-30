@@ -11,6 +11,9 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.gachon_HCI_Lab.user_mobile.common.*
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import java.io.ByteArrayInputStream
 import java.io.IOException
@@ -133,17 +136,17 @@ class AcceptThread(context: Context) : Thread() {
     private fun saveOneAxisDataToCsv() {
         val oneAxisData = reconstructedOneAxisData.toString()
         Log.d("OneAxisData", oneAxisData)
-//        CoroutineScope(Dispatchers.IO).launch {
-//            sensorController.dataAccept(oneAxisData)
-//        }
+        CoroutineScope(Dispatchers.IO).launch {
+            sensorController.dataAccept(oneAxisData)
+        }
     }
 
     private fun saveThreeDataToCsv() {
         val threeAxisData = reconstructedTreeAxisData.toString()
         Log.d("ThreeAxisData", threeAxisData)
-//        CoroutineScope(Dispatchers.IO).launch {
-//            sensorController.dataAccept(threeAxisData)
-//        }
+        CoroutineScope(Dispatchers.IO).launch {
+            sensorController.dataAccept(threeAxisData)
+        }
     }
 
     private fun updateStringBuffer() {

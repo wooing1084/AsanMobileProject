@@ -104,7 +104,7 @@ class SensorChartActivity : AppCompatActivity() {
 
                 for ((iter, data) in it.withIndex()) {
                     val time = data.time / 1000L
-                    val value = data.value
+//                    val value = data.value
 
                     val dif = kotlin.math.abs(startTime - time)
                     val idx = (dif / bin).toInt()
@@ -113,7 +113,7 @@ class SensorChartActivity : AppCompatActivity() {
                         continue
                     }
 
-                    sensorTemp[idx] = Pair(sensorTemp[idx].first, sensorTemp[idx].second + value)
+//                    sensorTemp[idx] = Pair(sensorTemp[idx].first, sensorTemp[idx].second + value)
     //                  sensorTemp[idx] = Pair(idx.toLong(), sensorTemp[idx]!!.second + value)
                     count[idx] = count[idx] + 1
 
