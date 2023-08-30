@@ -132,9 +132,9 @@ class SensorController(context: Context) {
         for (buffer in bufferList) {
             Log.d(TAG, "str: $buffer")
             val oneAxisList = regexManager.oneAxisRegex.findAll(buffer)
-            Log.d(TAG, "hr: $oneAxisList")
+            Log.d(TAG, "1_Ax: $oneAxisList")
             val threeAxisList = regexManager.threeAxisRegex.findAll(buffer)
-            Log.d(TAG, "pg: $threeAxisList")
+            Log.d(TAG, "3_Ax: $threeAxisList")
 
             /**
              * 1축 데이터 저장하는 구간
@@ -175,9 +175,9 @@ class SensorController(context: Context) {
                     for (threeAxisPattern in threeAxisList) {
                         val threeAxisVal = threeAxisPattern.value
                         val type = SensorEnum.getValueByType(
-                            regexManager.threeAxisValueRegex.find(threeAxisVal)!!.value.toInt()
+                            regexManager.typeRegex.find(threeAxisVal)!!.value.toInt()
                         )
-                        val resRex = regexManager.oneAxisValueRegex.find(threeAxisVal)
+                        val resRex = regexManager.threeAxisValueRegex.find(threeAxisVal)
                         val res = resRex?.value
                         val dataMap = regexManager.threeAxisDataExtract(type, res!!)
                         threeAxisDataService.insert(
@@ -274,8 +274,8 @@ class SensorController(context: Context) {
      * RoomDB에 저장된 센서 데이터 모두 삭제
      */
     fun deleteAll(){
-        heartRateService.deleteAll()
-        ppgGreenService.deleteAll()
+        oneAxisDataService.deleteAll()
+        threeAxisDataService.deleteAll()
     }
 
 

@@ -43,6 +43,10 @@ class ThreeAxisDataService(context: Context) {
         return threeAxisDataDao.getFromNow(now, period)
     }
 
+    fun deleteAll() {
+        threeAxisDataDao.deleteAll()
+    }
+
 //    fun delete(id: Long) {
 //        ppgGreenDao.delete(id)
 //    }

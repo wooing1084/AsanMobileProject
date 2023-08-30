@@ -8,7 +8,6 @@ import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -26,10 +25,11 @@ import com.gachon_HCI_Lab.user_mobile.common.CsvController.getExternalPath
 import com.gachon_HCI_Lab.user_mobile.common.CsvController.getFile
 import com.gachon_HCI_Lab.user_mobile.common.CsvController.moveFile
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
-import java.io.IOException
 import java.lang.reflect.Method
 import java.util.*
 
@@ -44,6 +44,7 @@ class AcceptService : Service() {
     private lateinit var acceptThread: AcceptThread
     private val sensorController: SensorController = SensorController.getInstance(this)
     private var timer: Timer? = null
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
     //From Sending Service
     private val tag = "Sending Service"
@@ -78,7 +79,7 @@ class AcceptService : Service() {
                 return START_NOT_STICKY
             }
         }
-        startForground()
+        startForeground()
         return START_STICKY
     }
 
@@ -95,15 +96,17 @@ class AcceptService : Service() {
         stopSelf()
     }
 
-    private fun startForground() {
+    private fun startForeground() {
         BluetoothConnect.createSeverSocket(bluetoothAdapter)
         acceptThread = AcceptThread(this)
-        acceptThread.start()
-        setForground()
-        csvWrite(10000) // 1분 * n
+        coroutineScope.launch {
+            acceptThread.start()
+            setForeground()
+            csvWrite(10000) // 1분 * n
+        }
     }
 
-    private fun setForground() {
+    private fun setForeground() {
         val channelId = "com.user_mobile.AcceptService"
         val channelName = "accept data service channel"
         if (Build.VERSION.SDK_INT >= 26) {

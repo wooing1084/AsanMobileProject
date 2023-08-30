@@ -31,4 +31,6 @@ interface ThreeAxisDataDao {
      * */
     @Query("SELECT * FROM ThreeAxis_TB WHERE time BETWEEN :now - :period AND :now")
     fun getFromNow(now: Long, period: Long): List<ThreeAxisData>
+    @Query("DELETE FROM ThreeAxis_TB")
+    fun deleteAll()
 }

@@ -46,4 +46,8 @@ class OneAxisDataService(context: Context) {
     fun delete(id: Long) {
         oneAxisDataDao.delete(id)
     }
+
+    fun deleteAll() {
+        oneAxisDataDao.deleteAll()
+    }
 }

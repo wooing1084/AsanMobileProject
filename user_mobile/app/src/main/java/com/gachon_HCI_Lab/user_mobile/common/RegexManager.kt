@@ -31,11 +31,10 @@ class RegexManager private constructor(context: Context) {
     val threeAxisRegex = "\\d+\\|\\d{12,}\\|(-?\\d+(\\.\\d+)?)\\|(-?\\d+(\\.\\d+)?)\\|(-?\\d+(\\.\\d+)?):".toRegex()
 
     // 1축 데이터 value 정규표현식
-    val oneAxisValueRegex = "\\d{12,}:(-?\\d+(\\.\\d+)?)".toRegex()
+    val oneAxisValueRegex = "\\d{12,}\\|(-?\\d+(\\.\\d+)?)".toRegex()
 
     // 3축 데이터 value 정규표현식
     val threeAxisValueRegex = "\\d{12,}\\|(-?\\d+(\\.\\d+)?)\\|(-?\\d+(\\.\\d+)?)\\|(-?\\d+(\\.\\d+)?)".toRegex()
-
 
     /**
      * 데이터 추출 시 사용 메소드

@@ -31,5 +31,7 @@ interface OneAxisDataDao {
      * */
     @Query("SELECT * FROM OneAxis_TB WHERE time BETWEEN :now - :period AND :now")
     fun getFromNow(now: Long, period: Long): List<OneAxisData>
+    @Query("DELETE FROM OneAxis_TB")
+    fun deleteAll()
 
 }
