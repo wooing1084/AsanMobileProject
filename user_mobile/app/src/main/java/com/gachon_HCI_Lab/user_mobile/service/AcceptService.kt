@@ -42,7 +42,7 @@ class AcceptService : Service() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var acceptThread: AcceptThread
-    private val sensorController: SensorController = SensorController.getInstance(this)
+    private val sensorController: SensorController = SensorController.getInstance(this@AcceptService)
     private var timer: Timer? = null
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -216,6 +216,7 @@ class AcceptService : Service() {
                 Log.d("Accept Service", "CSV Write method called")
                 if (!BluetoothConnect.isBluetoothRunning()) onDestroy()
                 GlobalScope.launch {
+
                     sensorController.writeCsv(this@AcceptService, "OneAxis")
                     sensorController.writeCsv(this@AcceptService, "ThreeAxis")
                     count++

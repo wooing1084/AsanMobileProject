@@ -101,7 +101,7 @@ object CsvController {
      * csv 파일이 존재하지 않는다면 실행되는 메소드
      * 입력받은 sensorName을 활용하여 파일명 작성
      * */
-    fun csvFirst(context: Context, sensorName: String) {
+    fun csvFirst(context: Context, sensorName: String): String {
         val path: String = getExternalPath(context)
         val name = setFileName(sensorName)
         val file: File = File(path, name)
@@ -111,10 +111,13 @@ object CsvController {
             bw.flush()
         } catch (e: Exception) {
             Log.d(TAG, e.toString())
+            return ""
         } finally {
             bw.close()
         }
         Log.d(this.toString(), "csv 생성")
+
+        return "$path/$name"
     }
 
     /**
@@ -135,7 +138,7 @@ object CsvController {
             }
             // abstractSensorSet의 모든 요소가 ThreeAxisData 타입일 경우
             abstractSensorSet.all { it is ThreeAxisData } -> {
-                arrayOf("time","value")
+                arrayOf("time","type", "x", "y", "z")
             }
             else -> {
                 // 위의 두 경우에 해당하지 않는 다른 타입의 데이터가 포함되어 있는 경우

@@ -82,7 +82,7 @@ class SensorController(context: Context) {
      * sensorName: PpgGreen,HeartRate (현재 코드에선 SensorEnum 사용)
      * List<AbstractSensor>: 센서데이터 리스트
      * */
-    private suspend fun dataExport(axisType: String, name: String): List<AbstractSensor> =
+    private suspend fun dataExport(axisType: String): List<AbstractSensor> =
         withContext(Dispatchers.IO) {
             // 센서의 값을 불러온 후, 그 리스트의 사이즈 값을 커서로 저장
             // 다음 호출시 그 커서부터 다시 데이터 호출
@@ -110,7 +110,7 @@ class SensorController(context: Context) {
     private fun threeAxisDataExport(): List<AbstractSensor> {
         val threeAxisCursor = prefManager.getCursor("threeAxis")
         Log.d(TAG, "Start Three_Axis cursor: $threeAxisCursor")
-        val threeAxisSet = oneAxisDataService.getAll(threeAxisCursor)
+        val threeAxisSet = threeAxisDataService.getAll(threeAxisCursor)
         val threeAxisSetSize = threeAxisSet.size
         prefManager.putCursor("threeAxis", threeAxisCursor + threeAxisSetSize)
         return threeAxisSet
@@ -211,42 +211,63 @@ class SensorController(context: Context) {
      * */
     suspend fun writeCsv(context: Context, type: String) = coroutineScope {
         // sensorName 적절하게 들어왔는지, 네임을 적절하게 넣어야 함
-        var sensorSet: List<AbstractSensor> = dataExport(type, "OneAxis")
-        val sensorArr: Array<SensorEnum> = SensorEnum.values()
+        val sensorSet: List<AbstractSensor> = dataExport(type)
 
-        for (enum in sensorArr) {
-            val sensorName = enum.value
-            if (SensorEnum.isThreeAxisData(enum.type)) {
-                sensorSet = dataExport(type, "ThreeAxis")
+        // 데이터를 센서 타입별로 나눈 Map
+        val splittedDatas = splitData(sensorSet)
+
+        for (dataList in splittedDatas) {
+            val sensorName = dataList.key
+
+            var fileName = CsvController.fileExist(context, sensorName)
+
+            if (fileName == null || fileName == "") {
+                fileName = CsvController.csvFirst(context, sensorName)
             }
 
-            if (CsvController.fileExist(context, sensorName) == null) {
-                CsvController.csvFirst(context, sensorName)
+            if(fileName == null || fileName == "") {
+                throw Exception("file make error")
             }
-            val fileName = CsvController.fileExist(context, sensorName)
-            // 작성시 이름이 없을 때
-            if (fileName == null) {
-                CsvController.csvFirst(context, sensorName)
-            }
+
             try {
-                CsvController.csvSave(context, fileName!!, sensorSet)
+                CsvController.csvSave(context, fileName, dataList.value)
             } catch (e: IOException) {
+                Log.e(this.toString(), "IOException")
                 // 혹여나 delay로 인해 터질때 대비
-                delay(1000)
-                CsvController.csvFirst(context, sensorName)
-                val regenFile = CsvController.fileExist(context, sensorName)
-                CsvController.csvSave(context, regenFile!!, sensorSet)
+//                delay(1000)
+//                CsvController.csvFirst(context, sensorName)
+//                val regenFile = CsvController.fileExist(context, sensorName)
+//                CsvController.csvSave(context, regenFile!!, dataList.value)
             } catch (e: NullPointerException) {
-                delay(1000)
-                CsvController.csvFirst(context, sensorName)
-                val regenFile = CsvController.fileExist(context, sensorName)
-                CsvController.csvSave(context, regenFile!!, sensorSet)
+                Log.e(this.toString(), "NullPointerException")
+//                delay(1000)
+//                CsvController.csvFirst(context, sensorName)
+//                val regenFile = CsvController.fileExist(context, sensorName)
+//                CsvController.csvSave(context, regenFile!!, dataList.value)
             } catch (e: Exception) {
+                Log.e(this.toString(), e.printStackTrace().toString())
                 e.printStackTrace()
             }
             Log.d(this.toString(), sensorName + "csv 생성")
         }
 
+    }
+
+    fun splitData(sensorSet: List<AbstractSensor>): MutableMap<String, List<AbstractSensor>> {
+        // key: sensorName, value: sensorData
+        var resultMap : MutableMap<String, List<AbstractSensor>> = mutableMapOf()
+
+
+        for (data in sensorSet){
+            val sensorName = data.type
+            if(resultMap.containsKey(sensorName)){
+                resultMap[sensorName] = resultMap[sensorName]!!.plus(data)
+            } else {
+                resultMap[sensorName] = listOf(data)
+            }
+        }
+
+        return resultMap
     }
 
     /**

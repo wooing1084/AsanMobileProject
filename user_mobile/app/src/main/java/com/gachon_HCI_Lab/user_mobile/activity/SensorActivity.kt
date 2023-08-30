@@ -80,8 +80,8 @@ class SensorActivity() : AppCompatActivity() {
             startActivity(intent)
         }
         binding.BtnToChartActivity.setOnClickListener {
-            val intent = Intent(this, SensorChartActivity::class.java)
-            startActivity(intent)
+//            val intent = Intent(this, SensorChartActivity::class.java)
+//            startActivity(intent)
         }
 
         //로그아웃 버튼
