@@ -270,6 +270,14 @@ class SensorController(context: Context) {
             return@withContext abstractSensorSet
         }
 
+    /**
+     * RoomDB에 저장된 센서 데이터 모두 삭제
+     */
+    fun deleteAll(){
+        heartRateService.deleteAll()
+        ppgGreenService.deleteAll()
+    }
+
 
     /**
      * sharedPreference 싱글톤 객체
@@ -310,4 +318,6 @@ class SensorController(context: Context) {
             editor.apply()
         }
     }
+
+
 }

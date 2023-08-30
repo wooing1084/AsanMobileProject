@@ -222,4 +222,24 @@ object CsvController {
             println("파일 이동 실패: ${e.message}")
         }
     }
+
+    fun deleteFilesInDirectory(dirPath: String){
+        val dir = File(dirPath)
+        if(dir.exists() && dir.isDirectory){
+            val childFileList = dir.listFiles()
+
+            if(childFileList != null){
+                for(childFile in childFileList){
+                    if(childFile.isDirectory){
+                        deleteFilesInDirectory(childFile.absolutePath)
+                    }else{
+                        childFile.delete()
+                    }
+                }
+            }
+
+            dir.delete()
+            Log.d("csv controller", "Delete all files successfully")
+        }
+    }
 }
