@@ -127,7 +127,22 @@ object CsvController {
         val name = fileExist(context, sensorName)
 
         Log.d(this.toString(), "csv 작성")
-        val headerData = arrayOf("time","value")
+        var headerData: Array<String>? = null
+        headerData = when {
+            // abstractSensorSet의 모든 요소가 OneAxisData 타입일 경우 처리
+            abstractSensorSet.all { it is OneAxisData } -> {
+                arrayOf("time", "type", "value")
+            }
+            // abstractSensorSet의 모든 요소가 ThreeAxisData 타입일 경우
+            abstractSensorSet.all { it is ThreeAxisData } -> {
+                arrayOf("time","value")
+            }
+            else -> {
+                // 위의 두 경우에 해당하지 않는 다른 타입의 데이터가 포함되어 있는 경우
+                arrayOf("time","value")
+            }
+        }
+
         val csvWriter = getCsvWriter(path, name!!)
         try {
             csvWriter.writeNext(headerData)
@@ -144,16 +159,21 @@ object CsvController {
 
     private fun convertSensorToStringArray(abstractSensor: AbstractSensor): Array<String> {
         val time = abstractSensor.time.toString()
-        if (abstractSensor is OneAxisData) {
-            val value = abstractSensor.value.toString()
-            return arrayOf(time, value)
-        } else if (abstractSensor is ThreeAxisData) {
-            val xValue = abstractSensor.xValue.toString()
-            val yValue = abstractSensor.yValue.toString()
-            val zValue = abstractSensor.zValue.toString()
-            return arrayOf(time, xValue, yValue, zValue)
-        } else {
-            return emptyArray();
+        val type = abstractSensor.type
+        return when (abstractSensor) {
+            is OneAxisData -> {
+                val value = abstractSensor.value.toString()
+                arrayOf(time, type, value)
+            }
+            is ThreeAxisData -> {
+                val xValue = abstractSensor.xValue.toString()
+                val yValue = abstractSensor.yValue.toString()
+                val zValue = abstractSensor.zValue.toString()
+                arrayOf(time, type, xValue, yValue, zValue)
+            }
+            else -> {
+                emptyArray();
+            }
         }
     }
 

@@ -14,7 +14,7 @@ interface OneAxisDataDao {
     /**
      * 데이터 조회 메소드
      * */
-    @Query("SELECT * FROM OneAxis_TB WHERE id > :cursor ORDER BY id ASC")
+    @Query("SELECT * FROM OneAxis_TB WHERE one_id > :cursor ORDER BY one_id ASC")
     fun getAll(cursor: Int): List<OneAxisData>
 
     /**
@@ -23,7 +23,7 @@ interface OneAxisDataDao {
     @Insert
     fun insertAll(vararg sensor: OneAxisData)
 
-    @Query("DELETE FROM OneAxis_TB WHERE id = :id")
+    @Query("DELETE FROM OneAxis_TB WHERE one_id = :id")
     fun delete(id: Long)
 
     /**

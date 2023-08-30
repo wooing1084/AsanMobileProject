@@ -23,6 +23,19 @@ class SensorController(context: Context) {
     private val prefManager: SharePreferenceManager = SharePreferenceManager.getInstance(context)
     private val regexManager: RegexManager = RegexManager.getInstance(context)
 
+    private val oneAxisList = listOf(
+        SensorEnum.HEART_RATE.value,
+        SensorEnum.LIGHT.value,
+        SensorEnum.PPG_GREEN.value
+//            SensorEnum.STEP_COUNT.value
+    )
+
+    private val threeAxisList = listOf(
+        SensorEnum.ACCELEROMETER.value,
+        SensorEnum.GRAVITY.value,
+        SensorEnum.GYROSCOPE.value
+    )
+
     companion object {
         private var INSTANCE: SensorController? = null
 
@@ -68,9 +81,8 @@ class SensorController(context: Context) {
      * sensorName: PpgGreen,HeartRate (현재 코드에선 SensorEnum 사용)
      * List<AbstractSensor>: 센서데이터 리스트
      * */
-    private suspend fun dataExport(axisType: String): List<AbstractSensor> =
+    private suspend fun dataExport(axisType: String, name: String): List<AbstractSensor> =
         withContext(Dispatchers.IO) {
-
             // 센서의 값을 불러온 후, 그 리스트의 사이즈 값을 커서로 저장
             // 다음 호출시 그 커서부터 다시 데이터 호출
             val abstractSensorSet: List<AbstractSensor> = when (axisType) {
@@ -198,12 +210,15 @@ class SensorController(context: Context) {
      * */
     suspend fun writeCsv(context: Context, type: String) = coroutineScope {
         // sensorName 적절하게 들어왔는지, 네임을 적절하게 넣어야 함
-        val sensorSet = dataExport(type)
+        var sensorSet: List<AbstractSensor> = dataExport(type, "OneAxis")
         val sensorArr: Array<SensorEnum> = SensorEnum.values()
-
 
         for (enum in sensorArr) {
             val sensorName = enum.value
+            if (SensorEnum.isThreeAxisData(enum.type)) {
+                sensorSet = dataExport(type, "ThreeAxis")
+            }
+
             if (CsvController.fileExist(context, sensorName) == null) {
                 CsvController.csvFirst(context, sensorName)
             }
@@ -217,14 +232,11 @@ class SensorController(context: Context) {
             } catch (e: IOException) {
                 // 혹여나 delay로 인해 터질때 대비
                 delay(1000)
-                // 여기서도 이름이 없을까봐
                 CsvController.csvFirst(context, sensorName)
                 val regenFile = CsvController.fileExist(context, sensorName)
                 CsvController.csvSave(context, regenFile!!, sensorSet)
             } catch (e: NullPointerException) {
-                // 혹여나 delay로 인해 터질때 대비
                 delay(1000)
-                // 여기서도 이름이 없을까봐
                 CsvController.csvFirst(context, sensorName)
                 val regenFile = CsvController.fileExist(context, sensorName)
                 CsvController.csvSave(context, regenFile!!, sensorSet)

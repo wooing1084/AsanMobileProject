@@ -27,7 +27,6 @@ import com.gachon_HCI_Lab.user_mobile.common.CsvStatistics
 import com.gachon_HCI_Lab.user_mobile.common.DeviceInfo
 import com.gachon_HCI_Lab.user_mobile.common.ServerConnection
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
-import com.gachon_HCI_Lab.user_mobile.sensor.model.SensorEnum
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.lang.reflect.Method

@@ -17,6 +17,14 @@ enum class SensorEnum(val value: String, val type: Int) {
             val sensor = values().find { it.type == type }
             return sensor!!.value
         }
+
+        fun isOneAxisData(type: Int): Boolean {
+            return type in listOf(1, 4, 9)
+        }
+
+        fun isThreeAxisData(type: Int): Boolean {
+            return type in listOf(5, 18, 21, 30)
+        }
     }
 
 }

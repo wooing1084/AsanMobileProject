@@ -14,7 +14,7 @@ interface ThreeAxisDataDao {
     /**
      * 데이터 조회 메소드
      * */
-    @Query("SELECT * FROM ThreeAxis_TB WHERE id > :cursor ORDER BY id ASC")
+    @Query("SELECT * FROM ThreeAxis_TB WHERE three_id > :cursor ORDER BY three_id ASC")
     fun getAll(cursor: Int): List<ThreeAxisData>
 
     /**
@@ -23,7 +23,7 @@ interface ThreeAxisDataDao {
     @Insert
     suspend fun insertAll(vararg users: ThreeAxisData)
 
-    @Query("DELETE FROM ThreeAxis_TB WHERE id = :id")
+    @Query("DELETE FROM ThreeAxis_TB WHERE three_id = :id")
     suspend fun deleteById(id: Long)
 
     /**

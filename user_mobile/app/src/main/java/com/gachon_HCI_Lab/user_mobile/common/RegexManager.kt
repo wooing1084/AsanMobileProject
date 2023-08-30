@@ -1,9 +1,8 @@
 package com.gachon_HCI_Lab.user_mobile.common
 
 import android.content.Context
-import com.gachon_HCI_Lab.user_mobile.sensor.model.OneAxisSensorData
-import com.gachon_HCI_Lab.user_mobile.sensor.model.SensorEnum
-import com.gachon_HCI_Lab.user_mobile.sensor.model.ThreeAxisSensorData
+import com.gachon_HCI_Lab.user_mobile.sensor.model.OneAxisSensorDto
+import com.gachon_HCI_Lab.user_mobile.sensor.model.ThreeAxisSensorDto
 
 /**
  * 정규표현식 클래스
@@ -41,22 +40,22 @@ class RegexManager private constructor(context: Context) {
     /**
      * 데이터 추출 시 사용 메소드
      * */
-    fun oneAxisDataExtract(type: String, res: String): OneAxisSensorData {
+    fun oneAxisDataExtract(type: String, res: String): OneAxisSensorDto {
         val str = res.split("|")
         val time = str[0].toLong()
         val data = str[1].toDouble()
 
-        return OneAxisSensorData(type, time, data)
+        return OneAxisSensorDto(type, time, data)
     }
 
-    fun threeAxisDataExtract(type: String, res: String): ThreeAxisSensorData {
+    fun threeAxisDataExtract(type: String, res: String): ThreeAxisSensorDto {
         val str = res.split("|")
         val time = str[0].toLong()
         val xData = str[1].toDouble()
         val yData = str[2].toDouble()
         val zData = str[3].toDouble()
 
-        return ThreeAxisSensorData(type, time, xData, yData, zData)
+        return ThreeAxisSensorDto(type, time, xData, yData, zData)
     }
 
 }
