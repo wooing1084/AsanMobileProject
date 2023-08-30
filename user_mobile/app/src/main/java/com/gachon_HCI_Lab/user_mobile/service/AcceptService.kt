@@ -25,6 +25,7 @@ import com.gachon_HCI_Lab.user_mobile.common.CsvController.getExternalPath
 import com.gachon_HCI_Lab.user_mobile.common.CsvController.getFile
 import com.gachon_HCI_Lab.user_mobile.common.CsvController.moveFile
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
+import com.gachon_HCI_Lab.user_mobile.sensor.model.SensorEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -236,44 +237,27 @@ class AcceptService : Service() {
      * CSV를 서버로 전송하는 메소드
      * */
     private fun sendCSV() {
-        //HeartRate
-        val hrFileName = getExistFileName(this, "HeartRate")
-        val hrSrcPath = getExternalPath(this, "sensor") + "/" + hrFileName
-        val hrDestPath = getExternalPath(this, "sensor/sended") + "/" + hrFileName
 
-        //파일 이동 후 삭제
-        moveFile(hrSrcPath, hrDestPath)
-        val hrSrcFile = getFile(hrSrcPath)
-        hrSrcFile?.delete()
+        for (sensorName in SensorEnum.values()) {
+            val fileName = getExistFileName(this, sensorName.value) ?: continue
 
-        val heartFile = getFile(hrDestPath)
+            val srcPath = getExternalPath(this, "sensor") + "/" + fileName
+            val destPath = getExternalPath(this, "sensor/sended") + "/" + fileName
 
-        //PpgGreen
-        val ppgFileName = getExistFileName(this, "PpgGreen")
-        val ppgSrcPath = getExternalPath(this, "sensor") + "/" + ppgFileName
-        val ppgDestPath = getExternalPath(this, "sensor/sended") + "/" + ppgFileName
+            moveFile(srcPath, destPath)
+            val srcFile = getFile(srcPath)
+            srcFile?.delete()
 
-        //파일 이동 후 삭제
-        moveFile(ppgSrcPath, ppgDestPath)
-        val ppgSrcFile = getFile(ppgSrcPath)
-        ppgSrcFile?.delete()
+            val file = getFile(destPath)
 
-        val ppgFile = getFile(ppgDestPath)
-        if (ppgFile != null) {
-            val token = ppgFileName!!.split('_')
-            val ppgTime = token[1].split('.')[0]
+            if (file != null) {
+                val token = fileName.split('_')
+                val ppgTime = token[1].split('.')[0]
 
-            CsvStatistics.makeMean(this, ppgFile, "send")
-            ServerConnection.postFile(ppgFile, DeviceInfo._uID, DeviceInfo._battery, ppgTime)
-            Log.d(tag, "PPG Green sensor file sending!")
-        }
-        if (heartFile != null) {
-            val token = hrFileName!!.split('_')
-            val hrTime = token[1].split('.')[0]
+                ServerConnection.postFile(file, DeviceInfo._uID, DeviceInfo._battery, ppgTime)
+                Log.d(tag, sensorName.name + " sensor file sending!")
+            }
 
-            CsvStatistics.makeMean(this, heartFile, "send")
-            ServerConnection.postFile(heartFile, DeviceInfo._uID, DeviceInfo._battery, hrTime)
-            Log.d(tag, "HeartRate sensor file sending!")
         }
 
     }
