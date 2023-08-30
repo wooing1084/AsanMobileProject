@@ -245,4 +245,21 @@ object CsvController {
             Log.d("csv controller", "Delete all files successfully")
         }
     }
+
+    fun deleteOldfiles(dir: String, period: Int){
+        val directory = File(dir)
+        val files: Array<out File>? = directory.listFiles()
+        val now = System.currentTimeMillis()
+
+        for (file in files!!) {
+            if(file.isDirectory) continue
+
+            val lastModified = file.lastModified()
+            val diff = now - lastModified
+
+            if(diff > period){
+                file.delete()
+            }
+        }
+    }
 }
