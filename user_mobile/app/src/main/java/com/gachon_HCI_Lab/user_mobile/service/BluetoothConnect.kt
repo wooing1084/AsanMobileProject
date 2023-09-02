@@ -1,12 +1,9 @@
 package com.gachon_HCI_Lab.user_mobile.service
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
 import com.gachon_HCI_Lab.user_mobile.common.SocketState
 import com.gachon_HCI_Lab.user_mobile.common.SocketStateEvent
 import com.gachon_HCI_Lab.user_mobile.common.ThreadState
@@ -20,7 +17,7 @@ object BluetoothConnect {
     private lateinit var serverSocket: BluetoothServerSocket
     private lateinit var socket: BluetoothSocket
     private lateinit var inputStream: InputStream
-    private var isRunning: Boolean = true
+    private var isRunning: Boolean = false
 
     private val SOCKET_NAME = "server"
     private val MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
@@ -46,12 +43,15 @@ object BluetoothConnect {
     fun createInputStream(): InputStream{
         inputStream = socket.inputStream
         EventBus.getDefault().post(SocketStateEvent(SocketState.CONNECT))
+        isRunning = true
         return inputStream
     }
 
     fun clear(){
         isRunning = false
-        socket.close()
+        if (::socket.isInitialized){
+            socket.close()
+        }
         serverSocket.close()
     }
 
@@ -61,5 +61,12 @@ object BluetoothConnect {
 
     fun disconnectRunning(){
         isRunning = false
+    }
+
+    fun isConnected(): Boolean {
+        if (!::socket.isInitialized) {
+            return false
+        }
+        return socket.isConnected
     }
 }

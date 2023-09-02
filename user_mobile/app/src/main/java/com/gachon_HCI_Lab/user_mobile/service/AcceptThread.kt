@@ -1,26 +1,19 @@
 package com.gachon_HCI_Lab.user_mobile.service
 
-import android.Manifest
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothServerSocket
-import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.content.pm.PackageManager
 import android.util.Log
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import com.gachon_HCI_Lab.user_mobile.common.*
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
-import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
 
 /**
  * 서비스에서 소켓 연결을 담당하는 클래스
@@ -39,21 +32,31 @@ class AcceptThread(context: Context) : Thread() {
         }
     }
 
+
     override fun run() {
-        BluetoothConnect.createBluetoothSocket()
-        val inputStream = BluetoothConnect.createInputStream()
-        while (BluetoothConnect.isBluetoothRunning()) {
-            val buffer = createByteArray()
-            val receivedData = getByteArrayFrom(inputStream, buffer)
-            if(receivedData.isEmpty()){ break}
-            val byteBuffer = createByteBufferFrom(receivedData)
-            updateStringBuffer()
-            saveBatteryDataFrom(byteBuffer)
-            saveSensorDataToString(byteBuffer)
-            saveOneAxisDataToCsv()
-            saveThreeDataToCsv()
+        try {
+            BluetoothConnect.createBluetoothSocket()
+            val inputStream = BluetoothConnect.createInputStream()
+            while (BluetoothConnect.isBluetoothRunning()) {
+                val buffer = createByteArray()
+                val receivedData = getByteArrayFrom(inputStream, buffer)
+                if (receivedData.isEmpty()) {
+                    break
+                }
+                val byteBuffer = createByteBufferFrom(receivedData)
+                updateStringBuffer()
+                saveBatteryDataFrom(byteBuffer)
+                saveSensorDataToString(byteBuffer)
+                saveOneAxisDataToCsv()
+                saveThreeDataToCsv()
+            }
+            sleep(1L)
+            BluetoothConnect.disconnectRunning()
+            handleSocketError()
+        } catch (e: Exception) {
+            handleSocketError()
+            e.printStackTrace()
         }
-        BluetoothConnect.disconnectRunning()
     }
 
     fun clear() {
@@ -102,7 +105,7 @@ class AcceptThread(context: Context) : Thread() {
     }
 
     private fun getByteArrayFrom(inputStream: InputStream, buffer: ByteArray): ByteArray {
-        var receivedData: ByteArray
+        val receivedData: ByteArray
         try {
             receivedData = buffer.copyOf(inputStream.read(buffer))
         } catch (e: IOException) {

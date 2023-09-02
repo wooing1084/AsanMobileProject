@@ -11,6 +11,7 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.nfc.Tag
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -31,6 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.lang.reflect.Method
 import java.util.*
 
@@ -43,7 +46,8 @@ class AcceptService : Service() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var acceptThread: AcceptThread
-    private val sensorController: SensorController = SensorController.getInstance(this@AcceptService)
+    private val sensorController: SensorController =
+        SensorController.getInstance(this@AcceptService)
     private var timer: Timer? = null
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -86,15 +90,18 @@ class AcceptService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        acceptThread.clear()
+        if (::acceptThread.isInitialized) {
+            acceptThread.clear()
+        }
         Log.d("Accept Service", "onDestroy")
         if (timer != null) {
             timer?.cancel()
             timer = null
         }
-        EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
+//        EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+        if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
     }
 
     private fun startForeground() {
@@ -104,6 +111,10 @@ class AcceptService : Service() {
             acceptThread.start()
             setForeground()
             csvWrite(10000) // 1분 * n
+            if (BluetoothConnect.isBluetoothRunning())
+                if (!BluetoothConnect.isConnected()) {
+                onDestroy()
+            }
         }
     }
 
@@ -146,6 +157,7 @@ class AcceptService : Service() {
 
         val notificationID = 12345
         startForeground(notificationID, notification.build())
+        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
     }
 
     /**
@@ -215,9 +227,11 @@ class AcceptService : Service() {
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 Log.d("Accept Service", "CSV Write method called")
-                if (!BluetoothConnect.isBluetoothRunning()) onDestroy()
-                GlobalScope.launch {
-
+                if (!BluetoothConnect.isBluetoothRunning()) {
+                    if (!BluetoothConnect.isConnected())
+                    onDestroy()
+                }
+                CoroutineScope(Dispatchers.IO).launch {
                     sensorController.writeCsv(this@AcceptService, "OneAxis")
                     sensorController.writeCsv(this@AcceptService, "ThreeAxis")
                     count++
@@ -259,6 +273,20 @@ class AcceptService : Service() {
             }
 
         }
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    fun listenSocketState(event: SocketStateEvent) {
+        Log.d(this@AcceptService.toString(), "이벤트 버스")
+//        if (!pairingBluetoothConnected()) {
+//            Toast.makeText(this@AcceptService, "연결이 끊겼습니다", Toast.LENGTH_SHORT).show()
+//            onDestroy()
+//        }
+//        if (event.state == SocketState.CLOSE) {
+//            Log.e(this.tag, "SOCKET_CLOSE!")
+//            onDestroy()
+//        }
 
     }
 
