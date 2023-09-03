@@ -36,6 +36,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.reflect.Method
 import java.util.*
+import kotlin.concurrent.thread
 
 /**
  * 포그라운드 서비스
@@ -98,7 +99,7 @@ class AcceptService : Service() {
             timer?.cancel()
             timer = null
         }
-//        EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
+        EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
@@ -111,10 +112,10 @@ class AcceptService : Service() {
             acceptThread.start()
             setForeground()
             csvWrite(10000) // 1분 * n
-            if (BluetoothConnect.isBluetoothRunning())
-                if (!BluetoothConnect.isConnected()) {
-                onDestroy()
-            }
+//            if (BluetoothConnect.isBluetoothRunning())
+//                if (!BluetoothConnect.isConnected()) {
+//                onDestroy()
+//            }
         }
     }
 
@@ -156,8 +157,8 @@ class AcceptService : Service() {
         }
 
         val notificationID = 12345
-        startForeground(notificationID, notification.build())
         if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
+        startForeground(notificationID, notification.build())
     }
 
     /**
@@ -228,7 +229,6 @@ class AcceptService : Service() {
             override fun run() {
                 Log.d("Accept Service", "CSV Write method called")
                 if (!BluetoothConnect.isBluetoothRunning()) {
-                    if (!BluetoothConnect.isConnected())
                     onDestroy()
                 }
                 CoroutineScope(Dispatchers.IO).launch {
@@ -276,18 +276,18 @@ class AcceptService : Service() {
 
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    fun listenSocketState(event: SocketStateEvent) {
-        Log.d(this@AcceptService.toString(), "이벤트 버스")
+    @Subscribe()
+    fun listenSocketState(event: ThreadStateEvent) {
+
 //        if (!pairingBluetoothConnected()) {
 //            Toast.makeText(this@AcceptService, "연결이 끊겼습니다", Toast.LENGTH_SHORT).show()
 //            onDestroy()
 //        }
-//        if (event.state == SocketState.CLOSE) {
-//            Log.e(this.tag, "SOCKET_CLOSE!")
-//            onDestroy()
-//        }
-
+        Log.d(this@AcceptService.toString(), "이벤트 버스")
+        if (event.state == ThreadState.STOP) {
+            Log.e(this.tag, "SOCKET_CLOSE!")
+            onDestroy()
+        }
     }
 
 }

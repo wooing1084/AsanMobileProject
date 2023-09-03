@@ -1,13 +1,11 @@
 package com.gachon_HCI_Lab.user_mobile.service
 
-import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
 import com.gachon_HCI_Lab.user_mobile.common.*
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import java.io.IOException
@@ -40,6 +38,12 @@ class AcceptThread(context: Context) : Thread() {
             while (BluetoothConnect.isBluetoothRunning()) {
                 val buffer = createByteArray()
                 val receivedData = getByteArrayFrom(inputStream, buffer)
+                if (BluetoothConnect.isBluetoothRunning()) {
+                    if (!BluetoothConnect.isConnected()) {
+//                        BluetoothConnect.disconnectRunning()
+                        break
+                    }
+                }
                 if (receivedData.isEmpty()) {
                     break
                 }
@@ -50,9 +54,8 @@ class AcceptThread(context: Context) : Thread() {
                 saveOneAxisDataToCsv()
                 saveThreeDataToCsv()
             }
-            sleep(1L)
             BluetoothConnect.disconnectRunning()
-            handleSocketError()
+            sleep(100)
         } catch (e: Exception) {
             handleSocketError()
             e.printStackTrace()
