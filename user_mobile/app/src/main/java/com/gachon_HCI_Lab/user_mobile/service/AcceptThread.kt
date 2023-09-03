@@ -40,7 +40,7 @@ class AcceptThread(context: Context) : Thread() {
                 val receivedData = getByteArrayFrom(inputStream, buffer)
                 if (BluetoothConnect.isBluetoothRunning()) {
                     if (!BluetoothConnect.isConnected()) {
-//                        BluetoothConnect.disconnectRunning()
+                        BluetoothConnect.disconnectRunning()
                         break
                     }
                 }
@@ -54,11 +54,12 @@ class AcceptThread(context: Context) : Thread() {
                 saveOneAxisDataToCsv()
                 saveThreeDataToCsv()
             }
-            BluetoothConnect.disconnectRunning()
-            sleep(100)
         } catch (e: Exception) {
-            handleSocketError()
+            Log.d(this.toString(), "Error 발생!")
             e.printStackTrace()
+        } finally {
+            Log.d(this.toString(), "Socket Handling")
+            handleSocketError()
         }
     }
 

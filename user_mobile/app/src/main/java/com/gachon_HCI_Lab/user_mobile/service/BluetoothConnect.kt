@@ -32,7 +32,7 @@ object BluetoothConnect {
         try {
             isRunning = true
             socket = serverSocket.accept()
-//            Thread.sleep(300)
+            Thread.sleep(300)
         } catch (e: IOException) {
             EventBus.getDefault().post(ThreadStateEvent(ThreadState.STOP))
             throw IOException()
@@ -60,12 +60,11 @@ object BluetoothConnect {
 
     fun disconnectRunning() {
         isRunning = false
-        Thread.currentThread().interrupt()
+        Thread.sleep(300)
     }
 
     fun isConnected(): Boolean {
         if (!::socket.isInitialized) {
-            Thread.currentThread().interrupt()
             return false
         }
         return socket.isConnected

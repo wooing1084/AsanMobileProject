@@ -112,10 +112,6 @@ class AcceptService : Service() {
             acceptThread.start()
             setForeground()
             csvWrite(10000) // 1분 * n
-//            if (BluetoothConnect.isBluetoothRunning())
-//                if (!BluetoothConnect.isConnected()) {
-//                onDestroy()
-//            }
         }
     }
 
@@ -228,7 +224,7 @@ class AcceptService : Service() {
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 Log.d("Accept Service", "CSV Write method called")
-                if (!BluetoothConnect.isBluetoothRunning()) {
+                if (!BluetoothConnect.isBluetoothRunning() && BluetoothConnect.isConnected()) {
                     onDestroy()
                 }
                 CoroutineScope(Dispatchers.IO).launch {
