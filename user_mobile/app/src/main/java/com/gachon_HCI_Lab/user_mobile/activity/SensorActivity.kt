@@ -73,7 +73,7 @@ class SensorActivity() : AppCompatActivity() {
             startLocationService()
         }
         binding.BtnStop.setOnClickListener {
-            stopLocationService()
+//            stopLocationService()
         }
         binding.BtnCsvCheck.setOnClickListener {
             val intent = Intent(this, CsvPopupActivity::class.java)
