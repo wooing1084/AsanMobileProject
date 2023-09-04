@@ -85,6 +85,7 @@ class AcceptService : Service() {
                 return START_NOT_STICKY
             }
         }
+        setForeground()
         startForeground()
         return START_STICKY
     }
@@ -106,16 +107,22 @@ class AcceptService : Service() {
     }
 
     private fun startForeground() {
-        BluetoothConnect.createSeverSocket(bluetoothAdapter)
+        BluetoothConnect.createBluetoothAdapter(bluetoothAdapter)
         acceptThread = AcceptThread(this)
+        createEventBus()
         coroutineScope.launch {
             acceptThread.start()
-            setForeground()
             csvWrite(10000) // 1분 * n
         }
     }
 
+    private fun createEventBus(){
+        if (!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this)
+    }
+
     private fun setForeground() {
+        Log.d("setForgroundNotification", "notification")
         val channelId = "com.user_mobile.AcceptService"
         val channelName = "accept data service channel"
         if (Build.VERSION.SDK_INT >= 26) {
@@ -152,8 +159,7 @@ class AcceptService : Service() {
             setContentIntent(pendingIntent)
         }
 
-        val notificationID = 12345
-        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
+        val notificationID = 1
         startForeground(notificationID, notification.build())
     }
 
@@ -224,9 +230,6 @@ class AcceptService : Service() {
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 Log.d("Accept Service", "CSV Write method called")
-                if (!BluetoothConnect.isBluetoothRunning() && BluetoothConnect.isConnected()) {
-                    onDestroy()
-                }
                 CoroutineScope(Dispatchers.IO).launch {
                     sensorController.writeCsv(this@AcceptService, "OneAxis")
                     sensorController.writeCsv(this@AcceptService, "ThreeAxis")
@@ -274,16 +277,8 @@ class AcceptService : Service() {
 
     @Subscribe()
     fun listenSocketState(event: ThreadStateEvent) {
-
-//        if (!pairingBluetoothConnected()) {
-//            Toast.makeText(this@AcceptService, "연결이 끊겼습니다", Toast.LENGTH_SHORT).show()
-//            onDestroy()
-//        }
-        Log.d(this@AcceptService.toString(), "이벤트 버스")
         if (event.state == ThreadState.STOP) {
             Log.e(this.tag, "SOCKET_CLOSE!")
-            onDestroy()
         }
     }
-
 }
