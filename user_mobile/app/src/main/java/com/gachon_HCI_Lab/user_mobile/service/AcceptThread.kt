@@ -30,23 +30,16 @@ class AcceptThread(context: Context) : Thread() {
         }
     }
 
-
     override fun run() {
-        try {
+        BluetoothConnect.createSeverSocket()
+        while(true) {
             BluetoothConnect.createBluetoothSocket()
             val inputStream = BluetoothConnect.createInputStream()
+            EventBus.getDefault().post(ThreadStateEvent(ThreadState.RUN))
             while (BluetoothConnect.isBluetoothRunning()) {
                 val buffer = createByteArray()
                 val receivedData = getByteArrayFrom(inputStream, buffer)
-                if (BluetoothConnect.isBluetoothRunning()) {
-                    if (!BluetoothConnect.isConnected()) {
-                        BluetoothConnect.disconnectRunning()
-                        break
-                    }
-                }
-                if (receivedData.isEmpty()) {
-                    break
-                }
+                if (receivedData.size == 0) break
                 val byteBuffer = createByteBufferFrom(receivedData)
                 updateStringBuffer()
                 saveBatteryDataFrom(byteBuffer)
@@ -54,17 +47,11 @@ class AcceptThread(context: Context) : Thread() {
                 saveOneAxisDataToCsv()
                 saveThreeDataToCsv()
             }
-        } catch (e: Exception) {
-            Log.d(this.toString(), "Error 발생!")
-            e.printStackTrace()
-        } finally {
-            Log.d(this.toString(), "Socket Handling")
-            handleSocketError()
         }
     }
 
     fun clear() {
-        BluetoothConnect.clear()
+//        BluetoothConnect.clear()
         updateStringBuffer()
     }
 
@@ -114,6 +101,7 @@ class AcceptThread(context: Context) : Thread() {
             receivedData = buffer.copyOf(inputStream.read(buffer))
         } catch (e: IOException) {
             handleSocketError()
+            BluetoothConnect.stopRunning()
             return ByteArray(0)
         }
         return receivedData
