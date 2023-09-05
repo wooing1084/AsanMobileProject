@@ -11,7 +11,6 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.nfc.Tag
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -29,14 +28,11 @@ import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
 import com.gachon_HCI_Lab.user_mobile.sensor.model.SensorEnum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import java.lang.reflect.Method
 import java.util.*
-import kotlin.concurrent.thread
 
 /**
  * 포그라운드 서비스
@@ -47,8 +43,7 @@ class AcceptService : Service() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var acceptThread: AcceptThread
-    private val sensorController: SensorController =
-        SensorController.getInstance(this@AcceptService)
+    private val sensorController: SensorController = SensorController.getInstance(this@AcceptService)
     private var timer: Timer? = null
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -122,7 +117,7 @@ class AcceptService : Service() {
     }
 
     private fun setForeground() {
-        Log.d("setForgroundNotification", "notification")
+        Log.d("setForegroundNotification", "notification")
         val channelId = "com.user_mobile.AcceptService"
         val channelName = "accept data service channel"
         if (Build.VERSION.SDK_INT >= 26) {
