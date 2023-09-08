@@ -107,7 +107,7 @@ class AcceptService : Service() {
         createEventBus()
         coroutineScope.launch {
             acceptThread.start()
-            csvWrite(10000) // 1분 * n
+            csvWrite(1000 * 60 * 5)
         }
     }
 

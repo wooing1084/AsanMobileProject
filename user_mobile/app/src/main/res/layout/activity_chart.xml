@@ -5,25 +5,90 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart_heart"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.069"
-        tools:ignore="MissingConstraints" />
+        android:layout_height="match_parent">
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart_ppgGreen"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chart_heart"
-        app:layout_constraintVertical_bias="0.081"
-        tools:ignore="MissingConstraints" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Accelerometer"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_accelerometer"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gravity"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_gravity"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gyroscope"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_gyroscope"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="HeartRate"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_heart"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Light"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_light"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PPG Green"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_ppg_green"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                tools:ignore="MissingConstraints" />
+
+
+
+        </LinearLayout>
+
+
+
+    </ScrollView>
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

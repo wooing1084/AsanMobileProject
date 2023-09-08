@@ -100,10 +100,10 @@ class SensorActivity() : AppCompatActivity() {
 //            val intent = Intent(this, CsvPopupActivity::class.java)
 //            startActivity(intent)
 //        }
-//        binding.BtnToChartActivity.setOnClickListener {
-////            val intent = Intent(this, SensorChartActivity::class.java)
-////            startActivity(intent)
-//        }
+        binding.BtnToChartActivity.setOnClickListener {
+            val intent = Intent(this, SensorChartActivity::class.java)
+            startActivity(intent)
+        }
 
         //로그아웃 버튼
         binding.BtnLogout.setOnClickListener{
