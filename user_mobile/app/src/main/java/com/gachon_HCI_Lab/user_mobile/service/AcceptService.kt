@@ -279,7 +279,6 @@ class AcceptService : Service() {
             }
             else -> {
                 Log.d(this.tag, "SOCKET_CLOSE!")
-                onDestroy()
                 false
             }
         }
