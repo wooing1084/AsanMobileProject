@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.lang.reflect.Method
 import java.util.*
 
@@ -45,10 +46,10 @@ class AcceptService : Service() {
     private lateinit var acceptThread: AcceptThread
     private val sensorController: SensorController = SensorController.getInstance(this@AcceptService)
     private var timer: Timer? = null
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
     //From Sending Service
     private val tag = "Sending Service"
+    private var isConnected: Boolean = false
 
     override fun onBind(p0: Intent?): IBinder? {
         TODO("Not yet implemented")
@@ -105,10 +106,7 @@ class AcceptService : Service() {
         BluetoothConnect.createBluetoothAdapter(bluetoothAdapter)
         acceptThread = AcceptThread(this)
         createEventBus()
-        coroutineScope.launch {
-            acceptThread.start()
-            csvWrite(1000 * 60 * 5)
-        }
+        acceptThread.start()
     }
 
     private fun createEventBus(){
@@ -226,13 +224,14 @@ class AcceptService : Service() {
             override fun run() {
                 Log.d("Accept Service", "CSV Write method called")
                 CoroutineScope(Dispatchers.IO).launch {
-                    sensorController.writeCsv(this@AcceptService, "OneAxis")
-                    sensorController.writeCsv(this@AcceptService, "ThreeAxis")
-                    count++
-
-                    if (count == 6) {
-                        sendCSV()
-                        count %= 6
+                    if (isConnected) {
+                        sensorController.writeCsv(this@AcceptService, "OneAxis")
+                        sensorController.writeCsv(this@AcceptService, "ThreeAxis")
+                        count++
+                        if (count == 6) {
+                            sendCSV()
+                            count %= 6
+                        }
                     }
                 }
             }
@@ -270,10 +269,19 @@ class AcceptService : Service() {
 
     }
 
-    @Subscribe()
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun listenSocketState(event: ThreadStateEvent) {
-        if (event.state == ThreadState.STOP) {
-            Log.e(this.tag, "SOCKET_CLOSE!")
+        isConnected = when (event.state) {
+            ThreadState.RUN -> {
+                Log.d(this.tag, "SOCKET_CONNECT!")
+                csvWrite(1000 * 60 * 5)
+                true
+            }
+            else -> {
+                Log.d(this.tag, "SOCKET_CLOSE!")
+                onDestroy()
+                false
+            }
         }
     }
 }
