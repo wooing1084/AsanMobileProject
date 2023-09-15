@@ -2,6 +2,7 @@ package com.gachon_HCI_Lab.user_mobile.activity
 
 import android.Manifest
 import android.app.ActivityManager
+import android.app.NotificationManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -94,7 +95,7 @@ class SensorActivity() : AppCompatActivity() {
             startLocationService()
         }
         binding.BtnStop.setOnClickListener {
-//            stopLocationService()
+            stopLocationService()
         }
 //        binding.BtnCsvCheck.setOnClickListener {
 //            val intent = Intent(this, CsvPopupActivity::class.java)
@@ -148,6 +149,9 @@ class SensorActivity() : AppCompatActivity() {
             val intent = Intent(this, AcceptService::class.java)
             intent.action = ACTION_STOP_LOCATION_SERVICE
             this.stopService(intent)
+
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(1) // cancel(알림 특정 id)
             Toast.makeText(this, "Service stopped", Toast.LENGTH_SHORT).show()
         }
     }

@@ -19,11 +19,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.gachon_HCI_Lab.user_mobile.R
 import com.gachon_HCI_Lab.user_mobile.activity.SensorActivity
-import com.gachon_HCI_Lab.user_mobile.common.*
 import com.gachon_HCI_Lab.user_mobile.common.CsvController.getExistFileName
 import com.gachon_HCI_Lab.user_mobile.common.CsvController.getExternalPath
 import com.gachon_HCI_Lab.user_mobile.common.CsvController.getFile
 import com.gachon_HCI_Lab.user_mobile.common.CsvController.moveFile
+import com.gachon_HCI_Lab.user_mobile.common.DeviceInfo
+import com.gachon_HCI_Lab.user_mobile.common.ServerConnection
+import com.gachon_HCI_Lab.user_mobile.common.SocketState
+import com.gachon_HCI_Lab.user_mobile.common.SocketStateEvent
+import com.gachon_HCI_Lab.user_mobile.common.ThreadState
+import com.gachon_HCI_Lab.user_mobile.common.ThreadStateEvent
 import com.gachon_HCI_Lab.user_mobile.sensor.controller.SensorController
 import com.gachon_HCI_Lab.user_mobile.sensor.model.SensorEnum
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +38,8 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.reflect.Method
-import java.util.*
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * 포그라운드 서비스
@@ -97,6 +103,7 @@ class AcceptService : Service() {
             timer = null
         }
         EventBus.getDefault().post(SocketStateEvent(SocketState.CLOSE))
+
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
