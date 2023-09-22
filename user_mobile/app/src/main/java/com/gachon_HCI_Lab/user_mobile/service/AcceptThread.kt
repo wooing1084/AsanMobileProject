@@ -43,6 +43,7 @@ class AcceptThread(context: Context) : Thread() {
                 val byteBuffer = createByteBufferFrom(receivedData)
                 updateStringBuffer()
                 saveBatteryDataFrom(byteBuffer)
+                saveStepCountDataFrom(byteBuffer)
                 saveSensorDataToString(byteBuffer)
                 saveOneAxisDataToCsv()
                 saveThreeDataToCsv()
@@ -51,7 +52,6 @@ class AcceptThread(context: Context) : Thread() {
     }
 
     fun clear() {
-//        BluetoothConnect.clear()
         updateStringBuffer()
     }
 
@@ -86,7 +86,7 @@ class AcceptThread(context: Context) : Thread() {
     }
 
     private fun createByteArray(): ByteArray {
-        return ByteArray(964)
+        return ByteArray(968)
     }
 
     private fun createByteBufferFrom(receivedData: ByteArray): ByteBuffer {
@@ -126,6 +126,11 @@ class AcceptThread(context: Context) : Thread() {
     private fun saveBatteryDataFrom(byteBuffer: ByteBuffer) {
         val battery = byteBuffer.int
         DeviceInfo.setBattery(battery.toString())
+    }
+
+    private fun saveStepCountDataFrom(byteBuffer: ByteBuffer){
+        val stepCount = byteBuffer.int
+        Log.d("stepCount", stepCount.toString())
     }
 
     private fun saveOneAxisDataToCsv() {
