@@ -7,7 +7,10 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.gachon_HCI_Lab.user_mobile.common.CsvController
 import com.gachon_HCI_Lab.user_mobile.common.RegexManager
-import com.gachon_HCI_Lab.user_mobile.sensor.model.*
+import com.gachon_HCI_Lab.user_mobile.sensor.model.AbstractSensor
+import com.gachon_HCI_Lab.user_mobile.sensor.model.OneAxisData
+import com.gachon_HCI_Lab.user_mobile.sensor.model.SensorEnum
+import com.gachon_HCI_Lab.user_mobile.sensor.model.ThreeAxisData
 import com.gachon_HCI_Lab.user_mobile.sensor.service.OneAxisDataService
 import com.gachon_HCI_Lab.user_mobile.sensor.service.ThreeAxisDataService
 import kotlinx.coroutines.*
@@ -19,16 +22,15 @@ import kotlin.concurrent.thread
  * */
 class SensorController(context: Context) {
     private val oneAxisDataService: OneAxisDataService = OneAxisDataService.getInstance(context)
-    private val threeAxisDataService: ThreeAxisDataService =
-        ThreeAxisDataService.getInstance(context)
+    private val threeAxisDataService: ThreeAxisDataService = ThreeAxisDataService.getInstance(context)
     private val prefManager: SharePreferenceManager = SharePreferenceManager.getInstance(context)
     private val regexManager: RegexManager = RegexManager.getInstance(context)
 
     private val oneAxisList = listOf(
         SensorEnum.HEART_RATE.value,
         SensorEnum.LIGHT.value,
-        SensorEnum.PPG_GREEN.value
-//            SensorEnum.STEP_COUNT.value
+        SensorEnum.PPG_GREEN.value,
+        SensorEnum.STEP_COUNT.value
     )
 
     private val threeAxisList = listOf(
@@ -75,6 +77,16 @@ class SensorController(context: Context) {
                 buffer.clear()
             }
         }
+    }
+
+    suspend fun dataAccept(step: Int) = coroutineScope {
+        oneAxisDataService.insert(
+            OneAxisData.of(
+                step.toDouble(),
+                SensorEnum.STEP_COUNT.value
+            )
+        )
+        Log.d(TAG, "SAVED: type: ${SensorEnum.STEP_COUNT.value}, data: $step")
     }
 
     /**
@@ -241,7 +253,7 @@ class SensorController(context: Context) {
             } catch (e: NullPointerException) {
                 Log.e(this.toString(), "NullPointerException")
 //                delay(1000)
-//                CsvController.csvFirst(context, sensorName)
+                CsvController.csvFirst(context, sensorName)
 //                val regenFile = CsvController.fileExist(context, sensorName)
 //                CsvController.csvSave(context, regenFile!!, dataList.value)
             } catch (e: Exception) {
@@ -331,7 +343,7 @@ class SensorController(context: Context) {
          * 페이지네이션에 사용되는 키값 가져오는 메소드
          * */
         fun getCursor(sensorName: String): Int {
-            return pref.getInt(sensorName + "Cursor", 0);
+            return pref.getInt(sensorName + "Cursor", 0)
         }
 
         /**

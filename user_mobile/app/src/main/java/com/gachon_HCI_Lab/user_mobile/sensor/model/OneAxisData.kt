@@ -13,4 +13,10 @@ data class OneAxisData(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "one_id")
     var id: Long = 0
+
+    companion object {
+        fun of(value: Double, type: String):OneAxisData {
+            return OneAxisData(System.currentTimeMillis(), type, value)
+        }
+    }
 }

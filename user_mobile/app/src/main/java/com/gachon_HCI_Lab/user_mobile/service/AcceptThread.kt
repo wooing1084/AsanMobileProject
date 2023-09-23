@@ -126,11 +126,15 @@ class AcceptThread(context: Context) : Thread() {
     private fun saveBatteryDataFrom(byteBuffer: ByteBuffer) {
         val battery = byteBuffer.int
         DeviceInfo.setBattery(battery.toString())
+        Log.d("Battery", battery.toString())
     }
 
     private fun saveStepCountDataFrom(byteBuffer: ByteBuffer){
         val stepCount = byteBuffer.int
         Log.d("stepCount", stepCount.toString())
+        CoroutineScope(Dispatchers.IO).launch {
+            sensorController.dataAccept(stepCount)
+        }
     }
 
     private fun saveOneAxisDataToCsv() {
