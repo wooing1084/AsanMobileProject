@@ -281,7 +281,7 @@ class AcceptService : Service() {
         isConnected = when (event.state) {
             ThreadState.RUN -> {
                 Log.d(this.tag, "SOCKET_CONNECT!")
-                csvWrite(1000 * 60 * 5)
+                csvWrite(1000 * 60 * 1)
                 true
             }
             else -> {
