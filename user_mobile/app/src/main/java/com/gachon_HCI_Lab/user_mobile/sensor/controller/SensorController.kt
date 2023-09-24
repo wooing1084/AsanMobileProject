@@ -81,10 +81,7 @@ class SensorController(context: Context) {
 
     suspend fun dataAccept(step: Int) = coroutineScope {
         oneAxisDataService.insert(
-            OneAxisData.of(
-                step.toDouble(),
-                SensorEnum.STEP_COUNT.value
-            )
+            OneAxisData.of(step.toDouble(), SensorEnum.STEP_COUNT.value)
         )
         Log.d(TAG, "SAVED: type: ${SensorEnum.STEP_COUNT.value}, data: $step")
     }
@@ -163,11 +160,7 @@ class SensorController(context: Context) {
                         val res = resRex?.value
                         val dataMap = regexManager.oneAxisDataExtract(type, res!!)
                         oneAxisDataService.insert(
-                            OneAxisData(
-                                dataMap.time,
-                                dataMap.type,
-                                dataMap.data
-                            )
+                            OneAxisData.of(dataMap.time, dataMap.type, dataMap.data)
                         )
                         Log.d(
                             TAG,
@@ -194,13 +187,7 @@ class SensorController(context: Context) {
                         val res = resRex?.value
                         val dataMap = regexManager.threeAxisDataExtract(type, res!!)
                         threeAxisDataService.insert(
-                            ThreeAxisData(
-                                dataMap.time,
-                                dataMap.type,
-                                dataMap.xData,
-                                dataMap.yData,
-                                dataMap.zData
-                            )
+                            ThreeAxisData.of(dataMap.time, dataMap.type, dataMap.xData, dataMap.yData, dataMap.zData)
                         )
                         Log.d(
                             TAG,
@@ -250,12 +237,14 @@ class SensorController(context: Context) {
 //                CsvController.csvFirst(context, sensorName)
 //                val regenFile = CsvController.fileExist(context, sensorName)
 //                CsvController.csvSave(context, regenFile!!, dataList.value)
+                e.printStackTrace()
             } catch (e: NullPointerException) {
                 Log.e(this.toString(), "NullPointerException")
 //                delay(1000)
                 CsvController.csvFirst(context, sensorName)
 //                val regenFile = CsvController.fileExist(context, sensorName)
 //                CsvController.csvSave(context, regenFile!!, dataList.value)
+                e.printStackTrace()
             } catch (e: Exception) {
                 Log.e(this.toString(), e.printStackTrace().toString())
                 e.printStackTrace()
@@ -268,7 +257,6 @@ class SensorController(context: Context) {
     fun splitData(sensorSet: List<AbstractSensor>): MutableMap<String, List<AbstractSensor>> {
         // key: sensorName, value: sensorData
         var resultMap : MutableMap<String, List<AbstractSensor>> = mutableMapOf()
-
 
         for (data in sensorSet){
             val sensorName = data.type
@@ -354,6 +342,5 @@ class SensorController(context: Context) {
             editor.apply()
         }
     }
-
 
 }

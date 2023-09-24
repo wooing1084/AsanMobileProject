@@ -15,4 +15,10 @@ data class ThreeAxisData (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "three_id")
     var id: Long = 0
+
+    companion object {
+        fun of(time: Long, type: String, xValue: Double, yValue: Double, zValue: Double): ThreeAxisData {
+            return ThreeAxisData(time, type, xValue, yValue, zValue)
+        }
+    }
 }

@@ -18,5 +18,9 @@ data class OneAxisData(
         fun of(value: Double, type: String):OneAxisData {
             return OneAxisData(System.currentTimeMillis(), type, value)
         }
+
+        fun of(time: Long, type: String, value: Double): OneAxisData {
+            return OneAxisData(time, type, value)
+        }
     }
 }
